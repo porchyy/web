@@ -7,16 +7,23 @@ function current_user(): ?array
     if ($user === false) {
         $user = null;
         if (!empty($_SESSION['uid'])) {
-            $user = q('SELECT id, username, display_name, role FROM users WHERE id = ?', [$_SESSION['uid']])->fetch() ?: null;
+            $user = q('SELECT id, username, full_name, role FROM users WHERE id = ?', [$_SESSION['uid']])->fetch() ?: null;
         }
     }
     return $user;
 }
 
+function is_logged_in(): bool
+{
+    return current_user() !== null;
+}
+
 function require_login(): array
 {
     $u = current_user();
-    if (!$u) redirect('login.php');
+    if (!$u) {
+        redirect('login.php');
+    }
     return $u;
 }
 

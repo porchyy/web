@@ -39,8 +39,8 @@ $flash = flash();
 <a href="#main" class="skip-link">ข้ามไปยังเนื้อหาหลัก</a>
 
 <header class="site-header">
-  <div class="container-xl d-flex align-items-center justify-content-between">
-    <a href="<?= url('index.php') ?>" class="brand" aria-label="กลับสู่หน้าหลัก แผนกเทคโนโลยีธุรกิจดิจิทัล">
+  <div class="container-xl d-flex align-items-center justify-content-between gap-3">
+    <a href="<?= url('index.php') ?>" class="brand flex-shrink-0" aria-label="กลับสู่หน้าหลัก แผนกเทคโนโลยีธุรกิจดิจิทัล">
       <div class="brand-mark" aria-hidden="true">DBT</div>
       <div class="brand-text">
         <span class="brand-name"><?= e(SITE_NAME) ?></span>
@@ -78,7 +78,7 @@ $flash = flash();
       </ol>
     </nav>
 
-    <div class="d-flex align-items-center gap-2">
+    <div class="d-flex align-items-center gap-2 flex-shrink-0">
       <?php if (is_logged_in()): ?>
         <a href="<?= url('admin/index.php') ?>" class="header-action" title="เข้าสู่ระบบจัดการหลังบ้าน">
           <?= icon('grid', 16) ?>
