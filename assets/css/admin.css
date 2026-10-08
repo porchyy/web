@@ -1,0 +1,143 @@
+/* ==========================================================================
+   Digital Business Technology — Admin Interface Styling
+   Editorial, Clean, Technical Data Management
+   ========================================================================== */
+
+.admin-header {
+  background: var(--c-navy);
+  color: #fff;
+  border-bottom: 2px solid var(--c-accent);
+}
+.admin-header .brand { color: #fff; }
+.admin-header .brand-name { color: #fff; }
+.admin-header .brand-sub { color: var(--c-blue-300); }
+.admin-header .brand-mark { background: #fff; color: var(--c-navy); }
+.admin-header .brand-mark::after { background: var(--c-accent); }
+
+.admin-nav-strip {
+  background: #fff;
+  border-bottom: 1px solid var(--c-line);
+  overflow-x: auto;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
+}
+.admin-nav-strip ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: var(--s-1);
+}
+.admin-nav-strip a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-height: 48px;
+  padding: 0 var(--s-4);
+  font-size: .875rem;
+  font-weight: 500;
+  color: var(--c-muted);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  transition: color var(--dur), border-color var(--dur);
+}
+.admin-nav-strip a:hover {
+  color: var(--c-navy);
+}
+.admin-nav-strip a[aria-current="page"] {
+  color: var(--c-navy);
+  font-weight: 600;
+  border-bottom-color: var(--c-navy);
+}
+.admin-nav-strip .badge-count {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  background: var(--c-blue-100);
+  color: var(--c-navy);
+  padding: 1px 6px;
+  border-radius: 2px;
+}
+
+.admin-card {
+  background: #fff;
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius);
+  padding: var(--s-5);
+  margin-bottom: var(--s-5);
+}
+.admin-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--s-4);
+  padding-bottom: var(--s-3);
+  border-bottom: 1px solid var(--c-line);
+}
+.admin-card-head h2, .admin-card-head h3 {
+  margin: 0;
+  font-size: 1.125rem;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .9375rem;
+}
+.admin-table th {
+  background: var(--c-bg-alt);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--c-muted);
+  font-weight: 500;
+  padding: var(--s-3) var(--s-4);
+  border-bottom: 1px solid var(--c-line);
+  text-align: left;
+}
+.admin-table td {
+  padding: var(--s-3) var(--s-4);
+  border-bottom: 1px solid var(--c-line);
+  vertical-align: middle;
+}
+.admin-table tbody tr:hover {
+  background-color: #FAFCFD;
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--s-3);
+  margin-bottom: var(--s-6);
+}
+@media (min-width: 768px) {
+  .stat-grid { grid-template-columns: repeat(4, 1fr); gap: var(--s-4); }
+}
+.stat-box {
+  background: var(--c-bg-alt);
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius);
+  padding: var(--s-4);
+}
+.stat-box .num {
+  font-family: var(--font-mono);
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--c-navy);
+  line-height: 1.1;
+  display: block;
+}
+.stat-box .label {
+  font-size: .8125rem;
+  color: var(--c-muted);
+  margin-top: 4px;
+  display: block;
+}
+
+.table-thumb {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  background: var(--c-blue-100);
+  border: 1px solid var(--c-line);
+}
