@@ -19,12 +19,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($subAction === 'delete') {
         $delId = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
         if ($delId) {
-            $m = q("SELECT image_path FROM club_members WHERE id = ?", [$delId])->fetch();
-            if ($m) {
-                delete_upload($m['image_path']);
-                q("DELETE FROM club_members WHERE id = ?", [$delId]);
-                flash('ลบข้อมูลสมาชิกชมรมเรียบร้อยแล้ว');
-            }
+            delete_record_with_asset('club_members', $delId);
+            flash('ลบข้อมูลสมาชิกชมรมเรียบร้อยแล้ว');
         }
         redirect('admin/club.php');
     }

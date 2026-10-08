@@ -91,9 +91,10 @@ if ($articleId) {
     exit;
 }
 
-// 2. News Listing View with Category Filter
-$pageTitle = 'ข่าวสารและประกาศ';
-$catSlug = filter_input(INPUT_GET, 'cat', FILTER_DEFAULT) ?: '';
+// 2. News Listing View with Category and Search Filter
+$pageTitle   = 'ข่าวสารและประกาศ';
+$catSlug     = filter_input(INPUT_GET, 'cat', FILTER_DEFAULT) ?: '';
+$searchQuery = trim((string) ($_GET['q'] ?? ''));
 
 // Fetch all categories with counts
 $categories = q("
@@ -113,6 +114,13 @@ if ($catSlug) {
     $whereClause .= " AND c.slug = ?";
     $params[] = $catSlug;
 }
+if ($searchQuery !== '') {
+    $whereClause .= " AND (n.title LIKE ? OR n.summary LIKE ? OR n.content LIKE ?)";
+    $like = '%' . $searchQuery . '%';
+    $params[] = $like;
+    $params[] = $like;
+    $params[] = $like;
+}
 
 $newsList = q("
   SELECT n.*, c.name as category_name, c.slug as category_slug
@@ -122,10 +130,10 @@ $newsList = q("
   ORDER BY n.is_featured DESC, n.published_at DESC, n.id DESC
 ", $params)->fetchAll();
 
-// First article could be featured if viewing all
+// First article could be featured if viewing all without search
 $featuredArticle = null;
 $regularList = $newsList;
-if (empty($catSlug) && !empty($newsList)) {
+if (empty($catSlug) && empty($searchQuery) && !empty($newsList)) {
     $featuredArticle = array_shift($regularList);
 }
 
@@ -151,17 +159,40 @@ include __DIR__ . '/includes/header.php';
      ======================================================================== -->
 <section class="section" style="padding-top: var(--s-5); padding-bottom: var(--s-5); border-bottom: 1px solid var(--c-line);">
   <div class="container-xl">
-    <div class="chip-scroll" role="tablist" aria-label="กรองหมวดหมู่ข่าว">
-      <a href="<?= url('news.php') ?>" class="chip" <?= empty($catSlug) ? 'aria-current="page"' : '' ?>>
-        <span>ทั้งหมด</span>
-        <span class="count"><?= $totalCount ?></span>
-      </a>
-      <?php foreach ($categories as $cat): ?>
-        <a href="<?= url('news.php?cat=' . urlencode($cat['slug'])) ?>" class="chip" <?= $catSlug === $cat['slug'] ? 'aria-current="page"' : '' ?>>
-          <span><?= e($cat['name']) ?></span>
-          <span class="count"><?= (int) $cat['news_count'] ?></span>
-        </a>
-      <?php endforeach; ?>
+    <div class="row align-items-center gy-3">
+      <div class="col-12 col-md-7">
+        <div class="chip-scroll" role="tablist" aria-label="กรองหมวดหมู่ข่าว">
+          <a href="<?= url('news.php' . ($searchQuery ? '?q=' . urlencode($searchQuery) : '')) ?>" class="chip" <?= empty($catSlug) ? 'aria-current="page"' : '' ?>>
+            <span>ทั้งหมด</span>
+            <span class="count"><?= $totalCount ?></span>
+          </a>
+          <?php foreach ($categories as $cat): ?>
+            <a href="<?= url('news.php?cat=' . urlencode($cat['slug']) . ($searchQuery ? '&q=' . urlencode($searchQuery) : '')) ?>" class="chip" <?= $catSlug === $cat['slug'] ? 'aria-current="page"' : '' ?>>
+              <span><?= e($cat['name']) ?></span>
+              <span class="count"><?= (int) $cat['news_count'] ?></span>
+            </a>
+          <?php endforeach; ?>
+        </div>
+      </div>
+      <div class="col-12 col-md-5">
+        <form method="get" action="<?= url('news.php') ?>" class="d-flex align-items-center gap-2 justify-content-md-end m-0">
+          <?php if ($catSlug): ?>
+            <input type="hidden" name="cat" value="<?= e($catSlug) ?>">
+          <?php endif; ?>
+          <input type="search"
+                 name="q"
+                 class="form-control form-control-sm"
+                 style="max-width: 260px;"
+                 placeholder="ค้นหาข่าวสาร..."
+                 value="<?= e($searchQuery) ?>">
+          <button type="submit" class="btn btn-sm btn-navy" style="white-space: nowrap;">
+            <span>ค้นหา</span>
+          </button>
+          <?php if ($searchQuery !== ''): ?>
+            <a href="<?= url('news.php' . ($catSlug ? '?cat=' . urlencode($catSlug) : '')) ?>" class="btn btn-sm btn-line text-muted">ล้าง</a>
+          <?php endif; ?>
+        </form>
+      </div>
     </div>
   </div>
 </section>

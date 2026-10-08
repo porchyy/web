@@ -26,14 +26,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($subAction === 'save') {
-        $editId      = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
-        $title       = trim((string) ($_POST['title'] ?? ''));
-        $description = trim((string) ($_POST['description'] ?? ''));
-        $eventDate   = trim((string) ($_POST['event_date'] ?? ''));
-        $timeStart   = trim((string) ($_POST['time_start'] ?? '')) ?: null;
-        $timeEnd     = trim((string) ($_POST['time_end'] ?? '')) ?: null;
-        $location    = trim((string) ($_POST['location'] ?? ''));
-        $badgeText   = trim((string) ($_POST['badge_text'] ?? ''));
+        $editId       = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
+        $title        = trim((string) ($_POST['title'] ?? ''));
+        $description  = trim((string) ($_POST['description'] ?? ''));
+        $eventDate    = trim((string) ($_POST['event_date'] ?? ''));
+        $eventDateEnd = trim((string) ($_POST['event_date_end'] ?? '')) ?: null;
+        $timeStart    = trim((string) ($_POST['time_start'] ?? '')) ?: null;
+        $timeEnd      = trim((string) ($_POST['time_end'] ?? '')) ?: null;
+        $location     = trim((string) ($_POST['location'] ?? ''));
+        $badgeText    = trim((string) ($_POST['badge_text'] ?? ''));
+        $actionUrl    = trim((string) ($_POST['action_url'] ?? '')) ?: null;
 
         if ($title === '' || $eventDate === '') {
             $error = 'กรุณากรอกชื่อกิจกรรมและวันที่จัดกิจกรรม';
@@ -41,15 +43,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($editId) {
                 q("
                   UPDATE activities
-                  SET title = ?, description = ?, event_date = ?, time_start = ?, time_end = ?, location = ?, badge_text = ?
+                  SET title = ?, description = ?, event_date = ?, event_date_end = ?, time_start = ?, time_end = ?, location = ?, badge_text = ?, action_url = ?
                   WHERE id = ?
-                ", [$title, $description, $eventDate, $timeStart, $timeEnd, $location, $badgeText, $editId]);
+                ", [$title, $description, $eventDate, $eventDateEnd, $timeStart, $timeEnd, $location, $badgeText, $actionUrl, $editId]);
                 flash('แก้ไขข้อมูลกิจกรรมเรียบร้อยแล้ว');
             } else {
                 q("
-                  INSERT INTO activities (title, description, event_date, time_start, time_end, location, badge_text)
-                  VALUES (?, ?, ?, ?, ?, ?, ?)
-                ", [$title, $description, $eventDate, $timeStart, $timeEnd, $location, $badgeText]);
+                  INSERT INTO activities (title, description, event_date, event_date_end, time_start, time_end, location, badge_text, action_url)
+                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ", [$title, $description, $eventDate, $eventDateEnd, $timeStart, $timeEnd, $location, $badgeText, $actionUrl]);
                 flash('เพิ่มกิจกรรมใหม่เรียบร้อยแล้ว');
             }
             redirect('admin/activities.php');
@@ -134,7 +136,7 @@ $allActivities = q("
         </div>
 
         <div class="col-12 col-md-4">
-          <label for="event_date" class="form-label">วันที่จัดกิจกรรม <span class="req">*</span></label>
+          <label for="event_date" class="form-label">วันที่เริ่มจัดกิจกรรม <span class="req">*</span></label>
           <input type="date"
                  name="event_date"
                  id="event_date"
@@ -143,7 +145,16 @@ $allActivities = q("
                  required>
         </div>
 
-        <div class="col-6 col-md-4">
+        <div class="col-12 col-md-4">
+          <label for="event_date_end" class="form-label">วันที่สิ้นสุดกิจกรรม (กรณีจัดหลายวัน)</label>
+          <input type="date"
+                 name="event_date_end"
+                 id="event_date_end"
+                 class="form-control mono"
+                 value="<?= e($_POST['event_date_end'] ?? $editItem['event_date_end'] ?? '') ?>">
+        </div>
+
+        <div class="col-6 col-md-2">
           <label for="time_start" class="form-label">เวลาเริ่ม</label>
           <input type="time"
                  name="time_start"
@@ -152,7 +163,7 @@ $allActivities = q("
                  value="<?= e($_POST['time_start'] ?? $editItem['time_start'] ?? '09:00') ?>">
         </div>
 
-        <div class="col-6 col-md-4">
+        <div class="col-6 col-md-2">
           <label for="time_end" class="form-label">เวลาสิ้นสุด</label>
           <input type="time"
                  name="time_end"
@@ -161,7 +172,7 @@ $allActivities = q("
                  value="<?= e($_POST['time_end'] ?? $editItem['time_end'] ?? '16:00') ?>">
         </div>
 
-        <div class="col-12">
+        <div class="col-12 col-md-6">
           <label for="location" class="form-label">สถานที่จัดงาน</label>
           <input type="text"
                  name="location"
@@ -169,6 +180,16 @@ $allActivities = q("
                  class="form-control"
                  placeholder="อาคารวิทยบริการ ชั้น 3 / หอประชุมใหญ่"
                  value="<?= e($_POST['location'] ?? $editItem['location'] ?? '') ?>">
+        </div>
+
+        <div class="col-12 col-md-6">
+          <label for="action_url" class="form-label">ลิงก์ลงทะเบียน / เอกสารแนบ (Action URL)</label>
+          <input type="url"
+                 name="action_url"
+                 id="action_url"
+                 class="form-control mono"
+                 placeholder="https://forms.gle/... หรือ https://..."
+                 value="<?= e($_POST['action_url'] ?? $editItem['action_url'] ?? '') ?>">
         </div>
 
         <div class="col-12">
@@ -221,6 +242,9 @@ $allActivities = q("
               <tr>
                 <td class="mono" style="font-size: 12px;">
                   <?= mono_date($a['event_date']) ?>
+                  <?php if (!empty($a['event_date_end'])): ?>
+                    <span class="d-block text-muted" style="font-size: 10px;">– <?= mono_date($a['event_date_end']) ?></span>
+                  <?php endif; ?>
                 </td>
                 <td>
                   <span class="fw-bold d-block"><?= e($a['title']) ?></span>
@@ -229,14 +253,21 @@ $allActivities = q("
                       <?= e($a['description']) ?>
                     </span>
                   <?php endif; ?>
+                  <?php if (!empty($a['action_url'])): ?>
+                    <a href="<?= e($a['action_url']) ?>" target="_blank" rel="noopener" class="text-navy mono" style="font-size: 11px;">
+                      <?= icon('external', 11) ?> ลิงก์แนบ
+                    </a>
+                  <?php endif; ?>
                 </td>
                 <td class="mono" style="font-size: 12px;">
                   <?= hm($a['time_start']) ?><?= !empty($a['time_end']) ? '–' . hm($a['time_end']) : '' ?>
                 </td>
                 <td><?= e($a['location']) ?></td>
                 <td>
+                  <?php $adminCd = activity_countdown_badge($a['event_date'], $a['event_date_end'] ?? null); ?>
+                  <span class="<?= e($adminCd['class']) ?>" style="font-size: 10px;"><?= e($adminCd['text']) ?></span>
                   <?php if (!empty($a['badge_text'])): ?>
-                    <span class="badge-soon" style="font-size: 10px;"><?= e($a['badge_text']) ?></span>
+                    <span class="badge-line" style="font-size: 10px;"><?= e($a['badge_text']) ?></span>
                   <?php endif; ?>
                 </td>
                 <td class="text-end">

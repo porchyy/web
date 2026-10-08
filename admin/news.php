@@ -22,12 +22,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($subAction === 'delete') {
         $delId = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
         if ($delId) {
-            $item = q("SELECT image_path FROM news WHERE id = ?", [$delId])->fetch();
-            if ($item) {
-                delete_upload($item['image_path']);
-                q("DELETE FROM news WHERE id = ?", [$delId]);
-                flash('ลบข่าวสารเรียบร้อยแล้ว');
-            }
+            delete_record_with_asset('news', $delId);
+            flash('ลบข่าวสารเรียบร้อยแล้ว');
         }
         redirect('admin/news.php');
     }

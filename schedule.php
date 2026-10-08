@@ -17,11 +17,30 @@ if (!in_array($tab, ['class', 'activity'], true)) {
 $currentDayNum = (int) date('N');
 $defaultDay = ($currentDayNum >= 1 && $currentDayNum <= 5) ? $currentDayNum : 1;
 
-// Fetch Class Schedule (Mon-Fri)
-$classSchedule = q("
-  SELECT * FROM class_schedule
-  ORDER BY day_of_week ASC, time_start ASC
-")->fetchAll();
+// Available class groups
+$availableGroups = q("
+  SELECT DISTINCT class_group
+  FROM class_schedule
+  WHERE class_group IS NOT NULL AND class_group != ''
+  ORDER BY class_group ASC
+")->fetchAll(PDO::FETCH_COLUMN);
+
+// Active class group
+$selectedGroup = filter_input(INPUT_GET, 'group', FILTER_DEFAULT) ?: ($availableGroups[0] ?? '');
+
+// Fetch Class Schedule (Mon-Fri) filtered by group if selected
+if (!empty($selectedGroup) && $selectedGroup !== 'all') {
+    $classSchedule = q("
+      SELECT * FROM class_schedule
+      WHERE class_group = ?
+      ORDER BY day_of_week ASC, time_start ASC
+    ", [$selectedGroup])->fetchAll();
+} else {
+    $classSchedule = q("
+      SELECT * FROM class_schedule
+      ORDER BY day_of_week ASC, time_start ASC
+    ")->fetchAll();
+}
 
 // Group schedule by day
 $scheduleByDay = [1 => [], 2 => [], 3 => [], 4 => [], 5 => []];
@@ -82,6 +101,28 @@ include __DIR__ . '/includes/header.php';
            CLASS TIMETABLE VIEW
            ================================================================== -->
       
+      <!-- Class Group Filter & Print Bar -->
+      <div class="group-select-bar d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4 p-3 bg-white border">
+        <form method="get" action="<?= url('schedule.php') ?>" class="d-flex align-items-center gap-2 m-0 flex-wrap">
+          <input type="hidden" name="tab" value="class">
+          <label for="groupSelect" class="fw-semibold text-navy mb-0" style="font-size: .875rem;">
+            <?= icon('users', 16) ?> ระดับชั้น / กลุ่มเรียน:
+          </label>
+          <select id="groupSelect" name="group" class="form-select form-select-sm" style="width: auto; min-width: 140px;" onchange="this.form.submit()">
+            <?php foreach ($availableGroups as $grp): ?>
+              <option value="<?= e($grp) ?>" <?= $selectedGroup === $grp ? 'selected' : '' ?>>
+                <?= e($grp) ?>
+              </option>
+            <?php endforeach; ?>
+            <option value="all" <?= $selectedGroup === 'all' ? 'selected' : '' ?>>ทุกกลุ่มเรียน (ทั้งหมด)</option>
+          </select>
+        </form>
+
+        <button type="button" class="btn btn-sm btn-line btn-print" onclick="window.print()">
+          <?= icon('book', 14) ?> พิมพ์ / บันทึกตารางเรียน
+        </button>
+      </div>
+
       <!-- Mobile View (360-430px): Day Selector + Vertical Timeline Slots -->
       <div class="d-md-none">
         <div class="day-tabs" role="tablist" aria-label="เลือกวันสำหรับตารางเรียน">
@@ -219,10 +260,10 @@ include __DIR__ . '/includes/header.php';
                     <div>
                       <div class="d-flex align-items-center flex-wrap gap-2 mb-1">
                         <h3><?= e($ev['title']) ?></h3>
+                        <?php $cd = activity_countdown_badge($ev['event_date'], $ev['event_date_end'] ?? null); ?>
+                        <span class="<?= e($cd['class']) ?>"><?= e($cd['text']) ?></span>
                         <?php if (!empty($ev['badge_text'])): ?>
-                          <span class="badge-soon"><?= e($ev['badge_text']) ?></span>
-                        <?php elseif ($isUpcoming): ?>
-                          <span class="badge-soon">UPCOMING</span>
+                          <span class="badge-line"><?= e($ev['badge_text']) ?></span>
                         <?php endif; ?>
                       </div>
 
@@ -231,6 +272,13 @@ include __DIR__ . '/includes/header.php';
                       <?php endif; ?>
 
                       <div class="meta-line">
+                        <?php if (!empty($ev['event_date_end'])): ?>
+                          <span class="mono">
+                            <?= icon('calendar', 13) ?>
+                            <?= thai_date($ev['event_date']) ?> – <?= thai_date($ev['event_date_end']) ?>
+                          </span>
+                          <span class="dot"></span>
+                        <?php endif; ?>
                         <?php if (!empty($ev['time_start'])): ?>
                           <span class="mono">
                             <?= icon('clock', 13) ?>
@@ -244,6 +292,14 @@ include __DIR__ . '/includes/header.php';
                           </span>
                         <?php endif; ?>
                       </div>
+
+                      <?php if (!empty($ev['action_url'])): ?>
+                        <div class="mt-2">
+                          <a href="<?= e($ev['action_url']) ?>" target="_blank" rel="noopener" class="btn btn-sm btn-line">
+                            <?= icon('external', 13) ?> ข้อมูลเพิ่มเติม / ลงทะเบียน
+                          </a>
+                        </div>
+                      <?php endif; ?>
                     </div>
                   </li>
                 <?php endforeach; ?>

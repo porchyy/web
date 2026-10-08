@@ -68,10 +68,12 @@ CREATE TABLE `activities` (
   `title` VARCHAR(255) NOT NULL,
   `description` TEXT NULL,
   `event_date` DATE NOT NULL,
+  `event_date_end` DATE NULL,
   `time_start` TIME NULL,
   `time_end` TIME NULL,
   `location` VARCHAR(100) NULL,
   `badge_text` VARCHAR(50) NULL,
+  `action_url` VARCHAR(255) NULL,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   INDEX `idx_act_date` (`event_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

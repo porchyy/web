@@ -101,16 +101,34 @@ $flash = flash();
           <?= icon('flag', 16) ?> สมาชิกชมรม
         </a>
       </li>
+      <?php if (($currentUser['role'] ?? '') === 'admin'): ?>
       <li>
         <a href="<?= url('admin/users.php') ?>" <?= $adminNav === 'users' ? 'aria-current="page"' : '' ?>>
           <?= icon('users', 16) ?> ผู้ใช้งาน
         </a>
       </li>
+      <?php endif; ?>
     </ul>
   </div>
 </nav>
 
 <div class="container-xl pt-4">
+  <?php if (is_using_default_password()): ?>
+    <div class="alert-line mb-4" style="background-color: #FFF6EC; border-color: var(--c-accent); color: var(--c-accent-dark);" role="alert">
+      <?= icon('alert', 18) ?>
+      <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 w-100">
+        <div>
+          <strong>คำเตือนความปลอดภัย:</strong> บัญชียังใช้รหัสผ่านเริ่มต้น (<code>admin1234</code>) กรุณาเปลี่ยนรหัสผ่านทันทีเพื่อความปลอดภัยของระบบ
+        </div>
+        <?php if (($currentUser['role'] ?? '') === 'admin'): ?>
+          <a href="<?= url('admin/users.php?action=edit&id=' . (int) $currentUser['id']) ?>" class="btn btn-sm btn-accent" style="white-space: nowrap;">
+            <?= icon('pencil', 14) ?> เปลี่ยนรหัสผ่านตอนนี้
+          </a>
+        <?php endif; ?>
+      </div>
+    </div>
+  <?php endif; ?>
+
   <?php if ($flash): ?>
     <div class="alert-line <?= $flash['type'] === 'error' ? 'is-error' : '' ?> mb-4" role="alert">
       <?= icon($flash['type'] === 'error' ? 'alert' : 'check', 18) ?>

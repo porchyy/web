@@ -99,6 +99,13 @@ $upcomingActs = q("
             <?= icon('flag', 16) ?> จัดการชมรม
           </a>
         </div>
+        <?php if (($currentUser['role'] ?? '') === 'admin'): ?>
+        <div class="col-6 col-md-4">
+          <a href="<?= url('admin/users.php') ?>" class="btn btn-line w-100 justify-content-start text-start" style="font-size: .875rem;">
+            <?= icon('users', 16) ?> ผู้ใช้งานระบบ
+          </a>
+        </div>
+        <?php endif; ?>
       </div>
     </div>
 

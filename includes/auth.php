@@ -27,6 +27,31 @@ function require_login(): array
     return $u;
 }
 
+function has_role(string $role): bool
+{
+    $u = current_user();
+    return $u && ($u['role'] ?? '') === $role;
+}
+
+function require_role(string $role): array
+{
+    $u = require_login();
+    if (($u['role'] ?? '') !== $role) {
+        http_response_code(403);
+        flash('คุณไม่มีสิทธิ์เข้าถึงหน้านี้ (สำหรับสิทธิ์ ' . e($role) . ' เท่านั้น)', 'error');
+        redirect('admin/index.php');
+    }
+    return $u;
+}
+
+function is_using_default_password(): bool
+{
+    $u = current_user();
+    if (!$u) return false;
+    $row = q('SELECT password_hash FROM users WHERE id = ?', [$u['id']])->fetch();
+    return $row && password_verify('admin1234', $row['password_hash']);
+}
+
 function attempt_login(string $username, string $password): bool
 {
     $row = q('SELECT id, password_hash FROM users WHERE username = ?', [$username])->fetch();

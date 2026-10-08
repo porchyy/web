@@ -589,6 +589,22 @@ main:focus { outline: none; }
   display: inline-block; font-family: var(--font-mono); font-size: 10px; letter-spacing: .08em;
   padding: 2px 6px; background: var(--c-accent); color: var(--c-navy); vertical-align: middle; margin-left: var(--s-2);
 }
+.badge-upcoming {
+  display: inline-block; font-family: var(--font-mono); font-size: 10px; letter-spacing: .08em;
+  padding: 2px 6px; background: var(--c-blue-100); color: var(--c-navy); border: 1px solid var(--c-blue-300); vertical-align: middle; margin-left: var(--s-2);
+}
+.badge-ongoing {
+  display: inline-block; font-family: var(--font-mono); font-size: 10px; letter-spacing: .08em;
+  padding: 2px 6px; background: #2E7D32; color: #fff; vertical-align: middle; margin-left: var(--s-2);
+}
+.badge-ended {
+  display: inline-block; font-family: var(--font-mono); font-size: 10px; letter-spacing: .08em;
+  padding: 2px 6px; background: var(--c-bg-alt); color: var(--c-muted); border: 1px solid var(--c-line); vertical-align: middle; margin-left: var(--s-2);
+}
+.badge-line {
+  display: inline-block; font-family: var(--font-mono); font-size: 10px; letter-spacing: .08em;
+  padding: 2px 6px; background: transparent; color: var(--c-navy); border: 1px solid var(--c-line); vertical-align: middle; margin-left: var(--s-2);
+}
 @media (min-width: 768px) {
   .event { grid-template-columns: 96px 1fr; }
   .event-date .day { font-size: 2.25rem; }
@@ -659,4 +675,35 @@ main:focus { outline: none; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; scroll-behavior: auto !important; }
+}
+
+/* ---------- 13. Print Stylesheet ---------- */
+@media print {
+  .site-header, .site-footer, .nav-bottom, .segmented, .group-select-bar, .btn-print, .skip-link, .page-head p.eyebrow {
+    display: none !important;
+  }
+  body {
+    background: #fff !important;
+    color: #17324D !important;
+    padding: 0 !important;
+  }
+  .page-head {
+    padding: 12px 0 !important;
+    border-bottom: 2px solid #17324D !important;
+  }
+  .week-table {
+    width: 100% !important;
+    display: table !important;
+    font-size: 11px !important;
+  }
+  .week-table th, .week-table td {
+    padding: 6px !important;
+    border: 1px solid #ccc !important;
+  }
+  .d-none.d-md-block {
+    display: block !important;
+  }
+  .d-md-none {
+    display: none !important;
+  }
 }

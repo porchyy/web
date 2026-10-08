@@ -25,9 +25,14 @@ function db(): PDO
 }
 
 /** รัน Prepared Statement อย่างปลอดภัย */
-function q(string $sql, array $params = []): PDOStatement
+function execute_query(string $sql, array $params = []): PDOStatement
 {
     $st = db()->prepare($sql);
     $st->execute($params);
     return $st;
+}
+
+function q(string $sql, array $params = []): PDOStatement
+{
+    return execute_query($sql, $params);
 }

@@ -17,6 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         set_setting('hero_title_1', trim((string) ($_POST['hero_title_1'] ?? '')));
         set_setting('hero_title_2', trim((string) ($_POST['hero_title_2'] ?? '')));
         set_setting('hero_intro', trim((string) ($_POST['hero_intro'] ?? '')));
+        set_setting('hero_caption', trim((string) ($_POST['hero_caption'] ?? '')));
         set_setting('stat_courses', trim((string) ($_POST['stat_courses'] ?? '')));
         set_setting('stat_labs', trim((string) ($_POST['stat_labs'] ?? '')));
         set_setting('stat_employment', trim((string) ($_POST['stat_employment'] ?? '')));
@@ -38,10 +39,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Current values
-$heroTitle1 = setting('hero_title_1', 'เทคโนโลยี');
-$heroTitle2 = setting('hero_title_2', 'ธุรกิจดิจิทัล');
-$heroIntro  = setting('hero_intro', 'หลักสูตรที่เชื่อมโยงทักษะการพัฒนาระบบซอฟต์แวร์ การจัดการข้อมูล และการสร้างสรรค์โมเดลธุรกิจยุคใหม่ สู่การทำงานจริงในอุตสาหกรรมดิจิทัล');
-$heroImage  = setting('hero_image', 'uploads/seed/hero-lab.jpg');
+$heroTitle1  = setting('hero_title_1', 'เทคโนโลยี');
+$heroTitle2  = setting('hero_title_2', 'ธุรกิจดิจิทัล');
+$heroIntro   = setting('hero_intro', 'หลักสูตรที่เชื่อมโยงทักษะการพัฒนาระบบซอฟต์แวร์ การจัดการข้อมูล และการสร้างสรรค์โมเดลธุรกิจยุคใหม่ สู่การทำงานจริงในอุตสาหกรรมดิจิทัล');
+$heroCaption = setting('hero_caption', 'ภาพถ่ายพื้นที่เรียนรู้และห้องปฏิบัติการคอมพิวเตอร์');
+$heroImage   = setting('hero_image', 'uploads/seed/hero-lab.jpg');
 
 $statCourses = setting('stat_courses', '18');
 $statLabs    = setting('stat_labs', '04');
@@ -93,6 +95,14 @@ $currCode    = setting('curriculum_code', 'DBT-2567-V02');
                  data-preview-target="heroPreview">
           <div class="form-text">รองรับ JPG, PNG หรือ WebP ขนาดไม่เกิน 5 MB (แนะนำภาพแนวนอน สไตล์ห้องเรียนหรือห้องแล็บจริง)</div>
         </div>
+
+        <div class="p-3 bg-white border mt-3">
+          <div class="mono text-muted mb-1" style="font-size: 11px;">REAL-TIME TEXT PREVIEW</div>
+          <p id="previewIntro" class="mb-2" style="font-size: .875rem; color: var(--c-navy); line-height: 1.5;"><?= e($heroIntro) ?></p>
+          <div class="text-muted" style="font-size: 11px;">
+            <strong>Caption:</strong> <span id="previewCaption"><?= e($heroCaption) ?></span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -133,6 +143,16 @@ $currCode    = setting('curriculum_code', 'DBT-2567-V02');
                     required><?= e($heroIntro) ?></textarea>
         </div>
 
+        <div class="mb-3">
+          <label for="hero_caption" class="form-label">คำบรรยายใต้ภาพ Hero (Editorial Caption)</label>
+          <input type="text"
+                 name="hero_caption"
+                 id="hero_caption"
+                 class="form-control"
+                 value="<?= e($heroCaption) ?>">
+          <div class="form-text">ข้อความอธิบายใต้ภาพสไตล์สิ่งพิมพ์วิชาการ</div>
+        </div>
+
         <div class="admin-card-head mt-4">
           <h3>ตัวเลขสถิติบนแถบ Data Strip</h3>
         </div>
@@ -166,5 +186,20 @@ $currCode    = setting('curriculum_code', 'DBT-2567-V02');
     </div>
   </div>
 </form>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const introInput = document.getElementById('hero_intro');
+  const captionInput = document.getElementById('hero_caption');
+  const previewIntro = document.getElementById('previewIntro');
+  const previewCaption = document.getElementById('previewCaption');
+  if (introInput && previewIntro) {
+    introInput.addEventListener('input', () => { previewIntro.textContent = introInput.value; });
+  }
+  if (captionInput && previewCaption) {
+    captionInput.addEventListener('input', () => { previewCaption.textContent = captionInput.value; });
+  }
+});
+</script>
 
 <?php require_once __DIR__ . '/../includes/admin-footer.php'; ?>

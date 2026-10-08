@@ -54,13 +54,7 @@ include __DIR__ . '/includes/header.php';
     <ul class="people-list people-grid">
       <?php foreach ($teachers as $t): ?>
         <li>
-          <div class="avatar figure-img marks">
-            <?php if (!empty($t['image_path']) && file_exists(ROOT_PATH . '/' . $t['image_path'])): ?>
-              <img src="<?= url($t['image_path']) ?>" alt="<?= e($t['name']) ?>" loading="lazy">
-            <?php else: ?>
-              <div class="monogram"><?= initials($t['name']) ?></div>
-            <?php endif; ?>
-          </div>
+          <?= render_avatar($t['name'], $t['image_path'] ?? null) ?>
 
           <div>
             <?php if ($t['is_head']): ?>
@@ -101,13 +95,7 @@ include __DIR__ . '/includes/header.php';
     <ul class="people-list people-grid">
       <?php foreach ($clubMembers as $m): ?>
         <li>
-          <div class="avatar figure-img marks">
-            <?php if (!empty($m['image_path']) && file_exists(ROOT_PATH . '/' . $m['image_path'])): ?>
-              <img src="<?= url($m['image_path']) ?>" alt="<?= e($m['name']) ?>" loading="lazy">
-            <?php else: ?>
-              <div class="monogram"><?= initials($m['name']) ?></div>
-            <?php endif; ?>
-          </div>
+          <?= render_avatar($m['name'], $m['image_path'] ?? null) ?>
 
           <div>
             <?php if ($m['is_club_head']): ?>

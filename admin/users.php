@@ -6,6 +6,7 @@ $adminNav = 'users';
 $pageTitle = 'จัดการผู้ใช้งานระบบ';
 
 require_once __DIR__ . '/../includes/admin-header.php';
+require_role('admin');
 
 $action = filter_input(INPUT_GET, 'action', FILTER_DEFAULT) ?: 'list';
 $userId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);

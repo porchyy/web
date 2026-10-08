@@ -12,12 +12,15 @@ $pageTitle = 'หน้าหลัก';
 $heroTitle1 = setting('hero_title_1', 'เทคโนโลยี');
 $heroTitle2 = setting('hero_title_2', 'ธุรกิจดิจิทัล');
 $heroIntro  = setting('hero_intro', 'หลักสูตรที่เชื่อมโยงทักษะการพัฒนาระบบซอฟต์แวร์ การจัดการข้อมูล และการสร้างสรรค์โมเดลธุรกิจยุคใหม่ สู่การทำงานจริงในอุตสาหกรรมดิจิทัล');
-$heroImage  = setting('hero_image', 'uploads/seed/hero-lab.jpg');
+$heroImage   = setting('hero_image', 'uploads/seed/hero-lab.jpg');
+$heroCaption = setting('hero_caption', 'ภาพถ่ายพื้นที่เรียนรู้และห้องปฏิบัติการคอมพิวเตอร์');
 
-$statCourses = setting('stat_courses', '18');
-$statLabs    = setting('stat_labs', '04');
-$statEmploy  = setting('stat_employment', '96%');
 $currCode    = setting('curriculum_code', 'DBT-2567-V02');
+
+// Dynamic metrics according to User Story 5
+$cntTeachers     = (int) q("SELECT COUNT(*) FROM teachers")->fetchColumn();
+$cntNews         = (int) q("SELECT COUNT(*) FROM news")->fetchColumn();
+$cntUpcomingActs = (int) q("SELECT COUNT(*) FROM activities WHERE event_date >= CURDATE()")->fetchColumn();
 
 // Fetch latest news (top 3)
 $latestNews = q("
@@ -97,7 +100,7 @@ include __DIR__ . '/includes/header.php';
               <?php endif; ?>
             </div>
             <figcaption class="figcap">
-              <span>ภาพถ่ายพื้นที่เรียนรู้และห้องปฏิบัติการคอมพิวเตอร์</span>
+              <span><?= e($heroCaption) ?></span>
               <span class="mono">FIG 01.1 // LAB DEPT</span>
             </figcaption>
           </figure>
@@ -115,16 +118,16 @@ include __DIR__ . '/includes/header.php';
   <div class="container-xl">
     <ul>
       <li>
-        <span class="data-num"><?= e($statCourses) ?><small>วิชา</small></span>
-        <span class="data-label">วิชาเฉพาะทางและโครงงานจริง</span>
+        <span class="data-num"><?= $cntTeachers ?><small>ท่าน</small></span>
+        <span class="data-label">คณาจารย์ประจำแผนกวิชา</span>
       </li>
       <li>
-        <span class="data-num"><?= e($statLabs) ?><small>ห้อง</small></span>
-        <span class="data-label">ห้องปฏิบัติการพร้อมอุปกรณ์เฉพาะทาง</span>
+        <span class="data-num"><?= $cntNews ?><small>เรื่อง</small></span>
+        <span class="data-label">ข่าวสารและประกาศเผยแพร่</span>
       </li>
       <li>
-        <span class="data-num"><?= e($statEmploy) ?></span>
-        <span class="data-label">อัตรามีงานทำหรือศึกษาต่อ</span>
+        <span class="data-num"><?= $cntUpcomingActs ?><small>กิจกรรม</small></span>
+        <span class="data-label">กิจกรรมและโครงการเร็ว ๆ นี้</span>
       </li>
     </ul>
   </div>
@@ -247,9 +250,13 @@ include __DIR__ . '/includes/header.php';
     <div class="p-4 p-md-5" style="background: var(--c-blue-100); border-left: 4px solid var(--c-navy);">
       <div class="row align-items-center gy-3">
         <div class="col-12 col-md-8">
+          <?php $nextCd = activity_countdown_badge($nextActivity['event_date'], $nextActivity['event_date_end'] ?? null); ?>
           <p class="eyebrow mb-1">
             <span>NEXT UPCOMING EVENT</span>
-            <span class="badge-soon"><?= e($nextActivity['badge_text'] ?: 'UPCOMING') ?></span>
+            <span class="<?= e($nextCd['class']) ?>"><?= e($nextCd['text']) ?></span>
+            <?php if (!empty($nextActivity['badge_text'])): ?>
+              <span class="badge-line"><?= e($nextActivity['badge_text']) ?></span>
+            <?php endif; ?>
           </p>
           <h3 class="mb-2" style="font-size: 1.35rem;"><?= e($nextActivity['title']) ?></h3>
           <p class="mb-0 text-muted" style="font-size: .9375rem;">

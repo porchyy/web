@@ -99,15 +99,61 @@ function mono_date(?string $date): string
     return $date ? date('d.m.y', strtotime($date)) : '';
 }
 
-function hm(?string $time): string
+function activity_countdown_badge(string $startDate, ?string $endDate = null): array
+{
+    $today = new DateTime('today');
+    $start = new DateTime($startDate);
+    $end   = !empty($endDate) ? new DateTime($endDate) : clone $start;
+
+    if ($today > $end) {
+        return ['text' => 'สิ้นสุดแล้ว', 'class' => 'badge-ended', 'is_soon' => false];
+    }
+    if ($today >= $start && $today <= $end) {
+        return ['text' => 'กำลังจัดกิจกรรม', 'class' => 'badge-soon', 'is_soon' => true];
+    }
+
+    $diff = (int) $today->diff($start)->format('%r%a');
+    if ($diff === 0) {
+        return ['text' => 'วันนี้', 'class' => 'badge-soon', 'is_soon' => true];
+    } elseif ($diff === 1) {
+        return ['text' => 'พรุ่งนี้', 'class' => 'badge-soon', 'is_soon' => true];
+    } elseif ($diff <= 7) {
+        return ['text' => "อีก {$diff} วัน", 'class' => 'badge-soon', 'is_soon' => true];
+    } elseif ($diff <= 30) {
+        return ['text' => "อีก {$diff} วัน", 'class' => 'badge-upcoming', 'is_soon' => false];
+    } else {
+        return ['text' => 'เร็ว ๆ นี้', 'class' => 'badge-upcoming', 'is_soon' => false];
+    }
+}
+
+function format_time_hm(?string $time): string
 {
     return $time ? substr($time, 0, 5) : '';
+}
+
+function hm(?string $time): string
+{
+    return format_time_hm($time);
 }
 
 function initials(string $name): string
 {
     $name = preg_replace('/^(นาย|นางสาว|นาง|ดร\.|อ\.|ผศ\.|รศ\.)\s*/u', '', trim($name));
     return mb_substr($name, 0, 1);
+}
+
+function render_avatar(string $name, ?string $imagePath, string $class = 'figure-img marks'): string
+{
+    $c = $class ? ' ' . e($class) : '';
+    $hasImage = $imagePath && is_file(ROOT_PATH . '/' . $imagePath);
+    $html = '<div class="avatar' . $c . '">';
+    if ($hasImage) {
+        $html .= '<img src="' . e(url($imagePath)) . '" alt="' . e($name) . '" loading="lazy">';
+    } else {
+        $html .= '<div class="monogram">' . e(initials($name)) . '</div>';
+    }
+    $html .= '</div>';
+    return $html;
 }
 
 /* ---------- Image Upload Handling ---------- */
@@ -137,6 +183,20 @@ function delete_upload(?string $path): void
         $full = ROOT_PATH . '/' . $path;
         if (is_file($full)) @unlink($full);
     }
+}
+
+function delete_record_with_asset(string $table, int $id, string $column = 'image_path'): void
+{
+    $allowed = ['news', 'teachers', 'club_members'];
+    if (!in_array($table, $allowed, true)) {
+        throw new InvalidArgumentException("Invalid table for asset deletion: {$table}");
+    }
+    $col = preg_replace('/[^a-zA-Z0-9_]/', '', $column);
+    $row = q("SELECT `{$col}` FROM `{$table}` WHERE id = ?", [$id])->fetch();
+    if ($row && !empty($row[$col])) {
+        delete_upload($row[$col]);
+    }
+    q("DELETE FROM `{$table}` WHERE id = ?", [$id]);
 }
 
 /* ---------- Clean Lucide-style SVG Icons ---------- */

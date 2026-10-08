@@ -19,12 +19,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($subAction === 'delete') {
         $delId = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
         if ($delId) {
-            $t = q("SELECT image_path FROM teachers WHERE id = ?", [$delId])->fetch();
-            if ($t) {
-                delete_upload($t['image_path']);
-                q("DELETE FROM teachers WHERE id = ?", [$delId]);
-                flash('ลบข้อมูลอาจารย์เรียบร้อยแล้ว');
-            }
+            delete_record_with_asset('teachers', $delId);
+            flash('ลบข้อมูลอาจารย์เรียบร้อยแล้ว');
         }
         redirect('admin/teachers.php');
     }
