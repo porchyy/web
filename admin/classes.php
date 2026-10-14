@@ -268,15 +268,10 @@ $allSlots = ScheduleService::getAllClassSlots();
           <span>กลับหน้าตารางเรียน</span>
         </a>
       <?php else: ?>
-        <form method="POST" action="<?= url('admin/classes') ?>" class="d-inline" onsubmit="return confirm('ต้องการตรวจสอบและกู้คืนคาบกิจกรรมมาตรฐาน (หน้าเสาธง/พักกลางวัน) สำหรับกลุ่มนี้ใช่หรือไม่?');">
-          <?= csrf_field() ?>
-          <input type="hidden" name="sub_action" value="restore_default_special_slots">
-          <input type="hidden" name="class_group" value="<?= e($selectedGroup) ?>">
-          <button type="submit" class="btn btn-line" title="กู้คืนคาบกิจกรรมมาตรฐาน (หน้าเสาธงและพักกลางวัน)">
-            <?= icon('refresh', 16) ?>
-            <span>กู้คืนคาบกิจกรรมมาตรฐาน</span>
-          </button>
-        </form>
+        <button type="button" class="btn btn-line" data-bs-toggle="modal" data-bs-target="#restoreSpecialSlotsModal" title="กู้คืนคาบกิจกรรมมาตรฐาน (หน้าเสาธงและพักกลางวัน)">
+          <?= icon('refresh', 16) ?>
+          <span>กู้คืนคาบกิจกรรมมาตรฐาน</span>
+        </button>
         <button type="button" class="btn btn-line" data-bs-toggle="modal" data-bs-target="#periodsModal">
           <?= icon('clock', 16) ?>
           <span>ตั้งค่าคาบเวลาเรียน</span>

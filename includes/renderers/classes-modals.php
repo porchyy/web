@@ -380,3 +380,44 @@ declare(strict_types=1);
     </div>
   </div>
 </div>
+
+<!-- Modal: Restore Standard Special Slots Confirmation -->
+<div class="modal fade" id="restoreSpecialSlotsModal" tabindex="-1" aria-labelledby="restoreSpecialSlotsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title d-flex align-items-center gap-2" id="restoreSpecialSlotsModalLabel">
+          <?= icon('refresh', 20, 'text-navy') ?>
+          <span>กู้คืนคาบกิจกรรมมาตรฐาน</span>
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="ปิด"></button>
+      </div>
+      <form method="POST" action="<?= url('admin/classes') ?>">
+        <?= csrf_field() ?>
+        <input type="hidden" name="sub_action" value="restore_default_special_slots">
+        <input type="hidden" name="class_group" value="<?= e($selectedGroup) ?>">
+        <div class="modal-body">
+          <p class="mb-2">
+            ต้องการตรวจสอบและสร้างคาบกิจกรรมมาตรฐานสำหรับกลุ่มเรียน <strong class="text-navy"><?= e($selectedGroup) ?></strong> ใช่หรือไม่?
+          </p>
+          <ul class="text-muted small mb-3 ps-3">
+            <li><strong>กิจกรรมหน้าเสาธง / โฮมรูม:</strong> วันจันทร์–ศุกร์ เวลา 08:00–08:30 น.</li>
+            <li><strong>พักกลางวัน:</strong> วันจันทร์–ศุกร์ เวลา 12:30–13:30 น.</li>
+          </ul>
+          <div class="alert alert-light border small text-muted mb-0 d-flex align-items-center gap-2">
+            <?= icon('info', 16, 'text-navy flex-shrink-0') ?>
+            <span>ระบบจะไม่เขียนทับคาบเรียนหรือกิจกรรมที่มีอยู่แล้ว ปลอดภัยและไม่กระทบตารางเดิม</span>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-line" data-bs-dismiss="modal">ยกเลิก</button>
+          <button type="submit" class="btn btn-navy">
+            <?= icon('check', 16) ?>
+            <span>ยืนยันกู้คืนคาบมาตรฐาน</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
