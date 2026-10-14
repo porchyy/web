@@ -1,0 +1,227 @@
+/**
+ * Digital Business Technology - About & Department Page
+ * Reference: STYLE.md Section 2.5 & Track 6.2 Visual Affordance Hierarchy
+ */
+
+.page-head {
+  border-bottom: 1px solid var(--c-line);
+  padding: var(--s-6) 0;
+}
+
+.page-head h1 {
+  margin: 0;
+}
+
+.page-head .lead-text {
+  margin: var(--s-4) 0 0;
+}
+
+@media (min-width: 1024px) {
+  .page-head {
+    padding: var(--s-8) 0 var(--s-7);
+  }
+}
+
+.offer-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.offer-list li {
+  display: block;
+  width: 100%;
+  padding: var(--s-5) 0;
+  border-top: 1px solid var(--c-line);
+}
+
+.offer-list li:last-child {
+  border-bottom: 1px solid var(--c-line);
+}
+
+.offer-list h3 {
+  margin: 0 0 var(--s-2);
+  font-size: 1.15rem;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  color: var(--c-navy);
+}
+
+.offer-list p {
+  margin: 0;
+  color: var(--c-muted);
+  font-size: 0.9375rem;
+  line-height: 1.7;
+}
+
+@media (min-width: 768px) {
+  .offer-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: var(--s-7);
+  }
+  .offer-list li:nth-last-child(2) {
+    border-bottom: 1px solid var(--c-line);
+  }
+}
+
+/* Person Feature (Leader Spotlight) */
+.person-feature {
+  display: grid;
+  gap: var(--s-5);
+}
+
+.person-feature .figure-img {
+  aspect-ratio: 3 / 4;
+  max-width: 280px;
+}
+
+.person-name {
+  font-size: var(--fs-h2);
+  margin: 0;
+}
+
+.person-role {
+  color: var(--c-accent-ink);
+  font-weight: 500;
+  margin: var(--s-1) 0 var(--s-4);
+}
+
+.quote {
+  border-left: 3px solid var(--c-blue-300);
+  padding-left: var(--s-4);
+  color: var(--c-ink);
+  font-size: 1.0625rem;
+  line-height: 1.75;
+  margin: 0;
+}
+
+@media (min-width: 768px) {
+  .person-feature {
+    grid-template-columns: 240px 1fr;
+    gap: var(--s-7);
+    align-items: start;
+  }
+}
+
+.monogram {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  background: var(--c-blue-100);
+  color: var(--c-navy);
+  font-weight: 600;
+  font-size: 1.25rem;
+  background-image: linear-gradient(
+    135deg,
+    transparent 49.5%,
+    rgba(185, 220, 235, 0.8) 49.5%,
+    rgba(185, 220, 235, 0.8) 50.5%,
+    transparent 50.5%
+  );
+}
+
+.monogram-lg {
+  font-size: 4rem;
+}
+
+/* Contact List */
+.contact-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--c-navy);
+}
+
+.contact-list li {
+  border-bottom: 1px solid var(--c-line);
+}
+
+.contact-list a,
+.contact-list .contact-static {
+  display: grid;
+  grid-template-columns: 24px 1fr auto;
+  gap: var(--s-4);
+  align-items: center;
+  min-height: 64px;
+  padding: var(--s-3) 0;
+  text-decoration: none;
+  color: var(--c-ink);
+}
+
+.contact-list svg {
+  color: var(--c-navy);
+}
+
+.contact-k {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--c-muted);
+}
+
+.contact-v {
+  display: block;
+  font-weight: 500;
+  color: var(--c-navy);
+  overflow-wrap: anywhere;
+}
+
+.contact-list a:hover .contact-v {
+  color: var(--c-accent-ink);
+}
+
+.contact-list a:active {
+  background: var(--c-bg-alt);
+}
+
+/* Track 6.2 Visual Affordance: Curriculum vs Facility Cards */
+.curriculum-card-actionable {
+  display: block;
+  background: #ffffff;
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius);
+  padding: var(--s-5);
+  text-decoration: none;
+  color: inherit;
+  transition: all var(--dur) var(--ease-out);
+  position: relative;
+}
+
+.curriculum-card-actionable:hover {
+  border-color: var(--c-navy);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(23, 50, 77, 0.08);
+}
+
+.curriculum-card-actionable .action-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-1);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--c-accent-ink);
+  margin-top: var(--s-3);
+  transition: transform var(--dur);
+}
+
+.curriculum-card-actionable:hover .action-arrow {
+  transform: translateX(4px);
+}
+
+.facility-card-static {
+  background: var(--c-surface);
+  border: 1px solid var(--c-line);
+  border-left: 3.5px solid var(--c-blue-300);
+  border-radius: var(--radius);
+  padding: var(--s-5);
+  cursor: default;
+}
+
+.facility-card-static h3 {
+  color: var(--c-navy);
+  margin-bottom: var(--s-2);
+}

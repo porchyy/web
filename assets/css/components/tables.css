@@ -1,0 +1,46 @@
+/**
+ * Digital Business Technology - Tables & Data Grids
+ * Reference: STYLE.md Section 2.5
+ */
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+
+.admin-table th {
+  background: var(--c-bg-alt);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--c-muted);
+  font-weight: 600;
+  padding: var(--s-3) var(--s-4);
+  border-bottom: 1px solid var(--c-line);
+  text-align: left;
+}
+
+.admin-table td {
+  padding: var(--s-3) var(--s-4);
+  border-bottom: 1px solid var(--c-line);
+  vertical-align: middle;
+  font-size: 0.9375rem;
+}
+
+.admin-table tbody tr:hover {
+  background-color: #fafcfd;
+}
+
+.table-thumb {
+  width: 48px;
+  height: 48px;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  background: var(--c-blue-100);
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius);
+  display: inline-block;
+  vertical-align: middle;
+}

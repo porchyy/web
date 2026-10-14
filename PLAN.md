@@ -31,7 +31,7 @@
 ## 2. Phased Execution Roadmap
 
 ### Phase 1: Foundations (CSS Breakdown & Modular JS)
-- [ ] **Track 1.1: CSS Modularization & Token Architecture**
+- [x] **Track 1.1: CSS Modularization & Token Architecture**
   - Create `assets/css/tokens.css` (variables, colors, radii, typography).
   - Create `assets/css/base.css` (reset, layout, base elements).
   - Create `assets/css/components/`:
@@ -41,84 +41,88 @@
     - `tables.css`
     - `cards.css`
     - `badges.css`
+    - `navigation.css`
   - Create `assets/css/pages/`:
-    - `page-schedule.css`
+    - `page-home.css`
     - `page-about.css`
+    - `page-schedule.css`
+    - `page-teachers.css`
     - `page-login.css`
     - `page-news.css`
   - Create `assets/css/admin/`:
     - `admin-layout.css`
     - `admin-scheduler.css`
     - `admin-tree.css`
+    - `admin-components.css`
   - Update `site.css` and `admin.css` to act as clean `@import` orchestrators.
-- [ ] **Track 1.2: Modal Component & Accessible Dialogs**
+- [x] **Track 1.2: Modal Component & Accessible Dialogs**
   - Create `assets/js/modal.js` providing `Modal.confirm()` and `Modal.open()`.
   - Replace native `alert()` and `confirm()` in `assets/js/app.js` and admin scripts.
 
 ### Phase 2: Core Services & System Settings
-- [ ] **Track 2.1: Database Migration & SettingService Expansion**
+- [x] **Track 2.1: Database Migration & SettingService Expansion**
   - Ensure all site/contact keys exist in `settings` table (`site_name`, `site_name_en`, `site_short`, `institute_name`, `contact_phone`, `contact_email`, `contact_facebook_name`, `contact_facebook_url`, `contact_address`, `contact_hours`, `hero_title`).
   - Update `includes/config.php` and `includes/services/SettingService.php` to read DB-first with `.env` fallback.
   - Clean up `.env` to reserve strictly for DB connection & app environment.
-- [ ] **Track 2.2: New Admin Settings Page (`admin/settings.php`)**
+- [x] **Track 2.2: New Admin Settings Page (`admin/settings.php`)**
   - Create `admin/settings.php` with tabbed configuration (General, Contacts, Social Media).
   - Add navigation link in `includes/admin-header.php`.
 
 ### Phase 3: Quill Editor Overhaul
-- [ ] **Track 3.1: Quill Auto-Markdown & Partial Heading Fix**
+- [x] **Track 3.1: Quill Auto-Markdown & Partial Heading Fix**
   - Remove manual `[ 🪄 แปลง Markdown / HTML ]` toolbar button.
   - Remove destructive `quill.clipboard.dangerouslyPasteHTML` on typing.
   - Implement smart block-heading splitting when formatting sub-phrases.
   - Implement paste and keystroke markdown matcher without DOM disruption.
 
 ### Phase 4: Content Management & Full Preview
-- [ ] **Track 4.1: Hero Management Overhaul (`admin/hero.php`)**
+- [x] **Track 4.1: Hero Management Overhaul (`admin/hero.php`)**
   - Remove inline "ตัวอย่างข้อความพรีวิว".
   - Merge `hero_title_1` and `hero_title_2` into a single `hero_title` input/editor supporting `<br>`.
   - Update homepage `index.php` to display `hero_title` with `<br>`.
   - Implement Real-Time Full Preview Modal with Desktop/Mobile viewport switcher.
-- [ ] **Track 4.2: News Management Overhaul (`admin/news.php`)**
+- [x] **Track 4.2: News Management Overhaul (`admin/news.php`)**
   - Add AJAX-powered "เพิ่มหมวดหมู่ใหม่" modal next to category select.
   - Remove `published_at` release date input from create/edit forms.
   - Restructure image upload into side-by-side layout (preview left, dropzone right).
   - Implement Real-Time Full Preview Modal for news articles.
 
 ### Phase 5: High-Impact Admin Engagements
-- [ ] **Track 5.1: Scheduler Mobile & List Overhaul (`admin/classes.php`)**
+- [x] **Track 5.1: Scheduler Mobile & List Overhaul (`admin/classes.php`)**
   - Remove `04 / TIMETABLE SCHEDULER · สอศ.` from header.
   - Build touch-friendly Day Selector (Mon–Fri) on mobile/tablet (< 1024px).
   - Implement smooth page scrolling on card bodies with dedicated drag handle (`⠿`) for reordering.
   - Overhaul List View: split classes by Day of the Week with clear day headers.
   - Enlarge typography and improve readability across all viewport sizes.
-- [ ] **Track 5.2: Activities Modal Overhaul (`admin/activities.php`)**
+- [x] **Track 5.2: Activities Modal Overhaul (`admin/activities.php`)**
   - Convert Add/Edit Activity flows into editorial modal dialogs.
   - Replace delete confirm dialog with styled modal confirmation.
-- [ ] **Track 5.3: Tree Slots Head Replacement (`admin/teachers.php`, `admin/club.php`)**
+- [x] **Track 5.3: Tree Slots Head Replacement (`admin/teachers.php`, `admin/club.php`)**
   - Support dropping a member onto the Head Teacher / Club Head card.
   - Swap positions: promoted member becomes head, previous head moves to member roster.
   - Save updated roles and sort orders to MySQL via AJAX.
-- [ ] **Track 5.4: Admin Users Centering (`admin/users.php`)**
+- [x] **Track 5.4: Admin Users Centering (`admin/users.php`)**
   - Center the Create/Edit card using `mx-auto`.
 
 ### Phase 6: Public Views & Responsive Polish
-- [ ] **Track 6.1: Public Schedule Page (`pages/schedule.php`)**
+- [x] **Track 6.1: Public Schedule Page (`pages/schedule.php`)**
   - Remove rounded 8px corners, 4px thick borders, and blur shadows.
   - Restore sharp 1px borders and subtle editorial highlights per `STYLE.md`.
-- [ ] **Track 6.2: About Page Affordance Hierarchy (`pages/about.php`)**
+- [x] **Track 6.2: About Page Affordance Hierarchy (`pages/about.php`)**
   - Style static content cards with neutral, non-clickable appearance.
   - Style curriculum cards with prominent hover states, badges, and action buttons.
-- [ ] **Track 6.3: Login Page Responsiveness (`pages/login.php`)**
+- [x] **Track 6.3: Login Page Responsiveness (`pages/login.php`)**
   - Add gutters, center form container on mobile/tablet, fix edge bleeds.
-- [ ] **Track 6.4: System-wide Mobile Responsiveness Audit**
+- [x] **Track 6.4: System-wide Mobile Responsiveness Audit**
   - Audit all public and admin pages on 360px, 390px, 768px, and 1024px.
   - Ensure zero horizontal overflow and minimum 44px touch targets.
 
 ---
 
 ## 3. Completion Verification Gate
-- [ ] Modular CSS loads via `@import` without console errors.
-- [ ] Quill allows partial text selection headings without converting whole document or breaking cursor.
-- [ ] Full preview modals for Hero and News render correctly in desktop and mobile modes.
-- [ ] Admin scheduler scrolls naturally on mobile/tablet and reorders via `⠿` handle.
-- [ ] Head teacher swap persists in database.
-- [ ] Public schedule table strictly complies with `STYLE.md`.
+- [x] Modular CSS loads via `@import` without console errors.
+- [x] Quill allows partial text selection headings without converting whole document or breaking cursor.
+- [x] Full preview modals for Hero and News render correctly in desktop and mobile modes.
+- [x] Admin scheduler scrolls naturally on mobile/tablet and reorders via `⠿` handle.
+- [x] Head teacher swap persists in database.
+- [x] Public schedule table strictly complies with `STYLE.md`.

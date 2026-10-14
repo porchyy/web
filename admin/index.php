@@ -1,11 +1,15 @@
 <?php
 /**
- * Admin Dashboard — ภาพรวมระบบ
+ * Admin Dashboard - ภาพรวมระบบ (Refined Editorial Brutalism)
  */
 $adminNav = 'dashboard';
 $pageTitle = 'แดชบอร์ดภาพรวม';
 
 require_once __DIR__ . '/../includes/admin-header.php';
+require_once __DIR__ . '/../includes/services/NewsService.php';
+require_once __DIR__ . '/../includes/services/ScheduleService.php';
+require_once __DIR__ . '/../includes/services/FacultyService.php';
+require_once __DIR__ . '/../includes/services/AuthService.php';
 
 // Metrics
 $cntNews       = (int) q("SELECT COUNT(*) FROM news")->fetchColumn();
@@ -34,10 +38,9 @@ $upcomingActs = q("
 
 <div class="d-flex justify-content-between align-items-center mb-4">
   <div>
-    <p class="eyebrow eyebrow-muted mb-1">SYSTEM OVERVIEW</p>
+    <p class="eyebrow eyebrow-muted mb-1">แผงควบคุมหลัก</p>
     <h1 style="font-size: 1.75rem; margin: 0;">ภาพรวมระบบบริหารจัดการ</h1>
   </div>
-  <span class="mono text-muted" style="font-size: 12px;">PHP 8.2 // UTF-8</span>
 </div>
 
 <!-- Stat Grid -->
@@ -56,7 +59,7 @@ $upcomingActs = q("
   </div>
   <div class="stat-box">
     <span class="num"><?= $cntTeachers ?> / <?= $cntClub ?></span>
-    <span class="label">อาจารย์ / ชมรม</span>
+    <span class="label">อาจารย์ / สมาชิกชมรม</span>
   </div>
 </div>
 
@@ -66,12 +69,12 @@ $upcomingActs = q("
     <div class="admin-card">
       <div class="admin-card-head">
         <h3>เมนูจัดการหลัก</h3>
-        <span class="mono text-muted" style="font-size: 11px;">7 MODULES</span>
+        <span class="mono text-muted" style="font-size: 13px;">ศูนย์ควบคุม 7 เมนู</span>
       </div>
       <div class="row g-2">
         <div class="col-6 col-md-4">
           <a href="<?= url('admin/hero.php') ?>" class="btn btn-line w-100 justify-content-start text-start" style="font-size: .875rem;">
-            <?= icon('image', 16) ?> เปลี่ยนรูป Hero
+            <?= icon('image', 16) ?> ภาพประชาสัมพันธ์
           </a>
         </div>
         <div class="col-6 col-md-4">
@@ -110,9 +113,9 @@ $upcomingActs = q("
     </div>
 
     <div class="admin-card">
-      <div class="admin-card-head">
+      <div class="admin-card-head d-flex justify-content-between align-items-center">
         <h3>ข่าวสารล่าสุดในระบบ</h3>
-        <a href="<?= url('admin/news.php') ?>" class="btn btn-sm btn-navy">
+        <a href="<?= url('admin/news.php?action=new') ?>" class="btn btn-sm btn-navy">
           <?= icon('plus', 14) ?> เพิ่มข่าว
         </a>
       </div>
@@ -122,27 +125,29 @@ $upcomingActs = q("
             <tr>
               <th>ชื่อข่าว</th>
               <th>หมวดหมู่</th>
-              <th>วันที่</th>
-              <th class="text-end">จัดการ</th>
+              <th style="width: 130px;">วันที่</th>
+              <th class="text-end" style="width: 70px;">จัดการ</th>
             </tr>
           </thead>
           <tbody>
-            <?php foreach ($recentNews as $n): ?>
+            <?php foreach ($recentNews as $newsItem): ?>
               <tr>
                 <td>
-                  <span class="fw-bold d-block text-truncate" style="max-width: 260px;">
-                    <?= e($n['title']) ?>
+                  <span class="fw-bold d-block text-truncate text-navy" style="max-width: 260px;">
+                    <?= e($newsItem['title']) ?>
                   </span>
                 </td>
                 <td>
-                  <span class="tag"><?= e($n['category_name']) ?></span>
+                  <span class="tag" style="font-size: 12px;"><?= e($newsItem['category_name']) ?></span>
                 </td>
-                <td class="mono" style="font-size: 11px;">
-                  <?= mono_date($n['published_at']) ?>
+                <td class="mono" style="font-size: 13px;">
+                  <?= thai_date($newsItem['published_at']) ?>
                 </td>
                 <td class="text-end">
-                  <a href="<?= url('admin/news.php?action=edit&id=' . $n['id']) ?>" class="btn btn-sm btn-line py-1 px-2" title="แก้ไข">
-                    <?= icon('pencil', 13) ?>
+                  <a href="<?= url('admin/news.php?action=edit&id=' . (int) $newsItem['id']) ?>"
+                     class="btn btn-action-icon btn-line"
+                     title="แก้ไข">
+                    <?= icon('pencil', 16) ?>
                   </a>
                 </td>
               </tr>
@@ -156,47 +161,31 @@ $upcomingActs = q("
   <!-- Right column: Upcoming Activities & System Specs -->
   <div class="col-12 col-lg-5">
     <div class="admin-card">
-      <div class="admin-card-head">
+      <div class="admin-card-head d-flex justify-content-between align-items-center">
         <h3>กำหนดการกิจกรรม</h3>
-        <a href="<?= url('admin/activities.php') ?>" class="link-more" style="font-size: .8125rem;">
+        <a href="<?= url('admin/activities.php') ?>" class="link-more" style="font-size: .875rem;">
           <span>จัดการ</span> <?= icon('arrow-right', 12) ?>
         </a>
       </div>
       <ul class="list-unstyled mb-0">
-        <?php foreach ($upcomingActs as $a): ?>
-          <li class="py-2 border-bottom d-flex justify-content-between align-items-start">
-            <div>
-              <span class="fw-bold d-block" style="font-size: .9375rem;"><?= e($a['title']) ?></span>
-              <span class="mono text-muted" style="font-size: 11px;">
-                <?= thai_date($a['event_date']) ?>
-                <?= !empty($a['location']) ? ' · ' . e($a['location']) : '' ?>
-              </span>
-            </div>
-            <?php if (!empty($a['badge_text'])): ?>
-              <span class="badge-soon" style="font-size: 9px;"><?= e($a['badge_text']) ?></span>
-            <?php endif; ?>
-          </li>
-        <?php endforeach; ?>
+        <?php if (empty($upcomingActs)): ?>
+          <li class="py-3 text-muted text-center">ไม่มีกิจกรรม</li>
+        <?php else: ?>
+          <?php foreach ($upcomingActs as $actItem): ?>
+            <li class="py-2 border-bottom d-flex justify-content-between align-items-start">
+              <div>
+                <span class="fw-bold d-block text-navy" style="font-size: .9375rem;"><?= e($actItem['title']) ?></span>
+                <span class="mono text-muted" style="font-size: 12.5px;">
+                  <?= thai_date($actItem['event_date']) ?>
+                  <?= !empty($actItem['location']) ? ' · ' . e($actItem['location']) : '' ?>
+                </span>
+              </div>
+              <?php $cd = activity_countdown_badge($actItem['event_date'], $actItem['event_date_end'] ?? null); ?>
+              <span class="<?= e($cd['class']) ?>" style="font-size: 12px;"><?= e($cd['text']) ?></span>
+            </li>
+          <?php endforeach; ?>
+        <?php endif; ?>
       </ul>
-    </div>
-
-    <div class="admin-card">
-      <div class="admin-card-head">
-        <h3>สถานะระบบ (System State)</h3>
-      </div>
-      <dl class="row gy-2 mb-0 mono" style="font-size: 12px;">
-        <dt class="col-5 text-muted">PHP VERSION</dt>
-        <dd class="col-7"><?= PHP_VERSION ?></dd>
-
-        <dt class="col-5 text-muted">DATABASE</dt>
-        <dd class="col-7"><?= DB_NAME ?> (MariaDB/MySQL)</dd>
-
-        <dt class="col-5 text-muted">ADMIN USERS</dt>
-        <dd class="col-7"><?= $cntUsers ?> ผู้ใช้งาน <a href="<?= url('admin/users.php') ?>">จัดการ</a></dd>
-
-        <dt class="col-5 text-muted">CURRENT TIME</dt>
-        <dd class="col-7"><?= date('d/m/Y H:i:s') ?></dd>
-      </dl>
     </div>
   </div>
 </div>

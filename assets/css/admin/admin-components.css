@@ -1,0 +1,88 @@
+/**
+ * Digital Business Technology - Admin Rich Text & Editor Components
+ * Reference: STYLE.md Section 2.5
+ */
+
+.quill-editorial-wrapper {
+  background: #ffffff;
+  border-radius: 0;
+}
+
+.ql-toolbar.ql-snow {
+  background: #f8fafc !important;
+  border: 1px solid var(--c-line) !important;
+  border-bottom: none !important;
+  border-radius: 0 !important;
+  padding: 8px 10px !important;
+  font-family: var(--font-body) !important;
+}
+
+.ql-toolbar.ql-snow .ql-formats {
+  margin-right: 12px !important;
+}
+
+.ql-toolbar.ql-snow button {
+  border-radius: 0 !important;
+  transition: all 0.12s ease;
+}
+
+.ql-toolbar.ql-snow button:hover,
+.ql-toolbar.ql-snow button.ql-active,
+.ql-toolbar.ql-snow .ql-picker-label.ql-active,
+.ql-toolbar.ql-snow .ql-picker-item.ql-selected {
+  color: var(--c-navy) !important;
+}
+
+.ql-toolbar.ql-snow button:hover .ql-stroke,
+.ql-toolbar.ql-snow button.ql-active .ql-stroke {
+  stroke: var(--c-navy) !important;
+}
+
+.ql-toolbar.ql-snow button:hover .ql-fill,
+.ql-toolbar.ql-snow button.ql-active .ql-fill {
+  fill: var(--c-navy) !important;
+}
+
+.ql-container.ql-snow {
+  background: #ffffff !important;
+  border: 1px solid var(--c-line) !important;
+  border-radius: 0 !important;
+  font-family: var(--font-body) !important;
+  font-size: 15px !important;
+  line-height: 1.7 !important;
+  min-height: 250px;
+}
+
+.ql-container.ql-snow .ql-editor {
+  min-height: 250px;
+  padding: 1rem 1.25rem !important;
+  font-family: var(--font-body) !important;
+  color: var(--c-text);
+}
+
+.ql-container.ql-snow .ql-editor.ql-blank::before {
+  font-style: normal;
+  color: #94a3b8;
+  font-family: var(--font-body);
+}
+
+.ql-container.ql-snow .ql-editor p {
+  margin-bottom: 0.85rem;
+}
+
+.ql-container.ql-snow .ql-editor h2,
+.ql-container.ql-snow .ql-editor h3,
+.ql-container.ql-snow .ql-editor h4 {
+  font-family: var(--font-heading);
+  color: var(--c-navy);
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.ql-container.ql-snow .ql-editor blockquote {
+  border-left: 3.5px solid var(--c-navy) !important;
+  padding-left: 12px !important;
+  color: #475569;
+  font-style: italic;
+  margin: 1rem 0;
+}

@@ -1,0 +1,112 @@
+/**
+ * Digital Business Technology - Admin Layout & Header Navigation
+ * Reference: STYLE.md Section 2.5
+ */
+
+.admin-header {
+  background: var(--c-navy);
+  color: #fff;
+  border-bottom: 2px solid var(--c-accent);
+}
+
+.admin-header .brand {
+  color: #fff;
+}
+
+.admin-header .brand-name {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  color: #fff;
+}
+
+.admin-header .brand-sub {
+  color: var(--c-blue-300);
+}
+
+.admin-header .brand-mark {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.16);
+}
+
+.admin-header .brand-mark .brand-favicon {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.admin-header .brand-mark::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 6px;
+  height: 6px;
+  background: var(--c-accent);
+}
+
+/* Secondary Navigation Strip */
+.admin-nav-strip {
+  background: #ffffff;
+  border-bottom: 1px solid var(--c-line);
+  overflow-x: auto;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
+}
+
+.admin-nav-strip ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: var(--s-1);
+}
+
+.admin-nav-strip a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-height: 48px;
+  padding: 0 var(--s-4);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--c-muted);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  transition:
+    color var(--dur),
+    border-color var(--dur);
+}
+
+.admin-nav-strip a:hover {
+  color: var(--c-navy);
+}
+
+.admin-nav-strip a[aria-current="page"] {
+  color: var(--c-navy);
+  font-weight: 600;
+  border-bottom-color: var(--c-navy);
+}
+
+.admin-nav-strip .badge-count {
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  background: var(--c-blue-100);
+  color: var(--c-navy);
+  padding: 2px 7px;
+  border-radius: var(--radius);
+}
+
+/* Centered Admin Form Wrapper (e.g. admin/users.php) */
+.admin-form-centered {
+  max-width: 680px;
+  margin-inline: auto;
+}

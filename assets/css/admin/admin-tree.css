@@ -1,0 +1,141 @@
+/**
+ * Digital Business Technology - Tree Slot Hierarchy & Org Chart
+ * Reference: STYLE.md Section 2.5 & Track 5.3 Swap Hierarchy Support
+ */
+
+.tree-slot-hierarchy {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tree-tier {
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius);
+  background: #fff;
+  padding: 16px;
+}
+
+.tree-tier-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--c-line);
+}
+
+.tree-slot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.tree-slot-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius);
+  background: #fff;
+  cursor: grab;
+  transition: all var(--dur) var(--ease-out);
+}
+
+.tree-slot-card:hover {
+  border-color: var(--c-navy);
+  transform: translateY(-1px);
+}
+
+.tree-slot-card.is-dragging {
+  opacity: 0.45;
+  cursor: grabbing;
+}
+
+.tree-slot-card.is-drag-over {
+  border: 2px dashed var(--c-navy) !important;
+  background: rgba(23, 50, 77, 0.04) !important;
+}
+
+/* Head Teacher / President Swap Droppable Target */
+.tree-slot-card.is-head-target.is-drag-over {
+  border-color: var(--c-accent) !important;
+  background: rgba(233, 154, 74, 0.08) !important;
+}
+
+.tree-slot-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 72px;
+  border: 1.5px dashed var(--c-line);
+  border-radius: var(--radius);
+  background: var(--c-surface);
+  color: var(--c-muted);
+  font-size: 13.5px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all var(--dur);
+}
+
+.tree-slot-empty:hover {
+  border-color: var(--c-navy);
+  color: var(--c-navy);
+  background: #fff;
+}
+
+.tree-connector-line {
+  width: 2px;
+  height: 24px;
+  background: var(--c-line);
+  margin: 0 auto;
+}
+
+.tree-slot-handle {
+  cursor: grab;
+  color: var(--c-muted);
+  display: flex;
+  align-items: center;
+  padding: 4px;
+}
+
+.tree-slot-handle:hover {
+  color: var(--c-navy);
+}
+
+.tree-slot-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius);
+  object-fit: cover;
+  border: 1px solid var(--c-line);
+  flex-shrink: 0;
+}
+
+.tree-slot-avatar-fallback {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius);
+  border: 1px solid var(--c-line);
+  background: var(--c-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--c-navy);
+  flex-shrink: 0;
+}
+
+.tree-slot-order-badge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 2px 6px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius);
+  color: var(--c-muted);
+}

@@ -1,0 +1,302 @@
+/**
+ * Digital Business Technology - Base & Accessibility Primitives
+ * Reference: STYLE.md Section 2.1, 2.2, 2.4
+ */
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-padding-top: 80px;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  font-weight: var(--weight-regular);
+  line-height: var(--lh-body);
+  color: var(--c-text);
+  background-color: var(--c-bg);
+  padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom));
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+@media (min-width: 768px) {
+  body {
+    padding-bottom: 0;
+  }
+}
+
+/* Headings */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.heading-display,
+.heading-editorial {
+  font-family: var(--font-display);
+  font-weight: var(--weight-semibold);
+  line-height: var(--lh-heading);
+  color: var(--c-navy);
+  margin-top: 0;
+}
+
+h1,
+.heading-display {
+  font-size: var(--fs-h1);
+}
+
+h2 {
+  font-size: var(--fs-h2);
+}
+
+h3 {
+  font-size: var(--fs-h3);
+}
+
+h4 {
+  font-size: var(--fs-h4);
+}
+
+p {
+  max-width: 68ch;
+  margin-top: 0;
+  margin-bottom: 1rem;
+  line-height: var(--lh-body);
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+svg {
+  display: inline-block;
+  vertical-align: -0.125em;
+  flex-shrink: 0;
+}
+
+a {
+  color: var(--c-navy);
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 1px;
+}
+
+a,
+button {
+  touch-action: manipulation;
+}
+
+/* Containers */
+.container-xl {
+  max-width: var(--container-max);
+  padding-inline: var(--gutter);
+}
+
+@media (min-width: 1440px) {
+  .container-xl {
+    max-width: var(--container-wide);
+  }
+}
+
+.container-editorial {
+  width: min(calc(100% - 48px), var(--container-max));
+  margin-inline: auto;
+}
+
+.container-editorial-wide {
+  width: min(calc(100% - 48px), var(--container-wide));
+  margin-inline: auto;
+}
+
+/* Accessibility Focus & Skip Link */
+:focus-visible {
+  outline: 2px solid var(--c-accent-ink);
+  outline-offset: 2px;
+  border-radius: var(--radius);
+}
+
+main:focus {
+  outline: none;
+}
+
+.skip-link {
+  position: absolute;
+  left: var(--s-4);
+  top: -100px;
+  z-index: 1000;
+  background: var(--c-navy);
+  color: #fff;
+  padding: var(--s-3) var(--s-4);
+  font-family: var(--font-body);
+  font-size: var(--fs-small);
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  top: var(--s-3);
+  color: #fff;
+}
+
+/* Technical & Numeric Typography */
+.mono,
+.tabular,
+.text-code,
+.text-technical {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.text-muted-ink {
+  color: var(--c-muted) !important;
+}
+
+.lead-text {
+  font-size: 1.0625rem;
+  color: var(--c-muted);
+  line-height: 1.75;
+}
+
+@media (min-width: 1024px) {
+  .lead-text {
+    font-size: 1.1875rem;
+  }
+}
+
+/* Editorial Primitives */
+.rule {
+  display: block;
+  width: 32px;
+  height: 3px;
+  background: var(--c-accent);
+  margin: var(--s-5) 0;
+}
+
+.section {
+  padding-block: var(--section-y);
+}
+
+.section + .section {
+  border-top: 1px solid var(--c-line);
+}
+
+.section-alt {
+  background: var(--c-bg-alt);
+}
+
+.section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--s-4);
+  margin-bottom: var(--s-6);
+}
+
+.section-head h2 {
+  margin: 0;
+}
+
+.section-head .link-more {
+  flex-shrink: 0;
+}
+
+.link-more {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-height: 44px;
+  font-weight: 500;
+  font-size: var(--fs-small);
+  color: var(--c-navy);
+  text-decoration: none;
+}
+
+.link-more svg {
+  transition: transform var(--dur) var(--ease-out);
+}
+
+.link-more:hover svg {
+  transform: translateX(3px);
+}
+
+.grid-lines {
+  background-image:
+    linear-gradient(to right, rgba(185, 220, 235, 0.45) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(185, 220, 235, 0.45) 1px, transparent 1px);
+  background-size: 48px 48px;
+  background-position: -1px -1px;
+}
+
+.marks {
+  position: relative;
+}
+
+.marks::before,
+.marks::after {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
+  border-color: var(--c-navy);
+  border-style: solid;
+}
+
+.marks::before {
+  top: -8px;
+  left: -8px;
+  border-width: 2px 0 0 2px;
+}
+
+.marks::after {
+  bottom: -8px;
+  right: -8px;
+  border-width: 0 2px 2px 0;
+}
+
+.figure {
+  margin: 0;
+}
+
+.figure-img {
+  background: var(--c-blue-100);
+  overflow: hidden;
+}
+
+.figure-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.figcap {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s-4);
+  font-size: var(--fs-small);
+  color: var(--c-muted);
+  padding-top: var(--s-3);
+  margin-top: var(--s-3);
+  border-top: 1px solid var(--c-line);
+}
+
+.figcap .mono {
+  font-size: var(--fs-mono);
+  color: var(--c-navy);
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

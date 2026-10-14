@@ -1,0 +1,105 @@
+/**
+ * Digital Business Technology - Cards & Stat Components
+ * Reference: STYLE.md Section 2.5
+ */
+
+.admin-card {
+  background: #ffffff;
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius);
+  padding: var(--s-5);
+  margin-bottom: var(--s-5);
+}
+
+.admin-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--s-4);
+  padding-bottom: var(--s-3);
+  border-bottom: 1px solid var(--c-line);
+}
+
+.admin-card-head h2,
+.admin-card-head h3 {
+  margin: 0;
+  font-size: 1.125rem;
+  font-family: var(--font-heading);
+  color: var(--c-navy);
+}
+
+/* Stat Grid & Metric Box */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--s-3);
+  margin-bottom: var(--s-6);
+}
+
+@media (min-width: 768px) {
+  .stat-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--s-4);
+  }
+}
+
+.stat-box {
+  background: var(--c-bg-alt);
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius);
+  padding: var(--s-4);
+}
+
+.stat-box .num {
+  font-family: var(--font-mono);
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--c-navy);
+  line-height: 1.1;
+  display: block;
+}
+
+.stat-box .label {
+  font-size: 0.875rem;
+  color: var(--c-muted);
+  margin-top: 4px;
+  display: block;
+}
+
+/* Editorial Card & Visual Affordances */
+.card-editorial {
+  background: #ffffff;
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius);
+  padding: var(--s-5);
+  transition: border-color var(--dur) var(--ease-out);
+}
+
+/* Actionable / Interactive Card with micro-arrow and hover */
+.card-actionable {
+  background: #ffffff;
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius);
+  padding: var(--s-5);
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  transition: all var(--dur) var(--ease-out);
+  position: relative;
+}
+
+.card-actionable:hover {
+  border-color: var(--c-navy);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(23, 50, 77, 0.06);
+}
+
+/* Static Information Card: Neutral appearance, no pointer cursor, subtle left border */
+.card-static {
+  background: var(--c-surface);
+  border: 1px solid var(--c-line);
+  border-left: 3px solid var(--c-navy-80);
+  border-radius: var(--radius);
+  padding: var(--s-5);
+}

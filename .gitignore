@@ -1,3 +1,7 @@
+.env
 uploads/*
 !uploads/seed/
 !uploads/seed/*
+
+scratch
+uploads/*

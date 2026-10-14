@@ -1,11 +1,17 @@
 <?php
 /**
- * Admin — จัดการรูปภาพ Hero และข้อความหน้าแรก
+ * Admin - จัดการภาพแบนเนอร์และข้อความประชาสัมพันธ์หน้าแรก (Refined Editorial Brutalism)
+ * Standard: STYLE.md & RULES.md
  */
 $adminNav = 'hero';
-$pageTitle = 'จัดการรูป Hero และข้อมูลหน้าแรก';
+$pageTitle = 'จัดการภาพแบนเนอร์และข้อความหน้าแรก';
 
-require_once __DIR__ . '/../includes/admin-header.php';
+require_once __DIR__ . '/../includes/config.php';
+require_once __DIR__ . '/../includes/helpers.php';
+require_once __DIR__ . '/../includes/services/AuthService.php';
+require_once __DIR__ . '/../includes/services/SettingService.php';
+
+AuthService::requireLogin();
 
 $error = null;
 
@@ -13,25 +19,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verify_csrf();
 
     try {
-        // Text settings
-        set_setting('hero_title_1', trim((string) ($_POST['hero_title_1'] ?? '')));
-        set_setting('hero_title_2', trim((string) ($_POST['hero_title_2'] ?? '')));
-        set_setting('hero_intro', trim((string) ($_POST['hero_intro'] ?? '')));
-        set_setting('hero_caption', trim((string) ($_POST['hero_caption'] ?? '')));
-        set_setting('stat_courses', trim((string) ($_POST['stat_courses'] ?? '')));
-        set_setting('stat_labs', trim((string) ($_POST['stat_labs'] ?? '')));
-        set_setting('stat_employment', trim((string) ($_POST['stat_employment'] ?? '')));
-        set_setting('curriculum_code', trim((string) ($_POST['curriculum_code'] ?? '')));
+        // Hero title with <br> support
+        $heroTitle = trim((string) ($_POST['hero_title'] ?? ''));
+        if ($heroTitle === '') {
+            throw new InvalidArgumentException('กรุณาระบุข้อความพาดหัวหลัก');
+        }
+        SettingService::set('hero_title', clean_html($heroTitle));
+
+        // Maintain backward compatibility for hero_title_1 / hero_title_2
+        $parts = preg_split('/<br\s*\/?>/i', $heroTitle, 2);
+        SettingService::set('hero_title_1', clean_text(trim($parts[0] ?? $heroTitle)));
+        SettingService::set('hero_title_2', clean_text(trim($parts[1] ?? '')));
+
+        SettingService::set('hero_intro', clean_html(parse_markdown(trim((string) ($_POST['hero_intro'] ?? '')))));
+        SettingService::set('hero_caption', clean_text(trim((string) ($_POST['hero_caption'] ?? ''))));
+
+        // Metrics
+        SettingService::set('stat_mode', trim((string) ($_POST['stat_mode'] ?? 'dynamic')));
+        SettingService::set('stat_courses', clean_text(trim((string) ($_POST['stat_courses'] ?? ''))));
+        SettingService::set('stat_labs', clean_text(trim((string) ($_POST['stat_labs'] ?? ''))));
+        SettingService::set('stat_employment', clean_text(trim((string) ($_POST['stat_employment'] ?? ''))));
 
         // Image upload
         $newImage = upload_image('hero_image');
         if ($newImage) {
-            $oldImage = setting('hero_image');
+            $oldImage = SettingService::get('hero_image');
             delete_upload($oldImage);
-            set_setting('hero_image', $newImage);
+            SettingService::set('hero_image', $newImage);
         }
 
-        flash('บันทึกการตั้งค่าหน้าแรกและรูปภาพ Hero สำเร็จแล้ว');
+        flash('บันทึกการตั้งค่าหน้าแรกและภาพแบนเนอร์สำเร็จแล้ว');
         redirect('admin/hero.php');
     } catch (Exception $e) {
         $error = $e->getMessage();
@@ -39,22 +56,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Current values
-$heroTitle1  = setting('hero_title_1', 'เทคโนโลยี');
-$heroTitle2  = setting('hero_title_2', 'ธุรกิจดิจิทัล');
-$heroIntro   = setting('hero_intro', 'หลักสูตรที่เชื่อมโยงทักษะการพัฒนาระบบซอฟต์แวร์ การจัดการข้อมูล และการสร้างสรรค์โมเดลธุรกิจยุคใหม่ สู่การทำงานจริงในอุตสาหกรรมดิจิทัล');
-$heroCaption = setting('hero_caption', 'ภาพถ่ายพื้นที่เรียนรู้และห้องปฏิบัติการคอมพิวเตอร์');
-$heroImage   = setting('hero_image', 'uploads/seed/hero-lab.jpg');
+$heroTitle = SettingService::get('hero_title', '');
+if (!$heroTitle) {
+    $h1 = SettingService::get('hero_title_1', 'เทคโนโลยี');
+    $h2 = SettingService::get('hero_title_2', 'ธุรกิจดิจิทัล');
+    $heroTitle = trim($h1 . '<br>' . $h2, '<br>');
+}
 
-$statCourses = setting('stat_courses', '18');
-$statLabs    = setting('stat_labs', '04');
-$statEmploy  = setting('stat_employment', '96%');
-$currCode    = setting('curriculum_code', 'DBT-2567-V02');
+$heroIntro   = SettingService::get('hero_intro', 'หลักสูตรที่เชื่อมโยงทักษะการพัฒนาระบบซอฟต์แวร์ การจัดการข้อมูล และการสร้างสรรค์โมเดลธุรกิจยุคใหม่ สู่การทำงานจริงในอุตสาหกรรมดิจิทัล');
+$heroCaption = SettingService::get('hero_caption', 'ภาพถ่ายพื้นที่เรียนรู้และห้องปฏิบัติการคอมพิวเตอร์');
+$heroImage   = SettingService::get('hero_image', 'uploads/seed/hero-lab.jpg');
+
+$statMode    = SettingService::get('stat_mode', 'dynamic');
+$statCourses = SettingService::get('stat_courses', '18');
+$statLabs    = SettingService::get('stat_labs', '04');
+$statEmploy  = SettingService::get('stat_employment', '96%');
+
+require_once __DIR__ . '/../includes/admin-header.php';
 ?>
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
   <div>
-    <p class="eyebrow eyebrow-muted mb-1">MODULE // HERO & HOMEPAGE</p>
-    <h1 style="font-size: 1.75rem; margin: 0;">เปลี่ยนรูปภาพ Hero และข้อมูลหน้าแรก</h1>
+    <p class="eyebrow eyebrow-muted mb-1">ตั้งค่าหน้าแรก</p>
+    <h1 style="font-size: 1.75rem; margin: 0;">ภาพแบนเนอร์และข้อมูลประชาสัมพันธ์หลัก</h1>
+  </div>
+  <div>
+    <button type="button" class="btn btn-sm btn-line" id="btnOpenHeroPreview" data-bs-toggle="modal" data-bs-target="#heroPreviewModal">
+      <?= icon('eye', 16) ?> <span>ดูตัวอย่างหน้าจริง (Full Preview)</span>
+    </button>
   </div>
 </div>
 
@@ -65,114 +94,151 @@ $currCode    = setting('curriculum_code', 'DBT-2567-V02');
   </div>
 <?php endif; ?>
 
-<form method="POST" action="<?= url('admin/hero.php') ?>" enctype="multipart/form-data">
+<form method="POST" action="<?= url('admin/hero.php') ?>" enctype="multipart/form-data" id="form-hero-settings">
   <?= csrf_field() ?>
 
   <div class="row g-4">
-    <!-- Left Column: Hero Image Preview & Upload -->
+    <!-- Left Column: Hero Image Preview & Styled Dropzone -->
     <div class="col-12 col-lg-5">
       <div class="admin-card">
         <div class="admin-card-head">
-          <h3>รูปภาพ Hero ปัจจุบัน</h3>
-          <span class="mono text-muted" style="font-size: 11px;">RATIO 4:3 / 16:9</span>
-        </div>
-
-        <div class="figure-img marks mb-3" style="aspect-ratio: 4/3; background: var(--c-blue-100);">
-          <?php if ($heroImage && file_exists(ROOT_PATH . '/' . $heroImage)): ?>
-            <img id="heroPreview" src="<?= url($heroImage) ?>" alt="รูป Hero ปัจจุบัน" style="width: 100%; height: 100%; object-fit: cover;">
-          <?php else: ?>
-            <div id="heroPreview" class="monogram monogram-lg" style="height: 100%;">DBT // HERO</div>
-          <?php endif; ?>
+          <h3>ภาพแบนเนอร์หลักปัจจุบัน</h3>
+          <span class="mono text-muted" style="font-size: 13px;">สัดส่วน 4:3 / 16:9</span>
         </div>
 
         <div class="mb-3">
-          <label for="hero_image" class="form-label">อัปโหลดรูปภาพ Hero ใหม่</label>
-          <input type="file"
-                 name="hero_image"
-                 id="hero_image"
-                 class="form-control"
-                 accept="image/jpeg,image/png,image/webp"
-                 data-preview-target="heroPreview">
-          <div class="form-text">รองรับ JPG, PNG หรือ WebP ขนาดไม่เกิน 5 MB (แนะนำภาพแนวนอน สไตล์ห้องเรียนหรือห้องแล็บจริง)</div>
-        </div>
+          <label class="form-label fw-semibold">ภาพแบนเนอร์หลักและอัปโหลดภาพใหม่</label>
+          <div class="image-upload-wrapper is-landscape"
+               data-image-upload
+               data-current-src="<?= $heroImage && file_exists(ROOT_PATH . '/' . $heroImage) ? url($heroImage) : '' ?>">
+            <div class="image-upload-preview">
+              <?php if ($heroImage && file_exists(ROOT_PATH . '/' . $heroImage)): ?>
+                <img id="heroPreview" src="<?= url($heroImage) ?>" class="preview-img" alt="ภาพแบนเนอร์หน้าแรกปัจจุบัน">
+                <span class="preview-badge badge-current">รูปปัจจุบัน</span>
+              <?php else: ?>
+                <div class="preview-placeholder">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                    <polyline points="21 15 16 10 5 21"/>
+                  </svg>
+                  <span>ยังไม่มีภาพ</span>
+                </div>
+              <?php endif; ?>
+            </div>
 
-        <div class="p-3 bg-white border mt-3">
-          <div class="mono text-muted mb-1" style="font-size: 11px;">REAL-TIME TEXT PREVIEW</div>
-          <p id="previewIntro" class="mb-2" style="font-size: .875rem; color: var(--c-navy); line-height: 1.5;"><?= e($heroIntro) ?></p>
-          <div class="text-muted" style="font-size: 11px;">
-            <strong>Caption:</strong> <span id="previewCaption"><?= e($heroCaption) ?></span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Right Column: Text & Metrics -->
-    <div class="col-12 col-lg-7">
-      <div class="admin-card">
-        <div class="admin-card-head">
-          <h3>ข้อความพาดหัว Hero</h3>
-        </div>
-
-        <div class="row g-3 mb-3">
-          <div class="col-12 col-md-6">
-            <label for="hero_title_1" class="form-label">พาดหัว บรรทัดที่ 1</label>
-            <input type="text"
-                   name="hero_title_1"
-                   id="hero_title_1"
-                   class="form-control font-weight-bold"
-                   value="<?= e($heroTitle1) ?>"
-                   required>
-          </div>
-          <div class="col-12 col-md-6">
-            <label for="hero_title_2" class="form-label">พาดหัว บรรทัดที่ 2</label>
-            <input type="text"
-                   name="hero_title_2"
-                   id="hero_title_2"
-                   class="form-control font-weight-bold"
-                   value="<?= e($heroTitle2) ?>"
-                   required>
+            <div class="image-upload-dropzone" role="button" tabindex="0" aria-label="คลิกเพื่อเลือกไฟล์รูปภาพ หรือลากไฟล์มาวาง">
+              <input type="file"
+                     name="hero_image"
+                     id="hero_image"
+                     class="image-upload-input"
+                     accept="image/jpeg,image/png,image/webp">
+              <div class="dropzone-content">
+                <div class="dropzone-icon">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                  </svg>
+                </div>
+                <div class="dropzone-text">
+                  <strong>คลิกเพื่อเลือกรูปภาพใหม่</strong> หรือลากไฟล์มาวางที่นี่
+                </div>
+                <div class="dropzone-hint">
+                  รองรับไฟล์ JPG, PNG หรือ WebP (ขนาดสูงสุด 5 MB · สัดส่วน 4:3 หรือ 16:9)
+                </div>
+                <div class="dropzone-file-selected d-none">
+                  <span class="file-name mono"></span>
+                  <button type="button" class="btn-clear-file" title="ล้างรูปที่เลือก">ยกเลิก</button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
         <div class="mb-3">
-          <label for="hero_intro" class="form-label">คำอธิบายแนะนำแผนก (Intro Paragraph)</label>
-          <textarea name="hero_intro"
-                    id="hero_intro"
-                    rows="3"
-                    class="form-control"
-                    required><?= e($heroIntro) ?></textarea>
-        </div>
-
-        <div class="mb-3">
-          <label for="hero_caption" class="form-label">คำบรรยายใต้ภาพ Hero (Editorial Caption)</label>
+          <label for="hero_caption" class="form-label">คำบรรยายใต้ภาพประชาสัมพันธ์</label>
           <input type="text"
                  name="hero_caption"
                  id="hero_caption"
                  class="form-control"
                  value="<?= e($heroCaption) ?>">
-          <div class="form-text">ข้อความอธิบายใต้ภาพสไตล์สิ่งพิมพ์วิชาการ</div>
+          <div class="form-text">ข้อความอธิบายใต้ภาพสไตล์ทางการและเป็นทางการ</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Editorial Text & Single Merged Title -->
+    <div class="col-12 col-lg-7">
+      <div class="admin-card">
+        <div class="admin-card-head">
+          <h3>ข้อความพาดหัวหลักและข้อมูลแนะนำ</h3>
+        </div>
+
+        <!-- Merged Single Hero Title -->
+        <div class="mb-3">
+          <label for="hero_title" class="form-label">พาดหัวหลัก (Hero Title) <span class="req">*</span></label>
+          <input type="text"
+                 name="hero_title"
+                 id="hero_title"
+                 class="form-control fw-bold"
+                 value="<?= e($heroTitle) ?>"
+                 required>
+          <div class="form-text">สามารถพิมพ์ข้อความหัวเรื่องได้โดยตรง หรือใส่ <code>&lt;br&gt;</code> เพื่อขึ้นบรรทัดใหม่ เช่น <code>เทคโนโลยี&lt;br&gt;ธุรกิจดิจิทัล</code></div>
+        </div>
+
+        <!-- EDITORIAL RICH TEXT BOX WITH QUILL -->
+        <div class="mb-3">
+          <label for="hero_intro" class="form-label">คำอธิบายแนะนำแผนกวิชา <span class="req">*</span></label>
+          <div id="quill-hero-editor"
+               class="quill-editorial-editor"
+               data-target-input="hero_intro"
+               data-placeholder="พิมพ์คำอธิบายแนะนำแผนกวิชาที่นี่..."></div>
+          <textarea name="hero_intro"
+                    id="hero_intro"
+                    class="d-none"
+                    required><?= htmlspecialchars($heroIntro, ENT_QUOTES, 'UTF-8') ?></textarea>
         </div>
 
         <div class="admin-card-head mt-4">
-          <h3>ตัวเลขสถิติบนแถบ Data Strip</h3>
+          <h3>ตัวเลขสถิติและข้อมูลแสดงผลหน้าแรก</h3>
         </div>
 
-        <div class="row g-3">
-          <div class="col-6 col-md-3">
+        <!-- STAT MODE SELECTION -->
+        <div class="mb-3">
+          <label class="form-label fw-semibold">โหมดการแสดงผลสถิติ</label>
+          <div class="d-flex flex-column flex-sm-row gap-3">
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="stat_mode" id="modeDynamic" value="dynamic" <?= $statMode === 'dynamic' ? 'checked' : '' ?>>
+              <label class="form-check-label" for="modeDynamic">
+                <strong>นับอัตโนมัติ</strong> (อาจารย์ ข่าวสาร กิจกรรมจากฐานข้อมูลจริง)
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="stat_mode" id="modeManual" value="manual" <?= $statMode === 'manual' ? 'checked' : '' ?>>
+              <label class="form-check-label" for="modeManual">
+                <strong>กำหนดเอง</strong> (ระบุตัวเลขเฉพาะกิจ)
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- CONDITIONAL MANUAL INPUTS (HIDDEN WHEN DYNAMIC) -->
+        <div id="stat-manual-inputs" class="row g-3 p-3 border mb-3 <?= $statMode === 'dynamic' ? 'd-none' : '' ?>" style="background: var(--c-surface); border-radius: var(--radius);">
+          <div class="col-12">
+            <span class="mono text-muted" style="font-size: 12px;">กำหนดตัวเลขสถิติแบบระบุเอง:</span>
+          </div>
+          <div class="col-6 col-md-4">
             <label for="stat_courses" class="form-label">จำนวนวิชา</label>
             <input type="text" name="stat_courses" id="stat_courses" class="form-control mono" value="<?= e($statCourses) ?>">
           </div>
-          <div class="col-6 col-md-3">
+          <div class="col-6 col-md-4">
             <label for="stat_labs" class="form-label">ห้องแล็บ</label>
             <input type="text" name="stat_labs" id="stat_labs" class="form-control mono" value="<?= e($statLabs) ?>">
           </div>
-          <div class="col-6 col-md-3">
+          <div class="col-12 col-md-4">
             <label for="stat_employment" class="form-label">อัตรามีงานทำ</label>
             <input type="text" name="stat_employment" id="stat_employment" class="form-control mono" value="<?= e($statEmploy) ?>">
-          </div>
-          <div class="col-6 col-md-3">
-            <label for="curriculum_code" class="form-label">รหัสหลักสูตร</label>
-            <input type="text" name="curriculum_code" id="curriculum_code" class="form-control mono" value="<?= e($currCode) ?>">
           </div>
         </div>
 
@@ -187,19 +253,85 @@ $currCode    = setting('curriculum_code', 'DBT-2567-V02');
   </div>
 </form>
 
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  const introInput = document.getElementById('hero_intro');
-  const captionInput = document.getElementById('hero_caption');
-  const previewIntro = document.getElementById('previewIntro');
-  const previewCaption = document.getElementById('previewCaption');
-  if (introInput && previewIntro) {
-    introInput.addEventListener('input', () => { previewIntro.textContent = introInput.value; });
-  }
-  if (captionInput && previewCaption) {
-    captionInput.addEventListener('input', () => { previewCaption.textContent = captionInput.value; });
-  }
-});
-</script>
+<!-- FULL PREVIEW MODAL WITH DESKTOP / MOBILE SWITCHER -->
+<div class="modal fade" id="heroPreviewModal" tabindex="-1" aria-labelledby="heroPreviewModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header d-flex justify-content-between align-items-center">
+        <h5 class="modal-title" id="heroPreviewModalLabel">
+          <?= icon('eye', 18) ?> แสดงตัวอย่างหน้าหลักจริง (Live Hero Preview)
+        </h5>
+        
+        <div class="d-flex align-items-center gap-3">
+          <!-- Viewport Switcher -->
+          <div class="preview-viewport-toggle">
+            <button type="button" class="preview-viewport-btn is-active" id="btnPreviewDesktop" data-viewport="desktop">
+              🖥️ Desktop
+            </button>
+            <button type="button" class="preview-viewport-btn" id="btnPreviewMobile" data-viewport="mobile">
+              📱 Mobile
+            </button>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="ปิด"></button>
+        </div>
+      </div>
+
+      <div class="modal-body bg-light p-3 p-md-4">
+        <!-- Frame Container -->
+        <div class="preview-container-frame is-desktop" id="heroPreviewFrame">
+          <section class="hero bg-white p-4 p-md-5">
+            <div class="container-fluid">
+              <div class="row align-items-center gy-4">
+                <div class="col-12 col-lg-6">
+                  <div class="hero-label">
+                    <p class="eyebrow mb-2">
+                      <span><?= e(SITE_NAME_EN) ?></span>
+                    </p>
+                  </div>
+                  <h1 class="hero-title mb-3" id="modalHeroTitle">
+                    <?= clean_html(nl2br($heroTitle)) ?>
+                  </h1>
+                  <span class="rule" aria-hidden="true"></span>
+                  <div class="hero-intro" id="modalHeroIntro">
+                    <?= clean_html(parse_markdown($heroIntro)) ?>
+                  </div>
+                  <dl class="hero-meta mt-4">
+                    <div>
+                      <dt>ระดับการศึกษา</dt>
+                      <dd>เปิดรับสมัคร ปวช. และ ปวส.</dd>
+                    </div>
+                    <div>
+                      <dt>รูปแบบการสอน</dt>
+                      <dd>เน้นฝึกปฏิบัติและโครงงานจริง</dd>
+                    </div>
+                  </dl>
+                </div>
+                <div class="col-12 col-lg-6 hero-figure">
+                  <div class="marks">
+                    <figure class="figure w-100 m-0">
+                      <div class="figure-img">
+                        <img id="modalHeroImg" src="<?= url($heroImage) ?>" alt="ภาพตัวอย่าง" class="w-100" style="aspect-ratio: 4/3; object-fit: cover;">
+                      </div>
+                      <figcaption class="figcap" id="modalHeroFigcap">
+                        <span id="modalHeroCaption"><?= e($heroCaption) ?></span>
+                        <span class="mono">DBT // CAMPUS</span>
+                      </figcaption>
+                    </figure>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-sm btn-line" data-bs-dismiss="modal">ปิดหน้าต่างพรีวิว</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="<?= url('assets/js/admin-hero.js') ?>"></script>
 
 <?php require_once __DIR__ . '/../includes/admin-footer.php'; ?>

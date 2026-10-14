@@ -1,0 +1,67 @@
+/**
+ * Digital Business Technology - Login / Auth Page Layout
+ * Reference: STYLE.md Section 2.5 & Track 6.3 Responsive Mobile Polish
+ */
+
+.auth-wrap {
+  min-height: calc(100dvh - 61px - var(--bottom-nav-h));
+  display: grid;
+  width: 100%;
+}
+
+.auth-aside {
+  display: none;
+}
+
+.auth-main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: var(--s-6) var(--gutter);
+  width: 100%;
+}
+
+.auth-box {
+  width: 100%;
+  max-width: 420px;
+  margin-inline: auto;
+  background: #ffffff;
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius);
+  padding: var(--s-5);
+  box-shadow: 0 4px 16px rgba(23, 50, 77, 0.04);
+}
+
+@media (min-width: 576px) {
+  .auth-box {
+    padding: var(--s-6);
+  }
+}
+
+@media (min-width: 1024px) {
+  .auth-wrap {
+    grid-template-columns: 5fr 7fr;
+    min-height: calc(100dvh - 61px);
+  }
+
+  .auth-aside {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background-color: var(--c-navy);
+    color: #ffffff;
+    padding: var(--s-8) var(--s-7);
+    border-right: 1px solid var(--c-line);
+  }
+
+  .auth-aside h2 {
+    color: #ffffff;
+    font-size: 2.5rem;
+    max-width: 14ch;
+  }
+
+  .auth-main {
+    padding: var(--s-8);
+  }
+}

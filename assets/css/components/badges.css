@@ -1,0 +1,109 @@
+/**
+ * Digital Business Technology - Badges, Chips & Meta Eyebrows
+ * Reference: STYLE.md Section 2.2 & 2.5
+ */
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono);
+  font-weight: 500;
+  letter-spacing: normal;
+  text-transform: uppercase;
+  color: var(--c-accent-ink);
+  margin: 0 0 var(--s-3);
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+
+.eyebrow:lang(en),
+[lang="en"] .eyebrow {
+  letter-spacing: 0.08em;
+}
+
+.eyebrow .sep {
+  color: var(--c-blue-300);
+}
+
+.eyebrow-muted {
+  color: var(--c-muted);
+}
+
+.eyebrow-light {
+  color: var(--c-blue-300);
+}
+
+.badge-count {
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  background: var(--c-blue-100);
+  color: var(--c-navy);
+  padding: 2px 7px;
+  border-radius: var(--radius);
+}
+
+.tag {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--c-accent-ink);
+}
+
+.meta-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2) var(--s-3);
+  font-size: 0.875rem;
+  color: var(--c-muted);
+}
+
+.meta-line .dot {
+  width: 3px;
+  height: 3px;
+  background: var(--c-blue-300);
+}
+
+/* Category Filter Chips */
+.chip {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-height: 44px;
+  padding: 0 var(--s-4);
+  font-size: var(--fs-small);
+  font-weight: 500;
+  white-space: nowrap;
+  color: var(--c-navy);
+  text-decoration: none;
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius);
+  background: #fff;
+  transition:
+    border-color var(--dur),
+    background-color var(--dur);
+}
+
+.chip .count {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--c-muted);
+}
+
+.chip:hover {
+  border-color: var(--c-navy);
+  color: var(--c-navy);
+}
+
+.chip[aria-current="page"] {
+  background: var(--c-navy);
+  border-color: var(--c-navy);
+  color: #fff;
+}
+
+.chip[aria-current="page"] .count {
+  color: var(--c-blue-300);
+}

@@ -1,49 +1,43 @@
 <?php
 /**
- * 01 / HOME — หน้าหลัก แผนกเทคโนโลยีธุรกิจดิจิทัล
+ * หน้าหลัก - แผนกเทคโนโลยีธุรกิจดิจิทัล
  */
 require_once __DIR__ . '/includes/config.php';
 require_once __DIR__ . '/includes/helpers.php';
+require_once __DIR__ . '/includes/services/SettingService.php';
+require_once __DIR__ . '/includes/services/NewsService.php';
+require_once __DIR__ . '/includes/services/ScheduleService.php';
 
 $activeNav = 'home';
 $pageTitle = 'หน้าหลัก';
 
+send_cache_headers(60, 120);
+
 // Fetch settings
-$heroTitle1 = setting('hero_title_1', 'เทคโนโลยี');
-$heroTitle2 = setting('hero_title_2', 'ธุรกิจดิจิทัล');
-$heroIntro  = setting('hero_intro', 'หลักสูตรที่เชื่อมโยงทักษะการพัฒนาระบบซอฟต์แวร์ การจัดการข้อมูล และการสร้างสรรค์โมเดลธุรกิจยุคใหม่ สู่การทำงานจริงในอุตสาหกรรมดิจิทัล');
-$heroImage   = setting('hero_image', 'uploads/seed/hero-lab.jpg');
-$heroCaption = setting('hero_caption', 'ภาพถ่ายพื้นที่เรียนรู้และห้องปฏิบัติการคอมพิวเตอร์');
+$heroTitle   = SettingService::get('hero_title', '');
+if (!$heroTitle) {
+    $heroTitle1 = SettingService::get('hero_title_1', 'เทคโนโลยี');
+    $heroTitle2 = SettingService::get('hero_title_2', 'ธุรกิจดิจิทัล');
+    $heroTitle  = trim($heroTitle1 . '<br>' . $heroTitle2, '<br>');
+}
+$heroIntro   = SettingService::get('hero_intro', 'หลักสูตรที่เชื่อมโยงทักษะการพัฒนาระบบซอฟต์แวร์ การจัดการข้อมูล และการสร้างสรรค์โมเดลธุรกิจยุคใหม่ สู่การทำงานจริงในอุตสาหกรรมดิจิทัล');
+$heroImage   = SettingService::get('hero_image', 'uploads/seed/hero-lab.jpg');
+$heroCaption = SettingService::get('hero_caption', 'ภาพถ่ายพื้นที่เรียนรู้และห้องปฏิบัติการคอมพิวเตอร์');
 
-$currCode    = setting('curriculum_code', 'DBT-2567-V02');
+// Metrics from SettingService (dynamic or manual configured via Admin)
+$homeStats = SettingService::getHomeStats();
 
-// Dynamic metrics according to User Story 5
-$cntTeachers     = (int) q("SELECT COUNT(*) FROM teachers")->fetchColumn();
-$cntNews         = (int) q("SELECT COUNT(*) FROM news")->fetchColumn();
-$cntUpcomingActs = (int) q("SELECT COUNT(*) FROM activities WHERE event_date >= CURDATE()")->fetchColumn();
+// Fetch latest news via NewsService
+$latestNews = NewsService::getLatest(3);
 
-// Fetch latest news (top 3)
-$latestNews = q("
-  SELECT n.*, c.name as category_name
-  FROM news n
-  JOIN news_categories c ON n.category_id = c.id
-  ORDER BY n.published_at DESC, n.id DESC
-  LIMIT 3
-")->fetchAll();
-
-// Fetch next upcoming activity
-$nextActivity = q("
-  SELECT * FROM activities
-  WHERE event_date >= CURDATE()
-  ORDER BY event_date ASC
-  LIMIT 1
-")->fetch();
+// Fetch next upcoming activity via ScheduleService
+$nextActivity = ScheduleService::getNextUpcomingActivity();
 
 include __DIR__ . '/includes/header.php';
 ?>
 
 <!-- ========================================================================
-     HERO SECTION — Editorial Technology Style
+     HERO SECTION
      ======================================================================== -->
 <section class="hero">
   <div class="container-xl">
@@ -52,39 +46,28 @@ include __DIR__ . '/includes/header.php';
       <div class="col-12 col-lg-6">
         <div class="hero-label">
           <p class="eyebrow">
-            <span>01</span>
-            <span class="sep">/</span>
-            <span>DIGITAL BUSINESS TECHNOLOGY</span>
+            <span><?= e(SITE_NAME_EN) ?></span>
           </p>
         </div>
 
         <h1 class="hero-title">
-          <span class="line"><?= e($heroTitle1) ?></span>
-          <span class="line line-2"><?= e($heroTitle2) ?></span>
+          <?= clean_html(nl2br($heroTitle)) ?>
         </h1>
 
         <span class="rule" aria-hidden="true"></span>
 
-        <p class="hero-intro">
-          <?= nl2br(e($heroIntro)) ?>
-        </p>
+        <div class="hero-intro">
+          <?= clean_html(parse_markdown($heroIntro)) ?>
+        </div>
 
         <dl class="hero-meta">
           <div>
-            <dt>CURRICULUM SPEC</dt>
-            <dd class="mono"><?= e($currCode) ?></dd>
+            <dt>ระดับการศึกษา</dt>
+            <dd>เปิดรับสมัคร ปวช. และ ปวส.</dd>
           </div>
           <div>
-            <dt>STUDENT STATUS</dt>
-            <dd>เปิดรับสมัคร ปวช. / ปวส.</dd>
-          </div>
-          <div>
-            <dt>PRIMARY FOCUS</dt>
-            <dd>Full-Stack & Biz Data</dd>
-          </div>
-          <div>
-            <dt>LEARNING METHOD</dt>
-            <dd>Project & Lab Based</dd>
+            <dt>รูปแบบการสอน</dt>
+            <dd>เน้นฝึกปฏิบัติและโครงงานจริง</dd>
           </div>
         </dl>
       </div>
@@ -96,13 +79,14 @@ include __DIR__ . '/includes/header.php';
               <?php if ($heroImage && file_exists(ROOT_PATH . '/' . $heroImage)): ?>
                 <img src="<?= url($heroImage) ?>" alt="ห้องปฏิบัติการเทคโนโลยีธุรกิจดิจิทัล" width="1200" height="900" loading="eager">
               <?php else: ?>
-                <div class="monogram monogram-lg" style="aspect-ratio: 4/3;">DBT // LAB</div>
+                <div class="monogram monogram-lg" style="aspect-ratio: 4/3;"><?= e(SITE_SHORT) ?> // LAB</div>
               <?php endif; ?>
             </div>
-            <figcaption class="figcap">
-              <span><?= e($heroCaption) ?></span>
-              <span class="mono">FIG 01.1 // LAB DEPT</span>
-            </figcaption>
+            <?php if (!empty($heroCaption)): ?>
+              <figcaption class="figcap">
+                <span><?= e($heroCaption) ?></span>
+              </figcaption>
+            <?php endif; ?>
           </figure>
         </div>
       </div>
@@ -112,82 +96,69 @@ include __DIR__ . '/includes/header.php';
 </section>
 
 <!-- ========================================================================
-     DATA SUMMARY STRIP — Technical Academic Metrics
+     DATA SUMMARY STRIP
      ======================================================================== -->
 <section class="data-strip" aria-label="ข้อมูลเชิงสถิติของแผนก">
   <div class="container-xl">
     <ul>
-      <li>
-        <span class="data-num"><?= $cntTeachers ?><small>ท่าน</small></span>
-        <span class="data-label">คณาจารย์ประจำแผนกวิชา</span>
-      </li>
-      <li>
-        <span class="data-num"><?= $cntNews ?><small>เรื่อง</small></span>
-        <span class="data-label">ข่าวสารและประกาศเผยแพร่</span>
-      </li>
-      <li>
-        <span class="data-num"><?= $cntUpcomingActs ?><small>กิจกรรม</small></span>
-        <span class="data-label">กิจกรรมและโครงการเร็ว ๆ นี้</span>
-      </li>
+      <?php foreach ($homeStats['items'] as $stat): ?>
+        <li>
+          <span class="data-num">
+            <?= e($stat['num']) ?><?php if (!empty($stat['unit'])): ?><small><?= e($stat['unit']) ?></small><?php endif; ?>
+          </span>
+          <span class="data-label"><?= e($stat['label']) ?></span>
+        </li>
+      <?php endforeach; ?>
     </ul>
   </div>
 </section>
 
 <!-- ========================================================================
-     INDEX DIRECTORY — Structured Section Navigation
+     INDEX DIRECTORY
      ======================================================================== -->
 <section class="section">
   <div class="container-xl">
     <div class="section-head">
       <div>
-        <p class="eyebrow eyebrow-muted">INDEX DIRECTORY</p>
+        <p class="eyebrow eyebrow-muted">หมวดหมู่เนื้อหา</p>
         <h2>สารบัญแผนกวิชา</h2>
       </div>
-      <span class="mono text-muted d-none d-md-inline" style="font-size: 11px;">02 – 05 SECTIONS</span>
     </div>
 
     <ul class="index-list">
       <li>
-        <a href="<?= url('about.php') ?>">
-          <span class="index-num">02</span>
+        <a href="<?= url('about') ?>">
           <div>
             <span class="index-title">เกี่ยวกับแผนกวิชา</span>
             <span class="index-desc">วิสัยทัศน์ สมรรถนะหลักสูตร หัวหน้าแผนก และช่องทางการติดต่อ</span>
           </div>
-          <span class="mono text-muted d-none d-md-block">ABOUT & CONTACT</span>
           <?= icon('arrow-right', 20) ?>
         </a>
       </li>
       <li>
-        <a href="<?= url('news.php') ?>">
-          <span class="index-num">03</span>
+        <a href="<?= url('news') ?>">
           <div>
             <span class="index-title">ข่าวสารและประกาศ</span>
             <span class="index-desc">อัปเดตวิชาการ ข่าวรับสมัคร กิจกรรม และผลงานนักศึกษา</span>
           </div>
-          <span class="mono text-muted d-none d-md-block">NEWS & UPDATES</span>
           <?= icon('arrow-right', 20) ?>
         </a>
       </li>
       <li>
-        <a href="<?= url('schedule.php') ?>">
-          <span class="index-num">04</span>
+        <a href="<?= url('schedule') ?>">
           <div>
             <span class="index-title">ตารางเรียนและกิจกรรม</span>
             <span class="index-desc">ตารางสอนรายสัปดาห์ ปฏิทินกิจกรรม และกำหนดการสำคัญ</span>
           </div>
-          <span class="mono text-muted d-none d-md-block">TIMETABLE & EVENTS</span>
           <?= icon('arrow-right', 20) ?>
         </a>
       </li>
       <li>
-        <a href="<?= url('teachers.php') ?>">
-          <span class="index-num">05</span>
+        <a href="<?= url('teachers') ?>">
           <div>
-            <span class="index-title">อาจารย์และชมรม</span>
+            <span class="index-title">อาจารย์และชมรมวิชาชีพ</span>
             <span class="index-desc">ทำเนียบคณาจารย์ผู้สอน และคณะกรรมการชมรมวิชาชีพนักศึกษา</span>
           </div>
-          <span class="mono text-muted d-none d-md-block">FACULTY & CLUB</span>
           <?= icon('arrow-right', 20) ?>
         </a>
       </li>
@@ -196,16 +167,16 @@ include __DIR__ . '/includes/header.php';
 </section>
 
 <!-- ========================================================================
-     LATEST NEWS PREVIEW — Editorial 2-column Grid
+     LATEST NEWS PREVIEW
      ======================================================================== -->
 <section class="section section-alt">
   <div class="container-xl">
     <div class="section-head">
       <div>
-        <p class="eyebrow">03 / LATEST UPDATES</p>
-        <h2>ข่าวสารล่าสุด</h2>
+        <p class="eyebrow">อัปเดตล่าสุด</p>
+        <h2>ข่าวสารและประกาศล่าสุด</h2>
       </div>
-      <a href="<?= url('news.php') ?>" class="link-more">
+      <a href="<?= url('news') ?>" class="link-more">
         <span>ดูข่าวทั้งหมด</span>
         <?= icon('arrow-right', 16) ?>
       </a>
@@ -213,14 +184,14 @@ include __DIR__ . '/includes/header.php';
 
     <div class="news-list">
       <?php foreach ($latestNews as $item): ?>
-        <article class="news-row">
+        <article class="news-row position-relative">
           <div>
             <div class="news-meta">
               <span class="news-cat"><?= e($item['category_name']) ?></span>
-              <span class="mono text-muted" style="font-size: 12px;"><?= mono_date($item['published_at']) ?></span>
+              <span class="text-muted" style="font-size: 13.5px;"><?= thai_date($item['published_at']) ?></span>
             </div>
             <h3>
-              <a href="<?= url('news.php?id=' . $item['id']) ?>" class="text-navy text-decoration-none">
+              <a href="<?= url('news?id=' . $item['id']) ?>" class="stretched-link text-navy text-decoration-none">
                 <?= e($item['title']) ?>
               </a>
             </h3>
@@ -251,20 +222,17 @@ include __DIR__ . '/includes/header.php';
       <div class="row align-items-center gy-3">
         <div class="col-12 col-md-8">
           <?php $nextCd = activity_countdown_badge($nextActivity['event_date'], $nextActivity['event_date_end'] ?? null); ?>
-          <p class="eyebrow mb-1">
-            <span>NEXT UPCOMING EVENT</span>
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <span class="eyebrow mb-0">กิจกรรมเร็ว ๆ นี้</span>
             <span class="<?= e($nextCd['class']) ?>"><?= e($nextCd['text']) ?></span>
-            <?php if (!empty($nextActivity['badge_text'])): ?>
-              <span class="badge-line"><?= e($nextActivity['badge_text']) ?></span>
-            <?php endif; ?>
-          </p>
+          </div>
           <h3 class="mb-2" style="font-size: 1.35rem;"><?= e($nextActivity['title']) ?></h3>
           <p class="mb-0 text-muted" style="font-size: .9375rem;">
             <?= e($nextActivity['description'] ?: 'กิจกรรมพัฒนาทักษะวิชาชีพและเสริมสร้างสมรรถนะนักศึกษา') ?>
           </p>
         </div>
         <div class="col-12 col-md-4 text-md-end">
-          <div class="mono text-navy font-weight-bold" style="font-size: 1.125rem;">
+          <div class="text-navy fw-bold" style="font-size: 1.125rem;">
             <?= thai_date($nextActivity['event_date'], true) ?>
           </div>
           <?php if (!empty($nextActivity['location'])): ?>
@@ -272,7 +240,7 @@ include __DIR__ . '/includes/header.php';
               <?= icon('map-pin', 14) ?> <?= e($nextActivity['location']) ?>
             </div>
           <?php endif; ?>
-          <a href="<?= url('schedule.php?tab=activity') ?>" class="btn btn-navy btn-sm mt-3">
+          <a href="<?= url('schedule?tab=activity') ?>" class="btn btn-navy btn-sm mt-3">
             <span>ดูกิจกรรมทั้งหมด</span>
             <?= icon('arrow-right', 14) ?>
           </a>

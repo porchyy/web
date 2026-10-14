@@ -1,14 +1,14 @@
 <?php
 /**
- * 05 / LOGIN — เข้าสู่ระบบเจ้าหน้าที่
+ * LOGIN - เข้าสู่ระบบเจ้าหน้าที่
  */
-require_once __DIR__ . '/includes/config.php';
-require_once __DIR__ . '/includes/helpers.php';
-require_once __DIR__ . '/includes/auth.php';
+require_once __DIR__ . '/../includes/config.php';
+require_once __DIR__ . '/../includes/helpers.php';
+require_once __DIR__ . '/../includes/services/AuthService.php';
 
 // If already logged in, redirect to admin
-if (is_logged_in()) {
-    redirect('admin/index.php');
+if (AuthService::isLoggedIn()) {
+    redirect('admin');
 }
 
 $error = null;
@@ -21,38 +21,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($username === '' || $password === '') {
         $error = 'กรุณากรอกชื่อผู้ใช้และรหัสผ่าน';
-    } elseif (attempt_login($username, $password)) {
+    } elseif (AuthService::attemptLogin($username, $password)) {
         flash('เข้าสู่ระบบสำเร็จ ยินดีต้อนรับสู่แผงควบคุมหลังบ้าน');
-        redirect('admin/index.php');
+        redirect('admin');
     } else {
         $error = 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง';
     }
 }
 
 $pageTitle = 'เข้าสู่ระบบเจ้าหน้าที่';
-include __DIR__ . '/includes/header.php';
+include __DIR__ . '/../includes/header.php';
 ?>
 
 <div class="auth-wrap">
   <aside class="auth-aside">
     <div>
-      <p class="eyebrow eyebrow-light">05 / AUTHENTICATION</p>
+      <p class="eyebrow eyebrow-light">ระบบจัดการข้อมูล</p>
       <h2>ระบบบริหารจัดการข้อมูลดิจิทัล</h2>
       <p class="lead-text text-white-50 mt-3" style="max-width: 32ch;">
-        สำหรับอาจารย์และเจ้าหน้าที่ดูแลระบบแผนกวิชาเทคโนโลยีธุรกิจดิจิทัล
+        สำหรับอาจารย์และเจ้าหน้าที่ผู้ดูแลระบบ แผนกวิชาเทคโนโลยีธุรกิจดิจิทัล
       </p>
     </div>
 
-    <div class="border-top pt-4 border-white-50 mono text-white-50" style="font-size: 12px;">
-      <div>DEFAULT ACCESS // ADMIN</div>
-      <div class="mt-1">SECURE HASH: BCRYPT // SESSION: HTTPONLY</div>
+    <div class="border-top pt-4 border-white-50 text-white-50" style="font-size: 13px;">
+      <div>ระบบบริหารจัดการแผนกวิชาเทคโนโลยีธุรกิจดิจิทัล</div>
+      <div class="mt-1">หากพบปัญหาในการเข้าใช้งาน กรุณาติดต่อผู้ดูแลระบบ</div>
     </div>
   </aside>
 
   <section class="auth-main">
     <div class="auth-box">
       <div class="mb-4">
-        <p class="eyebrow">STAFF LOGIN</p>
+        <p class="eyebrow">เข้าสู่ระบบเจ้าหน้าที่</p>
         <h1 style="font-size: 1.75rem;">เข้าสู่ระบบ</h1>
         <p class="text-muted" style="font-size: .875rem;">
           กรอกข้อมูลประจำตัวเพื่อเข้าสู่หน้าจัดการระบบ
@@ -66,7 +66,7 @@ include __DIR__ . '/includes/header.php';
         </div>
       <?php endif; ?>
 
-      <form method="POST" action="<?= url('login.php') ?>" novalidate>
+      <form method="POST" action="<?= url('login') ?>" novalidate>
         <?= csrf_field() ?>
 
         <div class="mb-3">
@@ -77,7 +77,7 @@ include __DIR__ . '/includes/header.php';
                  name="username"
                  id="username"
                  class="form-control"
-                 placeholder="admin"
+                 placeholder="ชื่อผู้ใช้งานของคุณ"
                  value="<?= e($_POST['username'] ?? '') ?>"
                  required
                  autofocus
@@ -100,7 +100,6 @@ include __DIR__ . '/includes/header.php';
               <?= icon('eye', 18) ?>
             </button>
           </div>
-          <div class="form-text mt-2 mono">ค่าเริ่มต้นทดสอบระบบ: admin / admin1234</div>
         </div>
 
         <button type="submit" class="btn btn-navy w-100">
@@ -110,7 +109,7 @@ include __DIR__ . '/includes/header.php';
       </form>
 
       <div class="mt-4 pt-3 border-top text-center">
-        <a href="<?= url('index.php') ?>" class="text-muted" style="font-size: .875rem;">
+        <a href="<?= url('index') ?>" class="text-muted" style="font-size: .875rem;">
           ← กลับสู่หน้าหลักเว็บไซต์
         </a>
       </div>
@@ -118,4 +117,4 @@ include __DIR__ . '/includes/header.php';
   </section>
 </div>
 
-<?php include __DIR__ . '/includes/footer.php'; ?>
+<?php include __DIR__ . '/../includes/footer.php'; ?>

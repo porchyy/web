@@ -1,0 +1,258 @@
+/**
+ * Digital Business Technology - Home Page Stylesheet
+ * Reference: STYLE.md Section 2.1, 2.2, 2.4
+ */
+
+.hero {
+  position: relative;
+  padding-top: var(--s-6);
+  padding-bottom: var(--s-7);
+}
+
+.hero-label {
+  margin-bottom: var(--s-5);
+}
+
+.hero-title {
+  font-family: var(--font-heading);
+  font-size: var(--fs-display);
+  font-weight: 700;
+  line-height: 1.18;
+  letter-spacing: normal;
+  margin: 0;
+}
+
+.hero-title .line {
+  display: block;
+}
+
+.hero-title .line-2 {
+  color: var(--c-navy-80);
+  font-weight: 600;
+}
+
+.hero-intro {
+  color: var(--c-muted);
+  font-size: 1.0625rem;
+  line-height: 1.75;
+  margin: 0;
+  max-width: 34ch;
+}
+
+.hero-figure {
+  margin-top: var(--s-6);
+}
+
+.hero-figure .figure-img {
+  aspect-ratio: 4 / 5;
+}
+
+.hero-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  margin: var(--s-6) 0 0;
+  border-top: 1px solid var(--c-line);
+}
+
+.hero-meta div {
+  padding: var(--s-3) 0;
+  border-bottom: 1px solid var(--c-line);
+}
+
+.hero-meta div:nth-child(odd) {
+  padding-right: var(--s-3);
+  border-right: 1px solid var(--c-line);
+}
+
+.hero-meta div:nth-child(even) {
+  padding-left: var(--s-4);
+}
+
+.hero-meta dt {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--c-muted);
+  text-transform: uppercase;
+}
+
+.hero-meta dd {
+  margin: 2px 0 0;
+  font-weight: 500;
+  color: var(--c-navy);
+  font-size: 0.9375rem;
+}
+
+@media (min-width: 768px) {
+  .hero {
+    padding-top: var(--s-8);
+    padding-bottom: var(--s-8);
+  }
+  .hero-figure {
+    margin-top: 0;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 46%;
+    background-image:
+      linear-gradient(to right, rgba(185, 220, 235, 0.5) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(185, 220, 235, 0.5) 1px, transparent 1px);
+    background-size: 48px 48px;
+    z-index: -1;
+  }
+  .hero-figure .figure-img {
+    aspect-ratio: 5 / 6;
+  }
+  .hero-intro {
+    font-size: 1.1875rem;
+  }
+}
+
+/* Data Strip Metrics */
+.data-strip {
+  background: var(--c-blue-100);
+}
+
+.data-strip ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.data-strip li {
+  padding: var(--s-5) var(--s-3);
+  border-left: 1px solid var(--c-blue-300);
+}
+
+.data-strip li:first-child {
+  border-left: 0;
+  padding-left: 0;
+}
+
+.data-num {
+  display: block;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 1.75rem;
+  line-height: 1.1;
+  color: var(--c-navy);
+}
+
+.data-num small {
+  font-size: 0.875rem;
+  color: var(--c-accent-ink);
+  margin-left: 2px;
+}
+
+.data-label {
+  display: block;
+  margin-top: var(--s-1);
+  font-size: 0.8125rem;
+  color: var(--c-navy-80);
+  line-height: 1.4;
+}
+
+@media (min-width: 768px) {
+  .data-strip li {
+    padding: var(--s-6) var(--s-5);
+  }
+  .data-num {
+    font-size: 2.5rem;
+  }
+  .data-label {
+    font-size: 0.9375rem;
+  }
+}
+
+/* Editorial Index List */
+.index-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--c-navy);
+}
+
+.index-list li {
+  border-bottom: 1px solid var(--c-line);
+}
+
+.index-list a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-4);
+  padding: var(--s-5) 0;
+  min-height: 72px;
+  text-decoration: none;
+  color: var(--c-ink);
+  width: 100%;
+}
+
+.index-list a > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.index-title {
+  display: block;
+  font-family: var(--font-heading);
+  font-size: 1.1875rem;
+  font-weight: 600;
+  color: var(--c-navy);
+  line-height: 1.35;
+}
+
+.index-desc {
+  display: block;
+  font-size: var(--fs-small);
+  color: var(--c-muted);
+  margin-top: 4px;
+  line-height: 1.6;
+}
+
+.index-list svg {
+  color: var(--c-navy);
+  flex-shrink: 0;
+  transition: transform var(--dur) var(--ease-out);
+}
+
+.index-list a:hover .index-title {
+  color: var(--c-accent-ink);
+}
+
+.index-list a:hover svg {
+  transform: translateX(4px);
+}
+
+.index-list a:active {
+  background: var(--c-bg-alt);
+}
+
+@media (min-width: 768px) {
+  .index-list a {
+    padding: var(--s-6) 0;
+  }
+  .index-list a > div {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    align-items: baseline;
+    gap: var(--s-5);
+  }
+  .index-title {
+    font-size: 1.35rem;
+  }
+  .index-desc {
+    margin-top: 0;
+  }
+}

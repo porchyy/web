@@ -1,4 +1,4 @@
-# เทคโนโลยีธุรกิจดิจิทัล (Digital Business Technology — DBT)
+# เทคโนโลยีธุรกิจดิจิทัล (Digital Business Technology - DBT)
 
 เว็บไซต์ทางการของแผนกวิชาเทคโนโลยีธุรกิจดิจิทัล ออกแบบภายใต้แนวคิด **Mobile-First** และปรัชญา **"Human-designed Digital Technology"** (Modern Technology + Contemporary Education + Editorial Graphic Design + Clean Interface) ปราศจากความซ้ำซากจำเจของ AI Template
 

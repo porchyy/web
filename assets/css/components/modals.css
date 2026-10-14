@@ -1,0 +1,139 @@
+/**
+ * Digital Business Technology - Modals, Dialogs & Toast Notifications
+ * Reference: STYLE.md Section 2.5 & RULES.md Modal Standard
+ */
+
+/* Editorial Modal Standards */
+.modal-content {
+  border-radius: var(--radius);
+  border: 1px solid var(--c-navy);
+  box-shadow: 0 16px 36px rgba(23, 50, 77, 0.18);
+  background-color: #ffffff;
+  overflow: hidden;
+}
+
+.modal-header {
+  border-radius: 0;
+  background: var(--c-bg-alt);
+  border-bottom: 1px solid var(--c-line);
+  padding: var(--s-4) var(--s-5);
+}
+
+.modal-header .modal-title {
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--c-navy);
+  margin: 0;
+}
+
+.modal-body {
+  padding: var(--s-5);
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  color: var(--c-text);
+  line-height: var(--lh-body);
+}
+
+.modal-footer {
+  border-radius: 0;
+  background: var(--c-bg-alt);
+  border-top: 1px solid var(--c-line);
+  padding: var(--s-3) var(--s-5);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--s-3);
+}
+
+/* Modal Viewport Switcher (Hero & News Live Preview) */
+.preview-viewport-toggle {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius);
+  background: #fff;
+  padding: 2px;
+  gap: 2px;
+}
+
+.preview-viewport-btn {
+  border: none;
+  background: transparent;
+  padding: 4px 12px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--c-muted);
+  border-radius: 1px;
+  cursor: pointer;
+  transition: all var(--dur);
+}
+
+.preview-viewport-btn.is-active {
+  background: var(--c-navy);
+  color: #fff;
+  font-weight: 600;
+}
+
+.preview-container-frame {
+  margin: 0 auto;
+  transition: width 0.3s var(--ease-out);
+  background: #fff;
+  border: 1px solid var(--c-line);
+  overflow: hidden;
+}
+
+.preview-container-frame.is-desktop {
+  width: 100%;
+  min-height: 480px;
+}
+
+.preview-container-frame.is-mobile {
+  width: 375px;
+  max-width: 100%;
+  min-height: 580px;
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+/* Toast Messages */
+.admin-toast,
+.toast-msg {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  background: var(--c-navy);
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: var(--radius);
+  font-size: 13.5px;
+  font-family: var(--font-body);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  opacity: 0;
+  transform: translateY(12px);
+  pointer-events: none;
+  transition: all 0.25s ease;
+}
+
+.admin-toast.is-active,
+.toast-msg.is-active {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.admin-toast.is-error,
+.toast-msg.is-error {
+  background: var(--c-danger);
+  border-left: 4px solid #7a1a12;
+}
+
+.admin-toast.is-success,
+.toast-msg.is-success {
+  border-left: 4px solid var(--c-accent);
+}

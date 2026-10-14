@@ -1,8 +1,16 @@
 <?php
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/security.php';
+require_once __DIR__ . '/services/SettingService.php';
 
 if (session_status() !== PHP_SESSION_ACTIVE) {
-    session_set_cookie_params(['httponly' => true, 'samesite' => 'Lax']);
+    $cookiePath = defined('BASE_URL') && BASE_URL !== '' ? BASE_URL : '/';
+    session_set_cookie_params([
+        'path'     => $cookiePath,
+        'httponly' => true,
+        'samesite' => 'Lax',
+        'secure'   => (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'),
+    ]);
     session_start();
 }
 
@@ -13,9 +21,30 @@ function e($v): string
     return htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
 }
 
+function setting(string $key, string $default = ''): string
+{
+    return SettingService::get($key, $default);
+}
+
 function url(string $path = ''): string
 {
-    return BASE_URL . '/' . ltrim($path, '/');
+    $clean = ltrim($path, '/');
+    if ($clean !== '' && !str_starts_with($clean, 'uploads/') && !str_starts_with($clean, 'assets/') && !str_starts_with($clean, 'favicon.')) {
+        if (str_starts_with($clean, 'pages/')) {
+            $clean = substr($clean, 6);
+        }
+        $clean = preg_replace('/\.php(\?.*)?$/', '$1', $clean);
+        if ($clean === 'index') {
+            $clean = '';
+        } elseif ($clean === 'admin/index') {
+            $clean = 'admin';
+        }
+    }
+    $root = rtrim(BASE_URL, '/');
+    if ($clean === '') {
+        return $root !== '' ? $root . '/' : '/';
+    }
+    return ($root !== '' ? $root : '') . '/' . $clean;
 }
 
 function img_url(?string $path): string
@@ -27,22 +56,6 @@ function redirect(string $path): never
 {
     header('Location: ' . url($path));
     exit;
-}
-
-/* ---------- Settings (Key/Value Store) ---------- */
-
-function setting(string $key, string $default = ''): string
-{
-    static $cache = null;
-    if ($cache === null) {
-        $cache = q('SELECT skey, svalue FROM settings')->fetchAll(PDO::FETCH_KEY_PAIR);
-    }
-    return $cache[$key] ?? $default;
-}
-
-function set_setting(string $key, string $value): void
-{
-    q('INSERT INTO settings (skey, svalue) VALUES (?, ?) ON DUPLICATE KEY UPDATE svalue = VALUES(svalue)', [$key, $value]);
 }
 
 /* ---------- CSRF & Flash Messages ---------- */
@@ -62,9 +75,15 @@ function csrf_field(): string
 
 function verify_csrf(): void
 {
-    if (!hash_equals($_SESSION['csrf'] ?? '', $_POST['csrf'] ?? '')) {
-        http_response_code(419);
-        exit('เซสชันหมดอายุ กรุณาโหลดหน้าใหม่แล้วลองอีกครั้ง');
+    $token = $_POST['csrf'] ?? $_POST['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+    if (!hash_equals($_SESSION['csrf'] ?? '', (string) $token)) {
+        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+            http_response_code(419);
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode(['success' => false, 'error' => 'รหัสความปลอดภัยของแบบฟอร์มหมดอายุ กรุณารีเฟรชหน้าเว็บ']);
+            exit;
+        }
+        redirect('error?code=419');
     }
 }
 
@@ -94,11 +113,6 @@ function thai_date(?string $date, bool $long = false): string
     return date('j', $t) . ' ' . ($long ? TH_MONTHS[$m] : TH_MONTHS_SHORT[$m]) . ' ' . (date('Y', $t) + 543);
 }
 
-function mono_date(?string $date): string
-{
-    return $date ? date('d.m.y', strtotime($date)) : '';
-}
-
 function activity_countdown_badge(string $startDate, ?string $endDate = null): array
 {
     $today = new DateTime('today');
@@ -109,36 +123,29 @@ function activity_countdown_badge(string $startDate, ?string $endDate = null): a
         return ['text' => 'สิ้นสุดแล้ว', 'class' => 'badge-ended', 'is_soon' => false];
     }
     if ($today >= $start && $today <= $end) {
-        return ['text' => 'กำลังจัดกิจกรรม', 'class' => 'badge-soon', 'is_soon' => true];
+        return ['text' => 'กำลังจัดกิจกรรม', 'class' => 'badge-active', 'is_soon' => true];
     }
 
     $diff = (int) $today->diff($start)->format('%r%a');
     if ($diff === 0) {
-        return ['text' => 'วันนี้', 'class' => 'badge-soon', 'is_soon' => true];
+        return ['text' => 'วันนี้', 'class' => 'badge-active', 'is_soon' => true];
     } elseif ($diff === 1) {
         return ['text' => 'พรุ่งนี้', 'class' => 'badge-soon', 'is_soon' => true];
     } elseif ($diff <= 7) {
         return ['text' => "อีก {$diff} วัน", 'class' => 'badge-soon', 'is_soon' => true];
-    } elseif ($diff <= 30) {
-        return ['text' => "อีก {$diff} วัน", 'class' => 'badge-upcoming', 'is_soon' => false];
     } else {
         return ['text' => 'เร็ว ๆ นี้', 'class' => 'badge-upcoming', 'is_soon' => false];
     }
 }
 
-function format_time_hm(?string $time): string
+function hm(?string $time): string
 {
     return $time ? substr($time, 0, 5) : '';
 }
 
-function hm(?string $time): string
-{
-    return format_time_hm($time);
-}
-
 function initials(string $name): string
 {
-    $name = preg_replace('/^(นาย|นางสาว|นาง|ดร\.|อ\.|ผศ\.|รศ\.)\s*/u', '', trim($name));
+    $name = preg_replace('/^(อาจารย์|ครู|ดร\.|ผศ\.ดร\.|รศ\.ดร\.|ผศ\.|รศ\.|ศ\.|อ\.|นาย|นางสาว|นาง|นส\.)\s*/u', '', trim($name));
     return mb_substr($name, 0, 1);
 }
 
@@ -153,6 +160,46 @@ function render_avatar(string $name, ?string $imagePath, string $class = 'figure
         $html .= '<div class="monogram">' . e(initials($name)) . '</div>';
     }
     $html .= '</div>';
+    return $html;
+}
+
+/* ---------- Pagination Component ---------- */
+
+function render_pagination(int $currentPage, int $totalPages, string $baseUrl, array $params = []): string
+{
+    if ($totalPages <= 1) {
+        return '';
+    }
+
+    $html = '<nav aria-label="การแบ่งหน้า" class="my-4"><ul class="pagination justify-content-center m-0">';
+
+    // Previous
+    if ($currentPage > 1) {
+        $prevParams = array_merge($params, ['page' => $currentPage - 1]);
+        $html .= '<li class="page-item"><a class="page-link" href="' . e($baseUrl . '?' . http_build_query($prevParams)) . '">ก่อนหน้า</a></li>';
+    } else {
+        $html .= '<li class="page-item disabled"><span class="page-link">ก่อนหน้า</span></li>';
+    }
+
+    // Numbers
+    for ($p = 1; $p <= $totalPages; $p++) {
+        if ($p === $currentPage) {
+            $html .= '<li class="page-item active" aria-current="page"><span class="page-link">' . $p . '</span></li>';
+        } else {
+            $pageParams = array_merge($params, ['page' => $p]);
+            $html .= '<li class="page-item"><a class="page-link" href="' . e($baseUrl . '?' . http_build_query($pageParams)) . '">' . $p . '</a></li>';
+        }
+    }
+
+    // Next
+    if ($currentPage < $totalPages) {
+        $nextParams = array_merge($params, ['page' => $currentPage + 1]);
+        $html .= '<li class="page-item"><a class="page-link" href="' . e($baseUrl . '?' . http_build_query($nextParams)) . '">ถัดไป</a></li>';
+    } else {
+        $html .= '<li class="page-item disabled"><span class="page-link">ถัดไป</span></li>';
+    }
+
+    $html .= '</ul></nav>';
     return $html;
 }
 
@@ -232,7 +279,44 @@ function icon(string $name, int $size = 20, string $class = ''): string
         'check'         => '<path d="m5 12 5 5 9-10"/>',
         'alert'         => '<circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5h.01"/>',
         'external'      => '<path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
+        'settings'      => '<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>',
     ];
     $c = $class ? ' class="' . e($class) . '"' : '';
     return '<svg' . $c . ' width="' . $size . '" height="' . $size . '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' . ($p[$name] ?? '') . '</svg>';
 }
+
+/**
+ * Send short-lived HTTP public caching headers (RULES.md: 60-120s max TTL)
+ */
+function send_cache_headers(int $maxAge = 60, int $sMaxAge = 120): void
+{
+    require_once __DIR__ . '/services/CacheService.php';
+    CacheService::sendPublicHeaders($maxAge, $sMaxAge);
+}
+
+/**
+ * Parse Markdown & inline formatting (**bold**, *italic*, ~~strike~~, [text](url)) into HTML
+ */
+function parse_markdown(string $text): string
+{
+    if ($text === '') {
+        return '';
+    }
+    // Bold: **text** or __text__
+    $text = preg_replace('/\*\*(.+?)\*\*/u', '<strong>$1</strong>', $text);
+    $text = preg_replace('/__(.+?)__/u', '<strong>$1</strong>', $text);
+
+    // Strikethrough: ~~text~~
+    $text = preg_replace('/~~(.+?)~~/u', '<s>$1</s>', $text);
+
+    // Italic: *text* or _text_ (not preceded or followed by an asterisk/underscore)
+    $text = preg_replace('/(?<!\*)\*([^\*\s][^\*]*?)\*(?!\*)/u', '<em>$1</em>', $text);
+    $text = preg_replace('/(?<!_)_([^_\s][^_]*?)_(?!_)/u', '<em>$1</em>', $text);
+
+    // Links: [text](url)
+    $text = preg_replace('/\[([^\]]+)\]\(([^)]+)\)/u', '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>', $text);
+
+    return $text;
+}
+
+

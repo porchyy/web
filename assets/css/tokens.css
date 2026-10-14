@@ -1,0 +1,132 @@
+/**
+ * Digital Business Technology - Design Tokens
+ * Colors, Typography, Spacing, Transitions & Bootstrap Overrides
+ * Reference: STYLE.md Section 2.2, 2.3 & 2.4
+ */
+
+:root {
+  /* Color Palette (Ratio: White 65%, Light Blue 20%, Navy 10%, Orange Accent 5%) */
+  --c-bg: #ffffff;
+  --c-bg-alt: #f4f8fa;
+  --c-surface: #f8fafc;
+  --c-blue-100: #e6f1f5;
+  --c-blue-200: #d5eaf4;
+  --c-blue-300: #b9dceb;
+  --c-navy: #17324d;
+  --c-navy-80: #2e4a66;
+  --c-ink: #111827;
+  --c-text: #334a60;
+  --c-muted: #66798a;
+  --c-line: #dce6ec;
+  
+  /* Accent Tokens */
+  --c-accent: #e99a4a;       /* Warm orange for buttons, rules, dots */
+  --c-accent-ink: #a85417;   /* High-contrast orange text (passes WCAG AA 4.5:1) */
+
+  /* Semantic Feedback States */
+  --c-success: #1f7a4d;
+  --c-success-bg: #eef7f2;
+  --c-danger: #b42318;
+  --c-danger-bg: #fdf1f0;
+  --c-warning: #8a4b08;
+  --c-warning-bg: #fff6e8;
+  --c-info: #075985;
+  --c-info-bg: #f0f7ff;
+
+  /* Typography: Thai-First Font Families */
+  --font-display: "Kanit", sans-serif;
+  --font-heading: "Kanit", "Prompt", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-sans: "Prompt", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Prompt", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Monaco, Consolas, monospace;
+  --font-document: "Sarabun", sans-serif;
+
+  /* Font Weights */
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  /* Fluid Type Scale */
+  --fs-display: clamp(2.5rem, 3.5vw + 1rem, 4.5rem);
+  --fs-h1: clamp(2rem, 2vw + 1rem, 3rem);
+  --fs-h2: clamp(1.5rem, 1.2vw + 1rem, 2rem);
+  --fs-h3: clamp(1.125rem, 0.5vw + 1rem, 1.375rem);
+  --fs-h4: 1.125rem;
+  --fs-body: 1rem;
+  --fs-small: 0.9375rem;
+  --fs-body-sm: 0.9375rem;
+  --fs-caption: 0.8125rem;
+  --fs-eyebrow: 0.75rem;
+  --fs-mono: 0.875rem;
+
+  /* Line Heights */
+  --lh-display: 1.2;
+  --lh-heading: 1.35;
+  --lh-body: 1.8;
+  --lh-compact: 1.5;
+
+  /* Spacing Rhythm (4/8/16 Base) */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 24px;
+  --s-6: 32px;
+  --s-7: 48px;
+  --s-8: 64px;
+  --s-9: 96px;
+  --s-10: 128px;
+
+  /* Layout Boundaries */
+  --gutter: 20px;
+  --content-gutter: 24px;
+  --section-y: 56px;
+  --container-max: 1200px;
+  --container-wide: 1296px;
+  --header-height: 64px;
+  --bottom-nav-h: 64px;
+
+  /* Shape & Radii (Refined Editorial Brutalism: Sharp lines, subtle corner rounding) */
+  --radius-none: 0;
+  --radius-sm: 2px;
+  --radius: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+
+  /* Transitions */
+  --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --dur: 200ms;
+
+  /* Bootstrap Variable Overrides */
+  --bs-body-font-family: var(--font-sans);
+  --bs-body-font-size: var(--fs-body);
+  --bs-body-line-height: var(--lh-body);
+  --bs-body-color: var(--c-ink);
+  --bs-body-bg: var(--c-bg);
+  --bs-border-color: var(--c-line);
+  --bs-border-radius: var(--radius);
+  --bs-border-radius-sm: var(--radius);
+  --bs-border-radius-lg: var(--radius-md);
+  --bs-link-color: var(--c-navy);
+  --bs-link-color-rgb: 23, 50, 77;
+  --bs-link-hover-color: var(--c-accent-ink);
+  --bs-link-hover-color-rgb: 168, 84, 23;
+  --bs-heading-color: var(--c-navy);
+  --bs-gutter-x: calc(var(--gutter) * 2);
+}
+
+@media (min-width: 768px) {
+  :root {
+    --gutter: 32px;
+    --content-gutter: 32px;
+    --section-y: 80px;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --gutter: 48px;
+    --section-y: 112px;
+  }
+}

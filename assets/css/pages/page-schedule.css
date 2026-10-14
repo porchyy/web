@@ -1,0 +1,526 @@
+/**
+ * Digital Business Technology - Public Schedule Layout & Print Stylesheet
+ * Reference: STYLE.md Section 2.5 & Track 6.1 (Clean Editorial Brutalism)
+ */
+
+.segmented {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border: 1px solid var(--c-navy);
+  border-radius: var(--radius);
+  padding: 3px;
+  gap: 3px;
+  max-width: 440px;
+}
+
+.segmented a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  min-height: 44px;
+  font-weight: 500;
+  font-size: 0.9375rem;
+  text-decoration: none;
+  color: var(--c-navy);
+  border-radius: 1px;
+  transition:
+    background-color var(--dur),
+    color var(--dur);
+}
+
+.segmented a[aria-current="page"] {
+  background: var(--c-navy);
+  color: #fff;
+}
+
+/* Mobile Day Tabs */
+.day-tabs {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--s-1);
+  border-bottom: 1px solid var(--c-line);
+  margin-bottom: var(--s-2);
+}
+
+.day-tab {
+  appearance: none;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-height: 56px;
+  padding: var(--s-2) 0;
+  color: var(--c-muted);
+  font-family: inherit;
+  font-size: 0.8125rem;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+
+.day-tab .d {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.day-tab[aria-selected="true"] {
+  color: var(--c-navy);
+  border-bottom-color: var(--c-accent);
+}
+
+.day-tab .today-dot {
+  width: 4px;
+  height: 4px;
+  background: var(--c-accent);
+  border-radius: 50%;
+}
+
+.slot-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.slot {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: var(--s-4);
+  padding: var(--s-5) 0;
+  border-bottom: 1px solid var(--c-line);
+}
+
+.slot-time {
+  font-family: var(--font-mono);
+  line-height: 1.4;
+}
+
+.slot-time .start {
+  display: block;
+  color: var(--c-navy);
+  font-weight: 500;
+  font-size: 0.9375rem;
+}
+
+.slot-time .end {
+  display: block;
+  color: var(--c-muted);
+  font-size: 0.8125rem;
+}
+
+.slot h3 {
+  font-size: 1.0625rem;
+  margin: 2px 0 var(--s-2);
+  line-height: 1.45;
+}
+
+.slot .code {
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  letter-spacing: 0.02em;
+  color: var(--c-accent-ink);
+}
+
+.slot-empty {
+  padding: var(--s-6) 0;
+  color: var(--c-muted);
+}
+
+/* Public Desktop Timetable: Refined Editorial Brutalism (Sharp 1px lines, subtle hover) */
+.timetable-wrap-user {
+  background: #ffffff;
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius);
+  overflow-x: auto;
+  box-shadow: none;
+  margin-bottom: 2rem;
+  width: 100%;
+}
+
+.week-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 1180px;
+  table-layout: fixed;
+}
+
+.week-table th,
+.week-table td {
+  border-right: 1px solid var(--c-line);
+  border-bottom: 1px solid var(--c-line);
+  vertical-align: middle;
+  padding: 8px 10px;
+  box-sizing: border-box;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.week-table tbody tr {
+  height: 106px;
+}
+
+.week-table tbody td {
+  height: 106px;
+}
+
+.week-table tr th:last-child,
+.week-table tr td:last-child {
+  border-right: none;
+}
+
+.week-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Header Columns */
+.week-table thead th {
+  background: var(--c-surface);
+  text-align: center;
+  font-weight: 600;
+  color: var(--c-navy);
+  font-size: 13.5px;
+  padding: 10px 8px;
+  border-bottom: 2px solid var(--c-line);
+  vertical-align: middle;
+}
+
+.week-table thead th.col-day {
+  width: 110px;
+  min-width: 110px;
+  max-width: 110px;
+  text-align: center;
+  background: var(--c-blue-100);
+  font-weight: 700;
+  color: var(--c-navy);
+}
+
+.week-table td.col-day {
+  background: var(--c-surface);
+  font-weight: 700;
+  color: var(--c-navy);
+  text-align: center;
+  font-family: var(--font-heading);
+}
+
+/* Card Slot inside Public Week Table */
+.cell-slot {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 6px 8px;
+  border-left: 3px solid var(--c-navy);
+  background: #ffffff;
+  border-radius: var(--radius);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.cell-slot .slot-code {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--c-navy);
+}
+
+.cell-slot .slot-name {
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--c-ink);
+  margin: 2px 0;
+}
+
+.cell-slot .slot-room {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--c-muted);
+}
+
+/* Live Indicators & Highlights */
+.is-current-class {
+  border-left: 3px solid var(--c-accent) !important;
+  background: rgba(233, 154, 74, 0.06) !important;
+}
+
+.is-next-class {
+  border-left: 3px solid var(--c-navy) !important;
+  background: rgba(23, 50, 77, 0.03) !important;
+}
+
+.bg-today-highlight {
+  background: var(--c-surface) !important;
+  border-left: 3px solid var(--c-accent);
+}
+
+.is-current-period {
+  background: var(--c-blue-100) !important;
+  color: var(--c-navy) !important;
+  font-weight: 700;
+}
+
+/* Mobile Slot Card */
+.slot-card-mobile {
+  border-radius: var(--radius);
+  transition: all var(--dur) var(--ease-out);
+}
+
+.slot-card-mobile:hover {
+  border-color: var(--c-navy);
+}
+
+/* Special Slots (Flag & Lunch) */
+.slot-flag {
+  background: var(--c-surface);
+  text-align: center;
+  color: var(--c-muted);
+}
+
+.slot-lunch {
+  background: #fdfaf6;
+  text-align: center;
+  color: var(--c-muted);
+}
+
+.special-slot-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-size: 12px;
+  padding: 4px;
+}
+
+.special-title {
+  font-weight: 600;
+  color: var(--c-navy);
+}
+
+.empty-slot-inner {
+  text-align: center;
+  color: var(--c-line);
+}
+
+/* Activity Calendar View */
+.max-w-720 {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.month-group {
+  margin-bottom: var(--s-6);
+}
+
+.month-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--c-navy);
+  padding-bottom: var(--s-2);
+  margin-bottom: var(--s-4);
+}
+
+.month-head h2 {
+  font-size: var(--fs-h3);
+  margin: 0;
+  color: var(--c-navy);
+}
+
+.event-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+
+.event {
+  display: grid;
+  grid-template-columns: 68px 1fr;
+  gap: var(--s-4);
+  padding: var(--s-4);
+  background: #fff;
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius);
+  transition: all var(--dur) var(--ease-out);
+}
+
+.event:hover {
+  border-color: var(--c-navy);
+}
+
+.event-date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--c-surface);
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius);
+  padding: var(--s-2);
+  height: 64px;
+}
+
+.event-date .day {
+  font-family: var(--font-mono);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--c-navy);
+  line-height: 1;
+}
+
+.event-date .wd {
+  font-size: 0.75rem;
+  color: var(--c-muted);
+}
+
+.event h3 {
+  font-size: 1.05rem;
+  margin: 0;
+  color: var(--c-ink);
+}
+
+.event p {
+  font-size: 0.9375rem;
+  color: var(--c-muted);
+  margin: var(--s-2) 0;
+  line-height: 1.5;
+}
+
+.meta-line {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  font-size: 0.8125rem;
+  color: var(--c-muted);
+}
+
+.meta-line .dot {
+  width: 3px;
+  height: 3px;
+  background: var(--c-muted);
+  border-radius: 50%;
+}
+
+/* Print Stylesheet (A4 Landscape Bulletproof) */
+@page {
+  size: A4 landscape;
+  margin: 8mm 10mm;
+}
+
+@media print {
+  *,
+  *::before,
+  *::after {
+    background: transparent !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  html,
+  body {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    color: #0e1e2e !important;
+    font-size: 11.5px !important;
+    line-height: 1.35 !important;
+  }
+
+  .site-header,
+  .site-footer,
+  .nav-bottom,
+  .segmented,
+  .group-select-bar,
+  .btn-print,
+  .skip-link,
+  .page-head p.eyebrow,
+  .page-head .lead-text {
+    display: none !important;
+  }
+
+  .page-head {
+    padding: 0 0 8px 0 !important;
+    margin-bottom: 8px !important;
+    border-bottom: 1.5px solid #17324d !important;
+  }
+
+  .page-head h1 {
+    font-size: 1.25rem !important;
+    margin: 0 !important;
+    color: #17324d !important;
+  }
+
+  .print-metadata-header {
+    display: flex !important;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: #57606a;
+    margin-bottom: 8px;
+    padding-bottom: 4px;
+    border-bottom: 1px dashed #cbd5e1;
+  }
+
+  .timetable-wrap-user {
+    overflow: visible !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+  }
+
+  .week-table {
+    width: 100% !important;
+    table-layout: fixed !important;
+    border-collapse: collapse !important;
+    border: 1.5px solid #17324d !important;
+    font-size: 11px !important;
+  }
+
+  .week-table th,
+  .week-table td {
+    padding: 4px 6px !important;
+    border: 1px solid #94a3b8 !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .week-table th {
+    background: #f1f5f9 !important;
+    color: #17324d !important;
+    font-weight: 700 !important;
+  }
+
+  .week-table td.col-day {
+    background: #f8fafc !important;
+    font-weight: 700 !important;
+    color: #17324d !important;
+    width: 80px !important;
+  }
+
+  .cell-slot {
+    padding: 2px !important;
+  }
+
+  .slot-code {
+    font-weight: 700 !important;
+    color: #17324d !important;
+  }
+
+  .d-none.d-md-block {
+    display: block !important;
+  }
+
+  .d-md-none {
+    display: none !important;
+  }
+}
