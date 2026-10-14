@@ -208,8 +208,10 @@ require_once __DIR__ . '/../includes/admin-header.php';
                   รองรับไฟล์ JPG, PNG หรือ WebP (ขนาดสูงสุด 5 MB · สัดส่วน 4:5)
                 </div>
                 <div class="dropzone-file-selected d-none">
-                  <span class="file-name mono"></span>
-                  <button type="button" class="btn-clear-file" title="ล้างรูปที่เลือก">ยกเลิก</button>
+                  <span class="file-prefix">เลือกแล้ว:</span>
+                  <span class="file-name mono" title=""></span>
+                  <span class="file-size mono"></span>
+                  <button type="button" class="btn-clear-file" title="ล้างรูปที่เลือก" aria-label="ล้างรูปที่เลือก"><?= icon('x', 14) ?></button>
                 </div>
               </div>
             </div>

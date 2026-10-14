@@ -12,8 +12,12 @@ if (AuthService::isLoggedIn()) {
 }
 
 $error = null;
+$lockoutUntil = (int) ($_SESSION['login_lockout_until'] ?? 0);
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($lockoutUntil > time()) {
+    $remainMins = max(1, (int) ceil(($lockoutUntil - time()) / 60));
+    $error = "คุณกรอกรหัสผ่านผิดเกินกำหนด กรุณารออีก {$remainMins} นาที ก่อนลองใหม่อีกครั้ง";
+} elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verify_csrf();
 
     $username = trim((string) ($_POST['username'] ?? ''));
@@ -22,10 +26,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($username === '' || $password === '') {
         $error = 'กรุณากรอกชื่อผู้ใช้และรหัสผ่าน';
     } elseif (AuthService::attemptLogin($username, $password)) {
+        unset($_SESSION['login_fail_count'], $_SESSION['login_lockout_until']);
         flash('เข้าสู่ระบบสำเร็จ ยินดีต้อนรับสู่แผงควบคุมหลังบ้าน');
         redirect('admin');
     } else {
-        $error = 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง';
+        $fails = (int) ($_SESSION['login_fail_count'] ?? 0) + 1;
+        $_SESSION['login_fail_count'] = $fails;
+        if ($fails >= 5) {
+            $_SESSION['login_lockout_until'] = time() + 300; // 5 minutes lockout
+            $error = 'คุณกรอกรหัสผ่านผิดเกิน 5 ครั้ง ระบบได้ระงับการเข้าสู่ระบบชั่วคราว 5 นาทีเพื่อความปลอดภัย';
+        } else {
+            $remaining = 5 - $fails;
+            $error = "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง (สามารถลองได้อีก {$remaining} ครั้ง)";
+        }
     }
 }
 

@@ -140,6 +140,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         redirect('admin/classes' . ($grp ? '?group=' . urlencode($grp) : ''));
     }
 
+    if ($subAction === 'restore_default_special_slots') {
+        $grp = trim((string) ($_POST['class_group'] ?? ''));
+        if ($grp !== '') {
+            $restoredCount = ScheduleService::restoreDefaultSpecialSlots($grp);
+            flash("กู้คืนคาบกิจกรรมมาตรฐาน (เสาธง/พักกลางวัน) เรียบร้อยแล้ว ({$restoredCount} รายการ)");
+        }
+        redirect('admin/classes' . ($grp ? '?group=' . urlencode($grp) : ''));
+    }
+
     if ($subAction === 'save_periods') {
         $pNums   = $_POST['p_num'] ?? [];
         $pStarts = $_POST['p_start'] ?? [];
@@ -148,10 +157,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $pNames  = $_POST['p_name'] ?? [];
 
         $newPeriods = [];
+        $invalidTime = false;
         foreach ($pNums as $idx => $num) {
             $s = trim((string) ($pStarts[$idx] ?? ''));
             $e = trim((string) ($pEnds[$idx] ?? ''));
             if ($s !== '' && $e !== '') {
+                if (strtotime("1970-01-01 $s") >= strtotime("1970-01-01 $e")) {
+                    $invalidTime = true;
+                    continue;
+                }
                 $newPeriods[] = [
                     'num'   => (int) $num,
                     'start' => $s,
@@ -162,6 +176,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
+        if ($invalidTime) {
+            flash('บางช่วงเวลาเริ่มต้นมากกว่าหรือเท่ากับเวลาสิ้นสุด จึงถูกข้ามการบันทึก', 'error');
+        }
         if (!empty($newPeriods)) {
             ScheduleService::savePeriods($newPeriods);
             flash('บันทึกการตั้งค่าคาบเวลาเรียนเรียบร้อยแล้ว');
@@ -251,6 +268,15 @@ $allSlots = ScheduleService::getAllClassSlots();
           <span>กลับหน้าตารางเรียน</span>
         </a>
       <?php else: ?>
+        <form method="POST" action="<?= url('admin/classes') ?>" class="d-inline" onsubmit="return confirm('ต้องการตรวจสอบและกู้คืนคาบกิจกรรมมาตรฐาน (หน้าเสาธง/พักกลางวัน) สำหรับกลุ่มนี้ใช่หรือไม่?');">
+          <?= csrf_field() ?>
+          <input type="hidden" name="sub_action" value="restore_default_special_slots">
+          <input type="hidden" name="class_group" value="<?= e($selectedGroup) ?>">
+          <button type="submit" class="btn btn-line" title="กู้คืนคาบกิจกรรมมาตรฐาน (หน้าเสาธงและพักกลางวัน)">
+            <?= icon('refresh', 16) ?>
+            <span>กู้คืนคาบกิจกรรมมาตรฐาน</span>
+          </button>
+        </form>
         <button type="button" class="btn btn-line" data-bs-toggle="modal" data-bs-target="#periodsModal">
           <?= icon('clock', 16) ?>
           <span>ตั้งค่าคาบเวลาเรียน</span>
@@ -398,6 +424,9 @@ $allSlots = ScheduleService::getAllClassSlots();
       </div>
 
       <div class="timetable-admin-wrap mb-3">
+        <div id="schedulerLivePreview" class="scheduler-live-preview d-none">
+          <div class="scheduler-live-preview-badge"></div>
+        </div>
         <table class="timetable-admin-table"
                id="schedulerGrid"
                data-csrf="<?= e(csrf_token()) ?>"
@@ -503,6 +532,22 @@ $allSlots = ScheduleService::getAllClassSlots();
 <!-- Render Modals Component -->
 <?php require_once __DIR__ . '/../includes/renderers/classes-modals.php'; ?>
 
-<script src="<?= url('assets/js/admin-scheduler.js') ?>?v=<?= file_exists(ROOT_PATH . '/assets/js/admin-scheduler.js') ? filemtime(ROOT_PATH . '/assets/js/admin-scheduler.js') : '1' ?>"></script>
+<?php
+$schedulerScripts = [
+    'assets/js/modules/scheduler-ui.js',
+    'assets/js/modules/scheduler-api.js',
+    'assets/js/modules/scheduler-dnd.js',
+    'assets/js/modules/scheduler-resize.js',
+    'assets/js/modules/scheduler-periods.js',
+    'assets/js/modules/scheduler-modals.js',
+    'assets/js/modules/scheduler-combobox.js',
+    'assets/js/admin-scheduler.js',
+];
+foreach ($schedulerScripts as $scriptRel):
+    $fullPath = ROOT_PATH . '/' . $scriptRel;
+    $ver = file_exists($fullPath) ? filemtime($fullPath) : '1';
+?>
+<script src="<?= url($scriptRel) ?>?v=<?= $ver ?>"></script>
+<?php endforeach; ?>
 
 <?php require_once __DIR__ . '/../includes/admin-footer.php'; ?>

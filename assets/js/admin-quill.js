@@ -32,8 +32,13 @@
     res = res.replace(/(^|[^\*])\*([^\*\s][^\*]*?)\*(?!\*)/g, '$1<em>$2</em>');
     res = res.replace(/(^|[^_])_([^_\s][^_]*?)_(?!_)/g, '$1<em>$2</em>');
 
-    // Links: [title](url)
-    res = res.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+    // Links: [title](url) with protocol validation
+    res = res.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, title, rawUrl) => {
+      const cleanUrl = (rawUrl || '').trim();
+      const isSafe = /^(?:https?:\/\/|mailto:|\/|#|\.\/)/i.test(cleanUrl) && !/^javascript:/i.test(cleanUrl);
+      const safeHref = isSafe ? cleanUrl.replace(/"/g, '&quot;') : '#';
+      return `<a href="${safeHref}" target="_blank" rel="noopener noreferrer">${title}</a>`;
+    });
 
     // Inline code: `code`
     res = res.replace(/`([^`]+)`/g, '<code>$1</code>');

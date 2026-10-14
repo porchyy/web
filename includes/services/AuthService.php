@@ -151,6 +151,13 @@ class AuthService
         if ($id === $currentUserId) {
             throw new RuntimeException('ไม่สามารถลบบัญชีผู้ใช้ของตัวเองที่กำลังใช้งานอยู่ได้');
         }
+        $targetUser = self::getUserById($id);
+        if ($targetUser && ($targetUser['role'] ?? '') === 'admin') {
+            $adminCount = (int) q("SELECT COUNT(*) FROM users WHERE role = 'admin'")->fetchColumn();
+            if ($adminCount <= 1) {
+                throw new RuntimeException('ไม่สามารถลบผู้ดูแลระบบคนสุดท้ายของระบบได้');
+            }
+        }
         q("DELETE FROM users WHERE id = ?", [$id]);
         return true;
     }

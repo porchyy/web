@@ -61,7 +61,7 @@ class CacheService
             return $default;
         }
 
-        $payload = @unserialize($content);
+        $payload = json_decode($content, true);
         if (!is_array($payload) || !isset($payload['expires_at'], $payload['data'])) {
             @unlink($file);
             return $default;
@@ -96,9 +96,12 @@ class CacheService
         self::$memoryCache[$key] = $payload;
 
         $file = self::getFilePath($key);
-        $serialized = serialize($payload);
+        $encoded = json_encode($payload, JSON_UNESCAPED_UNICODE);
+        if ($encoded === false) {
+            return false;
+        }
 
-        return (bool) @file_put_contents($file, $serialized, LOCK_EX);
+        return (bool) @file_put_contents($file, $encoded, LOCK_EX);
     }
 
     /**

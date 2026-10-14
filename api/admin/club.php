@@ -41,6 +41,13 @@ try {
 
 $subAction = trim((string) ($_POST['sub_action'] ?? ''));
 
+// Guard: Admin Role for Structural Operations
+if (!AuthService::hasRole('admin')) {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'error' => 'เฉพาะผู้ดูแลระบบ (Admin) เท่านั้นที่สามารถจัดลำดับหรือแต่งตั้งประธานชมรมได้'], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 try {
     switch ($subAction) {
         case 'reorder':
@@ -66,7 +73,13 @@ try {
             echo json_encode(['success' => false, 'error' => 'ไม่พบคำสั่ง sub_action ที่ร้องขอ'], JSON_UNESCAPED_UNICODE);
             break;
     }
-} catch (Exception $e) {
+} catch (InvalidArgumentException $e) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'error' => $e->getMessage()], JSON_UNESCAPED_UNICODE);
+} catch (RuntimeException $e) {
     http_response_code(422);
     echo json_encode(['success' => false, 'error' => $e->getMessage()], JSON_UNESCAPED_UNICODE);
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode(['success' => false, 'error' => 'เกิดข้อผิดพลาดภายในระบบ'], JSON_UNESCAPED_UNICODE);
 }

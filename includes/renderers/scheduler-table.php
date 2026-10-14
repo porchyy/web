@@ -35,7 +35,6 @@ if (!function_exists('renderSchedulerTbody')) {
                   <?php $s = $cell['slot']; ?>
                   <td colspan="<?= $cell['colspan'] ?>">
                     <div class="admin-slot-card admin-slot-card-special slot-type-<?= $cell['type'] ?>"
-                         draggable="true"
                          data-slot-id="<?= (int) $s['id'] ?>"
                          data-day="<?= $d ?>"
                          data-time-start="<?= e(substr($s['time_start'], 0, 5)) ?>"
@@ -48,8 +47,8 @@ if (!function_exists('renderSchedulerTbody')) {
                          data-room="<?= e($s['room'] ?? '') ?>"
                          data-group="<?= e($s['class_group'] ?? $selectedGroup) ?>"
                          title="คลิกเพื่อแก้ไขข้อมูลคาบพิเศษ">
-                      <div class="slot-resize-handle handle-left" data-side="left" title="ลากขอบซ้ายเพื่อปรับเวลาเริ่มต้น"></div>
-                      <div class="slot-resize-handle handle-right" data-side="right" title="ลากขอบขวาเพื่อปรับเวลาสิ้นสุด"></div>
+                      <div class="slot-resize-handle resize-handle handle-left resize-handle-left" data-side="left" title="ลากขอบซ้ายเพื่อปรับเวลาเริ่มต้น"></div>
+                      <div class="slot-resize-handle resize-handle handle-right resize-handle-right" data-side="right" title="ลากขอบขวาเพื่อปรับเวลาสิ้นสุด"></div>
                       
                       <div class="card-head">
                         <span class="subject-code d-inline-flex align-items-center gap-1">
@@ -104,7 +103,6 @@ if (!function_exists('renderSchedulerTbody')) {
                   <?php $s = $cell['slot']; ?>
                   <td colspan="<?= $cell['colspan'] ?>">
                     <div class="admin-slot-card"
-                         draggable="true"
                          data-slot-id="<?= (int) $s['id'] ?>"
                          data-class-id="<?= (int) ($s['class_id'] ?? 0) ?>"
                          data-course-type="<?= e($s['course_type'] ?? 'regular') ?>"
@@ -119,8 +117,8 @@ if (!function_exists('renderSchedulerTbody')) {
                          data-room="<?= e($s['room'] ?? '') ?>"
                          data-group="<?= e($s['class_group'] ?? $selectedGroup) ?>"
                          title="คลิกเพื่อแก้ไขข้อมูลคาบเรียนนี้">
-                      <div class="slot-resize-handle handle-left" data-side="left" title="ลากขอบซ้ายเพื่อปรับเวลาเริ่มต้น"></div>
-                      <div class="slot-resize-handle handle-right" data-side="right" title="ลากขอบขวาเพื่อปรับเวลาสิ้นสุด"></div>
+                      <div class="slot-resize-handle resize-handle handle-left resize-handle-left" data-side="left" title="ลากขอบซ้ายเพื่อปรับเวลาเริ่มต้น"></div>
+                      <div class="slot-resize-handle resize-handle handle-right resize-handle-right" data-side="right" title="ลากขอบขวาเพื่อปรับเวลาสิ้นสุด"></div>
                       
                       <div class="card-head d-flex justify-content-between align-items-center">
                         <div class="d-flex align-items-center gap-1">

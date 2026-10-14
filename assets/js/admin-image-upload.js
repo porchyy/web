@@ -8,6 +8,20 @@
 (function () {
   'use strict';
 
+  function formatShortFileName(name, maxLen = 32) {
+    if (typeof name !== 'string' || name.length <= maxLen) return name;
+    const extIndex = name.lastIndexOf('.');
+    const ext = extIndex !== -1 ? name.slice(extIndex) : '';
+    const base = extIndex !== -1 ? name.slice(0, extIndex) : name;
+    const availBase = maxLen - ext.length - 3;
+    if (availBase <= 4) {
+      return name.slice(0, Math.max(1, maxLen - 3)) + '...';
+    }
+    const front = Math.ceil(availBase / 2);
+    const back = Math.floor(availBase / 2);
+    return base.slice(0, front) + '...' + base.slice(-back) + ext;
+  }
+
   function initImageUpload(wrapperEl) {
     if (!wrapperEl) return;
 
@@ -16,6 +30,7 @@
     const previewContainerEl = wrapperEl.querySelector('.image-upload-preview');
     const fileSelectedBoxEl = wrapperEl.querySelector('.dropzone-file-selected');
     const fileNameEl = wrapperEl.querySelector('.dropzone-file-selected .file-name');
+    const fileSizeEl = wrapperEl.querySelector('.dropzone-file-selected .file-size');
     const clearBtnEl = wrapperEl.querySelector('.btn-clear-file');
 
     if (!inputEl || !dropzoneEl) return;
@@ -106,7 +121,17 @@
       if (fileSelectedBoxEl && fileNameEl) {
         const sizeKb = Math.round(file.size / 1024);
         const sizeStr = sizeKb > 1024 ? (sizeKb / 1024).toFixed(1) + ' MB' : sizeKb + ' KB';
-        fileNameEl.textContent = 'เลือกแล้ว: ' + file.name + ' (' + sizeStr + ')';
+        const shortName = formatShortFileName(file.name, 28);
+
+        fileNameEl.textContent = shortName;
+        fileNameEl.title = `${file.name} (${sizeStr})`;
+
+        if (fileSizeEl) {
+          fileSizeEl.textContent = `(${sizeStr})`;
+        } else {
+          fileNameEl.textContent = 'เลือกแล้ว: ' + shortName + ' (' + sizeStr + ')';
+        }
+
         fileSelectedBoxEl.classList.remove('d-none');
       }
 
@@ -172,6 +197,13 @@
       inputEl.value = '';
       if (fileSelectedBoxEl) {
         fileSelectedBoxEl.classList.add('d-none');
+      }
+      if (fileNameEl) {
+        fileNameEl.textContent = '';
+        fileNameEl.removeAttribute('title');
+      }
+      if (fileSizeEl) {
+        fileSizeEl.textContent = '';
       }
 
       if (initialHasImage) {

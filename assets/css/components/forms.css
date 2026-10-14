@@ -138,13 +138,15 @@
 .image-upload-wrapper {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: stretch;
   gap: 1.15rem;
   background: var(--c-surface);
   border: 1px solid var(--c-line);
   border-radius: var(--radius);
   padding: 1.25rem;
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   box-sizing: border-box;
 }
 
@@ -232,10 +234,13 @@
   flex-grow: 1;
   min-height: 140px;
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
   border: 2px dashed #cbd5e1;
   background: #ffffff;
   border-radius: var(--radius);
-  padding: 1.5rem;
+  padding: 1.25rem 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -276,6 +281,10 @@
   flex-direction: column;
   align-items: center;
   gap: 0.35rem;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .dropzone-icon {
@@ -302,6 +311,8 @@
 .dropzone-text {
   font-size: 0.9375rem;
   color: var(--c-ink);
+  max-width: 100%;
+  overflow-wrap: break-word;
 }
 
 .dropzone-text strong {
@@ -311,38 +322,71 @@
 .dropzone-hint {
   font-size: 12.5px;
   color: var(--c-muted);
+  max-width: 100%;
+  overflow-wrap: break-word;
 }
 
 .dropzone-file-selected {
   margin-top: 0.5rem;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
+  gap: 0.35rem;
   background: #e0f2fe;
   border: 1px solid #bae6fd;
   border-radius: var(--radius);
   padding: 4px 10px;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.dropzone-file-selected .file-prefix {
+  font-size: 12px;
+  color: #0369a1;
+  font-weight: 500;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .dropzone-file-selected .file-name {
   font-size: 12px;
   color: #0369a1;
   font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  flex: 0 1 auto;
+  max-width: 220px;
+}
+
+.dropzone-file-selected .file-size {
+  font-size: 12px;
+  color: #0369a1;
+  font-weight: 500;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .dropzone-file-selected .btn-clear-file {
   background: none;
   border: none;
   color: #ef4444;
-  font-size: 12px;
-  font-weight: 600;
-  padding: 0 4px;
+  padding: 2px;
   cursor: pointer;
-  text-decoration: underline;
+  flex-shrink: 0;
+  white-space: nowrap;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.15s ease;
 }
 
 .dropzone-file-selected .btn-clear-file:hover {
   color: #b91c1c;
+  background: rgba(239, 68, 68, 0.15);
 }
 
 /* Generic File Dropzone */

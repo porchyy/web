@@ -72,6 +72,11 @@ try {
             break;
 
         case 'ajax_update_special_period':
+            if (!AuthService::hasRole('admin')) {
+                http_response_code(403);
+                echo json_encode(['success' => false, 'error' => 'เฉพาะผู้ดูแลระบบ (Admin) เท่านั้นที่สามารถตั้งค่าคาบพิเศษได้'], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
             $rawPeriodNum = $_POST['period_num'] ?? null;
             $specialType  = trim((string) ($_POST['special_type'] ?? ''));
             $timeStart    = trim((string) ($_POST['time_start'] ?? ''));
@@ -101,6 +106,27 @@ try {
                 'period'     => $updatedSpecial,
                 'periods'    => $updatedPeriods,
                 'thead_html' => $theadHtml,
+                'tbody_html' => $tbodyHtml,
+            ], JSON_UNESCAPED_UNICODE);
+            break;
+
+        case 'ajax_restore_special_slots':
+            if (!AuthService::hasRole('admin')) {
+                http_response_code(403);
+                echo json_encode(['success' => false, 'error' => 'เฉพาะผู้ดูแลระบบ (Admin) เท่านั้นที่สามารถกู้คืนคาบกิจกรรมมาตรฐานได้'], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
+            $group = trim((string) ($_POST['class_group'] ?? 'ปวช.2/1'));
+            $restoredCount = ScheduleService::restoreDefaultSpecialSlots($group);
+            $gridData = ScheduleService::getTimetableGrid($group);
+            ob_start();
+            renderSchedulerTbody($gridData['grid'], $group);
+            $tbodyHtml = ob_get_clean();
+
+            echo json_encode([
+                'success'    => true,
+                'message'    => "กู้คืนคาบกิจกรรมมาตรฐาน (เสาธง/พักกลางวัน) เรียบร้อยแล้ว ({$restoredCount} รายการ)",
+                'restored'   => $restoredCount,
                 'tbody_html' => $tbodyHtml,
             ], JSON_UNESCAPED_UNICODE);
             break;
@@ -162,6 +188,11 @@ try {
             break;
 
         case 'save_course':
+            if (!AuthService::hasRole('admin')) {
+                http_response_code(403);
+                echo json_encode(['success' => false, 'error' => 'เฉพาะผู้ดูแลระบบ (Admin) เท่านั้นที่สามารถแก้ไขทะเบียนรายวิชาได้'], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
             $courseId       = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT) ?: null;
             $subjectCode    = trim((string) ($_POST['subject_code'] ?? ''));
             $subjectName    = trim((string) ($_POST['subject_name'] ?? ''));
@@ -189,6 +220,11 @@ try {
             break;
 
         case 'delete_course':
+            if (!AuthService::hasRole('admin')) {
+                http_response_code(403);
+                echo json_encode(['success' => false, 'error' => 'เฉพาะผู้ดูแลระบบ (Admin) เท่านั้นที่สามารถลบรายวิชาได้'], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
             $courseId = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
             if (!$courseId) {
                 throw new InvalidArgumentException('ไม่พบรหัสรายวิชาที่ต้องการลบ');
@@ -232,10 +268,22 @@ try {
             echo json_encode(['success' => false, 'error' => 'ไม่พบคำสั่ง sub_action ที่ร้องขอ'], JSON_UNESCAPED_UNICODE);
             break;
     }
-} catch (Exception $e) {
-    http_response_code(422);
+} catch (InvalidArgumentException $e) {
+    http_response_code(400);
     echo json_encode([
         'success' => false,
         'error'   => $e->getMessage(),
+    ], JSON_UNESCAPED_UNICODE);
+} catch (RuntimeException $e) {
+    http_response_code(409);
+    echo json_encode([
+        'success' => false,
+        'error'   => $e->getMessage(),
+    ], JSON_UNESCAPED_UNICODE);
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode([
+        'success' => false,
+        'error'   => 'เกิดข้อผิดพลาดภายในระบบ',
     ], JSON_UNESCAPED_UNICODE);
 }

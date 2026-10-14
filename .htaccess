@@ -25,6 +25,10 @@ RewriteRule ^ %1 [R=301,L]
 RewriteCond %{REQUEST_METHOD} ^(GET|HEAD)$ [NC]
 RewriteRule ^index/?$ /web/ [R=301,L]
 
+# Deny direct access to internal sensitive directories & files
+RewriteRule ^(?:\.scratch|scratch|database|\.agents|\.git)(?:/.*)?$ - [F,L,NC]
+RewriteRule \.(?:cache|sql|env|md|json|lock)$ - [F,L,NC]
+
 # Existing files and directories serve directly
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d

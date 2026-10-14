@@ -25,6 +25,18 @@ function init_database_schema(PDO $pdo): void
     }
 }
 
+/** ตรวจว่า request นี้เป็น API / AJAX ที่ต้องการ JSON กลับไป */
+function request_wants_json(): bool
+{
+    $uri    = $_SERVER['REQUEST_URI'] ?? '';
+    $accept = $_SERVER['HTTP_ACCEPT'] ?? '';
+    $xhr    = $_SERVER['HTTP_X_REQUESTED_WITH'] ?? '';
+
+    return str_contains($uri, '/api/')
+        || str_contains($accept, 'application/json')
+        || strcasecmp($xhr, 'XMLHttpRequest') === 0;
+}
+
 function db(): PDO
 {
     static $pdo = null;
@@ -56,6 +68,10 @@ function db(): PDO
         } catch (PDOException $subEx) {
             error_log("Database connection & auto-create error: " . $subEx->getMessage());
             http_response_code(500);
+            if (request_wants_json()) {
+                header('Content-Type: application/json; charset=utf-8');
+                exit(json_encode(['success' => false, 'error' => 'Database connection error'], JSON_UNESCAPED_UNICODE));
+            }
             exit('<p style="font-family:sans-serif;padding:2rem">เชื่อมต่อฐานข้อมูลไม่ได้ - ตรวจสอบค่าใน <code>.env</code> หรือ <code>includes/config.php</code></p>');
         }
     }

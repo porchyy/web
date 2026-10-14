@@ -110,6 +110,10 @@ class FacultyService
         $db = db();
         $db->beginTransaction();
         try {
+            if (!q("SELECT id FROM teachers WHERE id = ?", [$newHeadId])->fetch()) {
+                throw new InvalidArgumentException('ไม่พบอาจารย์ที่ต้องการแต่งตั้งในระบบ');
+            }
+
             $currentHead = q("SELECT id FROM teachers WHERE is_head = 1 LIMIT 1")->fetch();
             $oldHeadId = $currentHead ? (int) $currentHead['id'] : null;
 
@@ -125,8 +129,11 @@ class FacultyService
             CacheService::forget('faculty_teachers_head');
             return true;
         } catch (Exception $e) {
-            $db->rollBack();
-            return false;
+            if ($db->inTransaction()) {
+                $db->rollBack();
+            }
+            error_log('setHeadTeacher failed: ' . $e->getMessage());
+            throw $e;
         }
     }
 
@@ -237,6 +244,10 @@ class FacultyService
         $db = db();
         $db->beginTransaction();
         try {
+            if (!q("SELECT id FROM club_members WHERE id = ?", [$newHeadId])->fetch()) {
+                throw new InvalidArgumentException('ไม่พบสมาชิกที่ต้องการแต่งตั้งในระบบ');
+            }
+
             $currentHead = q("SELECT id FROM club_members WHERE is_club_head = 1 LIMIT 1")->fetch();
             $oldHeadId = $currentHead ? (int) $currentHead['id'] : null;
 
@@ -252,8 +263,11 @@ class FacultyService
             CacheService::forget('faculty_club_president');
             return true;
         } catch (Exception $e) {
-            $db->rollBack();
-            return false;
+            if ($db->inTransaction()) {
+                $db->rollBack();
+            }
+            error_log('setClubPresident failed: ' . $e->getMessage());
+            throw $e;
         }
     }
 

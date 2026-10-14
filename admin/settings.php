@@ -12,7 +12,7 @@ require_once __DIR__ . '/../includes/services/SettingService.php';
 
 // Only administrators may modify system settings
 if (($currentUser['role'] ?? '') !== 'admin') {
-    flash('error', 'คุณไม่มีสิทธิ์เข้าถึงหน้านี้');
+    flash('คุณไม่มีสิทธิ์เข้าถึงหน้านี้', 'error');
     redirect('admin');
 }
 
@@ -55,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         foreach ($settingsToSave as $k => $v) {
             SettingService::set($k, $v);
         }
-        flash('success', 'บันทึกการตั้งค่าระบบเรียบร้อยแล้ว');
+        flash('บันทึกการตั้งค่าระบบเรียบร้อยแล้ว', 'success');
         redirect('admin/settings');
     }
 }

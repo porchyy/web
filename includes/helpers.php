@@ -216,6 +216,12 @@ function upload_image(string $field): ?string
     $ext  = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'][$mime] ?? null;
     if (!$ext) throw new RuntimeException('รองรับเฉพาะไฟล์ JPG, PNG หรือ WebP');
 
+    // Verify valid image header and payload integrity
+    $imgInfo = @getimagesize($f['tmp_name']);
+    if ($imgInfo === false) {
+        throw new RuntimeException('ไฟล์รูปภาพไม่ถูกต้องหรือข้อมูลรูปภาพเสียหาย');
+    }
+
     if (!is_dir(UPLOAD_DIR)) mkdir(UPLOAD_DIR, 0755, true);
     $name = date('Ymd') . '-' . bin2hex(random_bytes(6)) . '.' . $ext;
     if (!move_uploaded_file($f['tmp_name'], UPLOAD_DIR . '/' . $name)) {
@@ -226,22 +232,31 @@ function upload_image(string $field): ?string
 
 function delete_upload(?string $path): void
 {
-    if ($path && str_starts_with($path, 'uploads/') && !str_starts_with($path, 'uploads/seed/')) {
-        $full = ROOT_PATH . '/' . $path;
-        if (is_file($full)) @unlink($full);
+    if (!$path || !str_starts_with($path, 'uploads/') || str_starts_with($path, 'uploads/seed/')) {
+        return;
+    }
+    $full = ROOT_PATH . '/' . $path;
+    $realUploadDir = realpath(UPLOAD_DIR);
+    $realTarget    = realpath($full);
+
+    if ($realTarget && $realUploadDir && str_starts_with($realTarget, $realUploadDir) && is_file($realTarget)) {
+        @unlink($realTarget);
     }
 }
 
 function delete_record_with_asset(string $table, int $id, string $column = 'image_path'): void
 {
-    $allowed = ['news', 'teachers', 'club_members'];
-    if (!in_array($table, $allowed, true)) {
+    $allowedTables  = ['news', 'teachers', 'club_members'];
+    $allowedColumns = ['image_path'];
+    if (!in_array($table, $allowedTables, true)) {
         throw new InvalidArgumentException("Invalid table for asset deletion: {$table}");
     }
-    $col = preg_replace('/[^a-zA-Z0-9_]/', '', $column);
-    $row = q("SELECT `{$col}` FROM `{$table}` WHERE id = ?", [$id])->fetch();
-    if ($row && !empty($row[$col])) {
-        delete_upload($row[$col]);
+    if (!in_array($column, $allowedColumns, true)) {
+        throw new InvalidArgumentException("Invalid column for asset deletion: {$column}");
+    }
+    $row = q("SELECT `{$column}` FROM `{$table}` WHERE id = ?", [$id])->fetch();
+    if ($row && !empty($row[$column])) {
+        delete_upload($row[$column]);
     }
     q("DELETE FROM `{$table}` WHERE id = ?", [$id]);
 }
@@ -282,6 +297,8 @@ function icon(string $name, int $size = 20, string $class = ''): string
         'settings'      => '<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>',
         'copy'          => '<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
         'search'        => '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+        'x'             => '<path d="M18 6 6 18M6 6l12 12"/>',
+        'close'         => '<path d="M18 6 6 18M6 6l12 12"/>',
     ];
     $c = $class ? ' class="' . e($class) . '"' : '';
     return '<svg' . $c . ' width="' . $size . '" height="' . $size . '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' . ($p[$name] ?? '') . '</svg>';
@@ -316,7 +333,10 @@ function parse_markdown(string $text): string
     $text = preg_replace('/(?<!_)_([^_\s][^_]*?)_(?!_)/u', '<em>$1</em>', $text);
 
     // Links: [text](url)
-    $text = preg_replace('/\[([^\]]+)\]\(([^)]+)\)/u', '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>', $text);
+    $text = preg_replace_callback('/\[([^\]]+)\]\(([^)]+)\)/u', function ($m) {
+        $safeUrl = function_exists('safe_url') ? safe_url($m[2]) : '#';
+        return '<a href="' . e($safeUrl) . '" target="_blank" rel="noopener noreferrer">' . $m[1] . '</a>';
+    }, $text);
 
     return $text;
 }

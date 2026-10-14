@@ -27,11 +27,12 @@ class ScheduleService
         ];
     }
 
-    public static function ensureSpecialSlots(string $group = 'ปวช.2/1'): void
+    public static function restoreDefaultSpecialSlots(string $group = 'ปวช.2/1'): int
     {
         if ($group === '') {
             $group = 'ปวช.2/1';
         }
+        $inserted = 0;
         for ($d = 1; $d <= 5; $d++) {
             $hasFlag = q("SELECT id FROM class_schedule WHERE class_group = ? AND day_of_week = ? AND (subject_code = 'FLAG' OR subject_name LIKE '%เสาธง%')", [$group, $d])->fetch();
             if (!$hasFlag) {
@@ -39,6 +40,7 @@ class ScheduleService
                 if (!$collision) {
                     q("INSERT INTO class_schedule (day_of_week, time_start, time_end, subject_code, subject_name, teacher_name, room, class_group)
                        VALUES (?, '08:00:00', '08:30:00', 'FLAG', 'กิจกรรมหน้าเสาธง', '', '', ?)", [$d, $group]);
+                    $inserted++;
                 }
             }
 
@@ -48,9 +50,19 @@ class ScheduleService
                 if (!$collision) {
                     q("INSERT INTO class_schedule (day_of_week, time_start, time_end, subject_code, subject_name, teacher_name, room, class_group)
                        VALUES (?, '12:30:00', '13:30:00', 'LUNCH', 'พักกลางวัน', '', '', ?)", [$d, $group]);
+                    $inserted++;
                 }
             }
         }
+        if ($inserted > 0) {
+            CacheService::forgetPattern('schedule_');
+        }
+        return $inserted;
+    }
+
+    public static function ensureSpecialSlots(string $group = 'ปวช.2/1'): void
+    {
+        self::restoreDefaultSpecialSlots($group);
     }
 
     public static function getPeriods(): array
@@ -74,7 +86,7 @@ class ScheduleService
             $end   = trim((string) ($p['end'] ?? ''));
             $type  = in_array($p['type'] ?? 'class', ['class', 'lunch', 'flag'], true) ? $p['type'] : 'class';
             $name  = trim((string) ($p['name'] ?? ''));
-            if ($start !== '' && $end !== '') {
+            if ($start !== '' && $end !== '' && strtotime("1970-01-01 $start") < strtotime("1970-01-01 $end")) {
                 $clean[] = [
                     'num'   => $num,
                     'start' => $start,
@@ -227,7 +239,7 @@ class ScheduleService
         if ($group === '') {
             $group = 'ปวช.2/1';
         }
-        self::ensureSpecialSlots($group);
+        // Pure read query: automatic ensureSpecialSlots removed to prevent zombie slots
 
         $periods = self::getPeriods();
         $byDay   = self::getScheduleByDay($group);
@@ -245,70 +257,14 @@ class ScheduleService
                 $pStart = strtotime("1970-01-01 {$period['start']}:00");
                 $pEnd   = strtotime("1970-01-01 {$period['end']}:00");
 
-                $matchingSlot = null;
-                foreach ($daySlots as $slot) {
-                    if (isset($placedSlotIds[$slot['id']])) {
-                        continue;
-                    }
-                    $sStart = strtotime("1970-01-01 {$slot['time_start']}");
-                    $sEnd   = strtotime("1970-01-01 {$slot['time_end']}");
-
-                    if ($sStart >= $pStart && $sStart < $pEnd) {
-                        $matchingSlot = $slot;
-                        break;
-                    }
-                    if ($sStart < $pStart && $sEnd > $pStart) {
-                        $matchingSlot = $slot;
-                        break;
-                    }
-                }
+                $matchingSlot = self::findMatchingSlot($daySlots, $pStart, $pEnd, $placedSlotIds);
 
                 if ($matchingSlot) {
                     $placedSlotIds[$matchingSlot['id']] = true;
                     $sEnd = strtotime("1970-01-01 {$matchingSlot['time_end']}");
-                    $span = 0;
-                    for ($k = $pIdx; $k < $pCount; $k++) {
-                        $nextP = $periods[$k];
-                        $npStart = strtotime("1970-01-01 {$nextP['start']}:00");
-                        if ($npStart < $sEnd) {
-                            $span++;
-                        } else {
-                            break;
-                        }
-                    }
-                    $span = max(1, $span);
-                    $span = min($span, $pCount - $pIdx);
+                    $span = self::calculateSlotColspan($periods, $pIdx, $sEnd);
 
-                    $code = strtoupper(trim((string) $matchingSlot['subject_code']));
-                    $name = trim((string) $matchingSlot['subject_name']);
-
-                    $isFlag  = ($code === 'FLAG' || str_contains($name, 'เสาธง'));
-                    $isLunch = ($code === 'LUNCH' || str_contains($name, 'พักกลางวัน') || str_contains($name, 'พักเที่ยง'));
-
-                    if ($isFlag) {
-                        $cells[] = [
-                            'type'    => 'flag',
-                            'colspan' => $span,
-                            'period'  => $period,
-                            'slot'    => $matchingSlot,
-                            'title'   => $name ?: 'กิจกรรมหน้าเสาธง',
-                        ];
-                    } elseif ($isLunch) {
-                        $cells[] = [
-                            'type'    => 'lunch',
-                            'colspan' => $span,
-                            'period'  => $period,
-                            'slot'    => $matchingSlot,
-                            'title'   => $name ?: 'พักกลางวัน',
-                        ];
-                    } else {
-                        $cells[] = [
-                            'type'    => 'class',
-                            'colspan' => $span,
-                            'period'  => $period,
-                            'slot'    => $matchingSlot,
-                        ];
-                    }
+                    $cells[] = self::createGridCell($matchingSlot, $period, $span);
                     $pIdx += $span;
                 } else {
                     $cells[] = [
@@ -327,6 +283,76 @@ class ScheduleService
         return [
             'periods' => $periods,
             'grid'    => $grid,
+        ];
+    }
+
+    private static function findMatchingSlot(array $daySlots, int $pStart, int $pEnd, array $placedSlotIds): ?array
+    {
+        foreach ($daySlots as $slot) {
+            if (isset($placedSlotIds[$slot['id']])) {
+                continue;
+            }
+            $sStart = strtotime("1970-01-01 {$slot['time_start']}");
+            $sEnd   = strtotime("1970-01-01 {$slot['time_end']}");
+
+            if ($sStart >= $pStart && $sStart < $pEnd) {
+                return $slot;
+            }
+            if ($sStart < $pStart && $sEnd > $pStart) {
+                return $slot;
+            }
+        }
+        return null;
+    }
+
+    private static function calculateSlotColspan(array $periods, int $pIdx, int $sEnd): int
+    {
+        $pCount = count($periods);
+        $span = 0;
+        for ($k = $pIdx; $k < $pCount; $k++) {
+            $nextP = $periods[$k];
+            $npStart = strtotime("1970-01-01 {$nextP['start']}:00");
+            if ($npStart < $sEnd) {
+                $span++;
+            } else {
+                break;
+            }
+        }
+        $span = max(1, $span);
+        return min($span, $pCount - $pIdx);
+    }
+
+    private static function createGridCell(array $slot, array $period, int $span): array
+    {
+        $code = strtoupper(trim((string) $slot['subject_code']));
+        $name = trim((string) $slot['subject_name']);
+
+        $isFlag  = ($code === 'FLAG' || str_contains($name, 'เสาธง'));
+        $isLunch = ($code === 'LUNCH' || str_contains($name, 'พักกลางวัน') || str_contains($name, 'พักเที่ยง'));
+
+        if ($isFlag) {
+            return [
+                'type'    => 'flag',
+                'colspan' => $span,
+                'period'  => $period,
+                'slot'    => $slot,
+                'title'   => $name ?: 'กิจกรรมหน้าเสาธง',
+            ];
+        }
+        if ($isLunch) {
+            return [
+                'type'    => 'lunch',
+                'colspan' => $span,
+                'period'  => $period,
+                'slot'    => $slot,
+                'title'   => $name ?: 'พักกลางวัน',
+            ];
+        }
+        return [
+            'type'    => 'class',
+            'colspan' => $span,
+            'period'  => $period,
+            'slot'    => $slot,
         ];
     }
 
@@ -597,17 +623,19 @@ class ScheduleService
 
     public static function getActivitiesGroupedByMonth(): array
     {
-        $activities = q("
-            SELECT * FROM activities
-            ORDER BY event_date ASC, time_start ASC
-        ")->fetchAll();
+        return CacheService::remember('activities_grouped', 300, function () {
+            $activities = q("
+                SELECT * FROM activities
+                ORDER BY event_date ASC, time_start ASC
+            ")->fetchAll();
 
-        $grouped = [];
-        foreach ($activities as $act) {
-            $ym = date('Y-m', strtotime($act['event_date']));
-            $grouped[$ym][] = $act;
-        }
-        return $grouped;
+            $grouped = [];
+            foreach ($activities as $act) {
+                $ym = date('Y-m', strtotime($act['event_date']));
+                $grouped[$ym][] = $act;
+            }
+            return $grouped;
+        });
     }
 
     public static function getAllActivities(): array
@@ -642,6 +670,7 @@ class ScheduleService
                 SET title = ?, description = ?, event_date = ?, event_date_end = ?, time_start = ?, time_end = ?, location = ?, action_url = ?
                 WHERE id = ?
             ", [$title, $description, $eventDate, $eventDateEnd, $timeStart, $timeEnd, $location, $actionUrl ?: null, $id]);
+            CacheService::forget('activities_grouped');
             return $id;
         } else {
             q("

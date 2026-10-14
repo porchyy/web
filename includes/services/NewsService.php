@@ -11,11 +11,13 @@ require_once __DIR__ . '/CacheService.php';
 
 class NewsService
 {
+    /** List views never render the article body, so skip the MEDIUMTEXT column. */
+    private const LIST_COLUMNS = 'n.id, n.category_id, n.title, n.summary, n.image_path, n.is_featured, n.published_at, n.created_at';
     public static function getLatest(int $limit = 3): array
     {
         return CacheService::remember('news_latest_' . $limit, 60, function () use ($limit) {
             return q("
-                SELECT n.*, c.name as category_name, c.slug as category_slug
+                SELECT " . self::LIST_COLUMNS . ", c.name as category_name, c.slug as category_slug
                 FROM news n
                 JOIN news_categories c ON n.category_id = c.id
                 ORDER BY n.published_at DESC, n.id DESC
@@ -56,10 +58,11 @@ class NewsService
             throw new InvalidArgumentException('กรุณาระบุชื่อหมวดหมู่');
         }
 
-        $slug = preg_replace('/[^a-z0-9\-]+/i', '-', strtolower($name));
-        $slug = trim($slug, '-');
+        $slug = preg_replace('/[^\p{L}\p{M}\p{N}\-]+/u', '-', mb_strtolower($name, 'UTF-8'));
+        $slug = trim((string) $slug, '-');
+        $slug = mb_substr($slug, 0, 45, 'UTF-8');
         if ($slug === '') {
-            $slug = 'cat-' . time();
+            $slug = 'cat-' . substr(md5($name), 0, 8);
         }
 
         $existing = q("SELECT id FROM news_categories WHERE name = ? OR slug = ?", [$name, $slug])->fetch();
@@ -124,7 +127,7 @@ class NewsService
         $params[] = $offset;
 
         $items = q("
-            SELECT n.*, c.name as category_name, c.slug as category_slug
+            SELECT " . self::LIST_COLUMNS . ", c.name as category_name, c.slug as category_slug
             FROM news n
             JOIN news_categories c ON n.category_id = c.id
             {$where}
@@ -144,7 +147,7 @@ class NewsService
     public static function getAll(): array
     {
         return q("
-            SELECT n.*, c.name as category_name
+            SELECT " . self::LIST_COLUMNS . ", c.name as category_name
             FROM news n
             JOIN news_categories c ON n.category_id = c.id
             ORDER BY n.published_at DESC, n.id DESC
