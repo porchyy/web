@@ -125,6 +125,17 @@
 }
 
 .article-body {
-  font-size: 1.0625rem;
-  line-height: 1.85;
+  font-size: 1.05rem;
+  line-height: 1.45;
 }
+
+.article-body p {
+  margin: 0 0 0.15rem 0;
+  line-height: 1.45;
+}
+
+.article-body p:has(> br:only-child),
+.article-body p:empty {
+  margin: 0;
+}
+

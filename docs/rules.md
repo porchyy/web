@@ -16,10 +16,15 @@ web/
 ├── error.php                  # Essential Handler: จัดการรหัสข้อผิดพลาด (403, 404, 419, 500)
 ├── .env                       # Environment: การกำหนดค่าสภาพแวดล้อม (ห้าม Commit ข้อมูลลับ)
 ├── .htaccess                  # Router: กฎ Rewrite เส้นทางคลีน URL สู่ pages/
-├── favicon.ico                # Asset: ไอคอนประจำเว็บ
-├── STYLE.md                   # Spec: มาตรฐานงานออกแบบ, UI States, โทนสี และฟอนต์
 ├── PLAN.md                    # Roadmap: แผนงานและสถานะการดำเนินงาน
-├── RULES.md                   # Standard: เอกสารกฎวิศวกรรมนี้
+├── README.md                  # Overview: ข้อมูลภาพรวมโครงการและการติดตั้ง
+│
+├── docs/                      # Centralized Documentation: ศูนย์รวมเอกสารระบบ
+│   ├── README.md              # ดัชนีสารบัญเอกสาร
+│   ├── spec.md                # ข้อกำหนดระบบฉบับสมบูรณ์
+│   ├── rules.md               # เอกสารกฎวิศวกรรมและมาตรฐานซอฟต์แวร์นี้
+│   ├── style.md               # มาตรฐานงานออกแบบ, UI States, โทนสี และฟอนต์
+│   └── adr/                   # Architecture Decision Records (0001–0007)
 │
 ├── pages/                     # Public Pages Cluster: หน้าสาธารณะทั้งหมด (ห้ามกระจายใน Root)
 │   ├── about.php              # 02 / หน้าเกี่ยวกับแผนกวิชา
@@ -37,6 +42,7 @@ web/
 │   ├── activities.php         # จัดการปฏิทินกิจกรรมแผนก
 │   ├── teachers.php           # จัดการทำเนียบอาจารย์ (Interactive Tree Slots)
 │   ├── club.php               # จัดการสมาชิกชมรมวิชาชีพ (Interactive Tree Slots)
+│   ├── settings.php           # จัดการการตั้งค่าระบบและข้อมูลติดต่อ (System & Contact Settings)
 │   └── users.php              # จัดการบัญชีผู้ดูแลระบบ (RBAC)
 │
 ├── assets/                    # Static Assets: ทรัพยากรระบบฝั่ง Client
@@ -291,7 +297,7 @@ const isSubmitting = false;                     // boolean state
 ### 5.2 SLC (Simple, Lovable, Complete) & Ponytail Tenet
 - **ไม่สร้างนามธรรมเกินจำเป็น (No Speculative Over-engineering / YAGNI)**: ห้ามสร้าง Interface ที่มีการ Implement เพียงคลาสเดียว หรือสร้าง Factory ที่สร้างวัตถุได้ชนิดเดียว
 - **ใช้ฟีเจอร์พื้นฐานของแพลตฟอร์มก่อนเสมอ (Native Platform First)**: ใช้เครื่องมือมาตรฐานของ PHP และ Web API ดั้งเดิม (Vanilla JS, CSS Variables, HTML5 Dialog/Drag-Drop) ก่อนคิดจะดึงไลบรารีภายนอกมาใช้
-- **สมบูรณ์ ประณีต และใช้งานได้จริง (Complete & Lovable)**: สิ่งที่ส่งมอบต้องทำงานได้ครบถ้วน สวยงามตาม [STYLE.md](file:///c:/xampp/htdocs/web/STYLE.md) ไม่สร้างผลงานแบบครึ่งๆ กลางๆ
+- **สมบูรณ์ ประณีต และใช้งานได้จริง (Complete & Lovable)**: สิ่งที่ส่งมอบต้องทำงานได้ครบถ้วน สวยงามตาม [style.md](file:///c:/xampp/htdocs/web/docs/style.md) ไม่สร้างผลงานแบบครึ่งๆ กลางๆ
 
 ---
 
@@ -347,7 +353,7 @@ const isSubmitting = false;                     // boolean state
 │ 1. ANALYZE & MAP       → ระบุจุดที่เป็น God Component / หนี้ทางเทคนิค    │
 │ 2. EXTRACT SERVICES    → ย้าย SQL & Business Logic สู่ includes/services │
 │ 3. DECOUPLE CLIENT JS  → ย้าย Inline JS สู่ assets/js/ (Safe DOM APIs) │
-│ 4. APPLY STYLE GUIDE   → ปรับแต่ง UI ตาม STYLE.md (Minimal, Brutalism)  │
+│ 4. APPLY STYLE GUIDE   → ปรับแต่ง UI ตาม style.md (Minimal, Brutalism)  │
 │ 5. ATTACH CACHE & PERF → เชื่อมต่อ CacheService (60-120s) & Busting   │
 │ 6. VERIFY & BENCHMARK  → รัน php -l, เช็ค Console, ตรวจสอบ Responsive │
 └────────────────────────────────────────────────────────────────────────┘
@@ -359,7 +365,7 @@ const isSubmitting = false;                     // boolean state
 2. **แยกส่วน Service**: ดึงฟังก์ชันการดึงข้อมูลตาราง, การคำนวณคาบเรียนที่ทับซ้อน, และการบันทึกลงฐานข้อมูลไปไว้ใน `ScheduleService.php`
 3. **แยกส่วน JavaScript**: ดึงโค้ด JavaScript กว่า 700 บรรทัดไปไว้ที่ [assets/js/admin-scheduler.js](file:///c:/xampp/htdocs/web/assets/js/admin-scheduler.js)
 4. **เปลี่ยนการสร้าง DOM**: แปลงโค้ดที่เคยใช้ `innerHTML = '...'` เป็นฟังก์ชันปลอดภัยที่ใช้ `document.createElement()`, `appendChild()`, และ `textContent`
-5. **แปลงสไตล์**: ปรับเปลี่ยน CSS ให้อิงตาม Token ตัวแปรใน `admin.css` และ [STYLE.md](file:///c:/xampp/htdocs/web/STYLE.md)
+5. **แปลงสไตล์**: ปรับเปลี่ยน CSS ให้อิงตาม Token ตัวแปรใน `admin.css` และ [style.md](file:///c:/xampp/htdocs/web/docs/style.md)
 
 ### 8.2 การย้ายไฟล์หน้าเว็บเข้า `pages/` (Strangler & Clean Routing Protocol)
 เพื่อขจัดความแออัดของไฟล์ใน Root Directory ให้ดำเนินตามขั้นตอนนี้:

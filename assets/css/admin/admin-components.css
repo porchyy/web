@@ -49,15 +49,18 @@
   border-radius: 0 !important;
   font-family: var(--font-body) !important;
   font-size: 15px !important;
-  line-height: 1.7 !important;
-  min-height: 250px;
+  line-height: 1.4 !important;
+  min-height: 260px;
+  height: auto !important;
+  box-sizing: border-box;
 }
 
 .ql-container.ql-snow .ql-editor {
   min-height: 250px;
-  padding: 1rem 1.25rem !important;
+  padding: 0.85rem 1.15rem !important;
   font-family: var(--font-body) !important;
   color: var(--c-text);
+  line-height: 1.4 !important;
 }
 
 .ql-container.ql-snow .ql-editor.ql-blank::before {
@@ -67,7 +70,9 @@
 }
 
 .ql-container.ql-snow .ql-editor p {
-  margin-bottom: 0.85rem;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1.4 !important;
 }
 
 .ql-container.ql-snow .ql-editor h2,
@@ -75,8 +80,9 @@
 .ql-container.ql-snow .ql-editor h4 {
   font-family: var(--font-heading);
   color: var(--c-navy);
-  margin-top: 1.25rem;
-  margin-bottom: 0.5rem;
+  margin-top: 0.45rem !important;
+  margin-bottom: 0.1rem !important;
+  line-height: 1.25 !important;
 }
 
 .ql-container.ql-snow .ql-editor blockquote {
@@ -84,5 +90,30 @@
   padding-left: 12px !important;
   color: #475569;
   font-style: italic;
-  margin: 1rem 0;
+  margin: 0.5rem 0 !important;
+}
+
+/* Compact Heading Editor for Hero Title */
+#quill-hero-title-editor .ql-container.ql-snow {
+  min-height: 80px !important;
+  height: auto !important;
+  font-family: var(--font-heading) !important;
+  font-size: 1.4rem !important;
+  font-weight: 700 !important;
+  color: var(--c-navy) !important;
+}
+
+#quill-hero-title-editor .ql-container.ql-snow .ql-editor {
+  min-height: 80px !important;
+  padding: 0.65rem 0.85rem !important;
+  font-family: var(--font-heading) !important;
+  font-size: 1.4rem !important;
+  font-weight: 700 !important;
+  line-height: 1.35 !important;
+  color: var(--c-navy) !important;
+}
+
+#quill-hero-title-editor .ql-container.ql-snow .ql-editor p {
+  margin: 0 !important;
+  padding: 0 !important;
 }

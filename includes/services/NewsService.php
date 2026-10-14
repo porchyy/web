@@ -49,6 +49,36 @@ class NewsService
         });
     }
 
+    public static function createCategory(string $name): array
+    {
+        $name = clean_text($name);
+        if ($name === '') {
+            throw new InvalidArgumentException('กรุณาระบุชื่อหมวดหมู่');
+        }
+
+        $slug = preg_replace('/[^a-z0-9\-]+/i', '-', strtolower($name));
+        $slug = trim($slug, '-');
+        if ($slug === '') {
+            $slug = 'cat-' . time();
+        }
+
+        $existing = q("SELECT id FROM news_categories WHERE name = ? OR slug = ?", [$name, $slug])->fetch();
+        if ($existing) {
+            throw new RuntimeException('หมวดหมู่นี้มีอยู่ในระบบแล้ว');
+        }
+
+        q("INSERT INTO news_categories (name, slug) VALUES (?, ?)", [$name, $slug]);
+        $newId = (int) db()->lastInsertId();
+
+        CacheService::forget('news_categories_all');
+
+        return [
+            'id'   => $newId,
+            'name' => $name,
+            'slug' => $slug,
+        ];
+    }
+
     public static function countAll(?string $catSlug = null, ?string $search = null): int
     {
         $where = "WHERE 1=1";

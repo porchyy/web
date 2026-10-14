@@ -82,7 +82,7 @@ require_once __DIR__ . '/../includes/admin-header.php';
   </div>
   <div>
     <button type="button" class="btn btn-sm btn-line" id="btnOpenHeroPreview" data-bs-toggle="modal" data-bs-target="#heroPreviewModal">
-      <?= icon('eye', 16) ?> <span>ดูตัวอย่างหน้าจริง (Full Preview)</span>
+      <?= icon('eye', 16) ?> <span>ดูตัวอย่างหน้าจริง</span>
     </button>
   </div>
 </div>
@@ -176,15 +176,18 @@ require_once __DIR__ . '/../includes/admin-header.php';
         </div>
 
         <!-- Merged Single Hero Title -->
-        <div class="mb-3">
-          <label for="hero_title" class="form-label">พาดหัวหลัก (Hero Title) <span class="req">*</span></label>
-          <input type="text"
-                 name="hero_title"
-                 id="hero_title"
-                 class="form-control fw-bold"
-                 value="<?= e($heroTitle) ?>"
-                 required>
-          <div class="form-text">สามารถพิมพ์ข้อความหัวเรื่องได้โดยตรง หรือใส่ <code>&lt;br&gt;</code> เพื่อขึ้นบรรทัดใหม่ เช่น <code>เทคโนโลยี&lt;br&gt;ธุรกิจดิจิทัล</code></div>
+        <div class="mb-4">
+          <label for="hero_title" class="form-label fw-semibold">ข้อความพาดหัวหลัก <span class="req">*</span></label>
+          <div id="quill-hero-title-editor"
+               class="quill-editorial-editor"
+               data-target-input="hero_title"
+               data-type="title"
+               data-placeholder="พิมพ์ข้อความพาดหัวหลัก เช่น เทคโนโลยี ธุรกิจดิจิทัล..."></div>
+          <textarea name="hero_title"
+                    id="hero_title"
+                    class="d-none"
+                    required><?= htmlspecialchars($heroTitle, ENT_QUOTES, 'UTF-8') ?></textarea>
+          <div class="form-text">สามารถกด Enter เพื่อขึ้นบรรทัดใหม่ได้โดยตรง ระบบจะจัดการตัดคำและเว้นวรรคอย่างเหมาะสม</div>
         </div>
 
         <!-- EDITORIAL RICH TEXT BOX WITH QUILL -->
@@ -259,17 +262,17 @@ require_once __DIR__ . '/../includes/admin-header.php';
     <div class="modal-content">
       <div class="modal-header d-flex justify-content-between align-items-center">
         <h5 class="modal-title" id="heroPreviewModalLabel">
-          <?= icon('eye', 18) ?> แสดงตัวอย่างหน้าหลักจริง (Live Hero Preview)
+          <?= icon('eye', 18) ?> แสดงตัวอย่างหน้าหลักจริง
         </h5>
         
         <div class="d-flex align-items-center gap-3">
           <!-- Viewport Switcher -->
           <div class="preview-viewport-toggle">
             <button type="button" class="preview-viewport-btn is-active" id="btnPreviewDesktop" data-viewport="desktop">
-              🖥️ Desktop
+              Desktop
             </button>
             <button type="button" class="preview-viewport-btn" id="btnPreviewMobile" data-viewport="mobile">
-              📱 Mobile
+              Mobile
             </button>
           </div>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="ปิด"></button>
@@ -314,7 +317,6 @@ require_once __DIR__ . '/../includes/admin-header.php';
                       </div>
                       <figcaption class="figcap" id="modalHeroFigcap">
                         <span id="modalHeroCaption"><?= e($heroCaption) ?></span>
-                        <span class="mono">DBT // CAMPUS</span>
                       </figcaption>
                     </figure>
                   </div>
@@ -326,7 +328,7 @@ require_once __DIR__ . '/../includes/admin-header.php';
       </div>
 
       <div class="modal-footer">
-        <button type="button" class="btn btn-sm btn-line" data-bs-dismiss="modal">ปิดหน้าต่างพรีวิว</button>
+        <button type="button" class="btn btn-sm btn-line" data-bs-dismiss="modal">ปิดหน้าต่างตัวอย่าง</button>
       </div>
     </div>
   </div>

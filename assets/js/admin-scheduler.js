@@ -841,12 +841,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const editBtn = e.target.closest('.btn-edit-slot-modal');
-    if (editBtn) {
+    const slotCard = e.target.closest('.admin-slot-card');
+    const isSpecialAction = e.target.closest('.slot-drag-handle, .slot-resize-handle, form, button[type="submit"]');
+
+    if ((editBtn || slotCard) && !isSpecialAction) {
       e.preventDefault();
       const modalEl = document.getElementById('modal-slot-editor') || document.getElementById('slotModal');
       if (!modalEl) return;
 
-      const id = editBtn.getAttribute('data-id') || '';
+      const card = slotCard || editBtn.closest('.admin-slot-card');
+      const btn = editBtn || card?.querySelector('.btn-edit-slot-modal');
+
+      const id = (btn ? btn.getAttribute('data-id') : '') || (card ? card.getAttribute('data-slot-id') : '');
       const titleEl = document.getElementById('slotModalTitle');
       if (titleEl) titleEl.textContent = id ? `แก้ไขคาบเรียน #${id}` : 'แก้ไขข้อมูลคาบเรียน';
 
@@ -854,28 +860,30 @@ document.addEventListener('DOMContentLoaded', () => {
       if (idInput) idInput.value = id;
 
       const groupInput = document.getElementById('modalClassGroup');
-      if (groupInput) groupInput.value = editBtn.getAttribute('data-group') || currentGroup;
+      if (groupInput) groupInput.value = (btn ? btn.getAttribute('data-group') : '') || (card ? card.getAttribute('data-group') : '') || currentGroup;
 
       const dayInput = document.getElementById('modalDayOfWeek');
-      if (dayInput) dayInput.value = editBtn.getAttribute('data-day') || '1';
+      if (dayInput) dayInput.value = (btn ? btn.getAttribute('data-day') : '') || (card ? card.getAttribute('data-day') : '1');
 
       const startInput = document.getElementById('modalTimeStart');
-      if (startInput) startInput.value = (editBtn.getAttribute('data-time-start') || '08:30').substring(0, 5);
+      const rawStart = (btn ? btn.getAttribute('data-time-start') : '') || (card ? card.getAttribute('data-time-start') : '08:30');
+      if (startInput) startInput.value = rawStart.substring(0, 5);
 
       const endInput = document.getElementById('modalTimeEnd');
-      if (endInput) endInput.value = (editBtn.getAttribute('data-time-end') || '10:30').substring(0, 5);
+      const rawEnd = (btn ? btn.getAttribute('data-time-end') : '') || (card ? card.getAttribute('data-time-end') : '10:30');
+      if (endInput) endInput.value = rawEnd.substring(0, 5);
 
       const codeInput = document.getElementById('modalSubjectCode');
-      if (codeInput) codeInput.value = editBtn.getAttribute('data-subject-code') || '';
+      if (codeInput) codeInput.value = (btn ? btn.getAttribute('data-subject-code') : '') || (card ? card.getAttribute('data-subject-code') : '');
 
       const nameInput = document.getElementById('modalSubjectName');
-      if (nameInput) nameInput.value = editBtn.getAttribute('data-subject-name') || '';
+      if (nameInput) nameInput.value = (btn ? btn.getAttribute('data-subject-name') : '') || (card ? card.getAttribute('data-subject-name') : '');
 
       const teacherInput = document.getElementById('modalTeacherName');
-      if (teacherInput) teacherInput.value = editBtn.getAttribute('data-teacher-name') || '';
+      if (teacherInput) teacherInput.value = (btn ? btn.getAttribute('data-teacher-name') : '') || (card ? card.getAttribute('data-teacher-name') : '');
 
       const roomInput = document.getElementById('modalRoom');
-      if (roomInput) roomInput.value = editBtn.getAttribute('data-room') || '';
+      if (roomInput) roomInput.value = (btn ? btn.getAttribute('data-room') : '') || (card ? card.getAttribute('data-room') : '');
 
       bootstrap.Modal.getOrCreateInstance(modalEl).show();
       return;

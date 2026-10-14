@@ -133,6 +133,8 @@
         imgEl = document.createElement('img');
         imgEl.className = 'preview-img';
         imgEl.alt = 'รูปถ่ายตัวอย่าง';
+        if (inputEl.id === 'input-news-image') imgEl.id = 'newsPreviewImg';
+        if (inputEl.id === 'hero_image') imgEl.id = 'heroPreview';
         previewContainerEl.appendChild(imgEl);
       }
       imgEl.src = src;
@@ -150,6 +152,20 @@
         badgeEl.className = 'preview-badge badge-current';
         badgeEl.textContent = 'รูปปัจจุบัน';
       }
+
+      // Update linked modal preview images immediately before saving
+      const modalHeroImg = document.getElementById('modalHeroImg');
+      if (modalHeroImg && (inputEl.id === 'hero_image' || wrapperEl.closest('#form-hero-settings'))) {
+        modalHeroImg.src = src;
+      }
+      const modalNewsImg = document.getElementById('modalNewsImg');
+      if (modalNewsImg && (inputEl.id === 'input-news-image' || wrapperEl.closest('form'))) {
+        modalNewsImg.src = src;
+        const modalFigWrap = document.getElementById('modalNewsFigWrap');
+        if (modalFigWrap) modalFigWrap.style.display = 'block';
+      }
+
+      wrapperEl.dispatchEvent(new CustomEvent('image:updated', { detail: { src: src, isNew: isNew } }));
     }
 
     function revertToInitial() {
@@ -168,11 +184,25 @@
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                 <circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>
               </svg>
-              <span>ยังไม่มีรูปถ่าย</span>
+              <span>ยังไม่มีรูปภาพ</span>
             </div>
           `;
         }
       }
+
+      // Revert linked modal preview images
+      const modalHeroImg = document.getElementById('modalHeroImg');
+      if (modalHeroImg && (inputEl.id === 'hero_image' || wrapperEl.closest('#form-hero-settings'))) {
+        modalHeroImg.src = initialSrc;
+      }
+      const modalNewsImg = document.getElementById('modalNewsImg');
+      if (modalNewsImg && (inputEl.id === 'input-news-image' || wrapperEl.closest('form'))) {
+        modalNewsImg.src = initialSrc;
+        const modalFigWrap = document.getElementById('modalNewsFigWrap');
+        if (modalFigWrap) modalFigWrap.style.display = initialHasImage ? 'block' : 'none';
+      }
+
+      wrapperEl.dispatchEvent(new CustomEvent('image:reverted', { detail: { initialSrc: initialSrc } }));
     }
   }
 

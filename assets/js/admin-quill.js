@@ -172,8 +172,12 @@
     }
     if (!targetInput) return;
 
-    // Standard Editorial Toolbar
-    const toolbarOptions = [
+    const isTitleMode = containerEl.id === 'quill-hero-title-editor' || containerEl.dataset.type === 'title';
+
+    // Toolbar Selection: Title Mode vs Standard Editorial
+    const toolbarOptions = isTitleMode ? [
+      ['bold', 'italic', 'clean']
+    ] : [
       [{ 'header': [2, 3, 4, false] }],
       ['bold', 'italic', 'underline', 'strike'],
       [{ 'list': 'ordered' }, { 'list': 'bullet' }],
@@ -236,10 +240,32 @@
       });
     }
 
+    // Helper to serialize Quill content respecting title mode
+    function getCleanOutput() {
+      if (isTitleMode) {
+        const raw = parseQuillToHtml(quill);
+        const tmp = document.createElement('div');
+        tmp.innerHTML = raw;
+        const lines = [];
+        tmp.querySelectorAll('p, div, h1, h2, h3, h4').forEach((el) => {
+          const t = el.innerHTML.trim();
+          if (t && t !== '<br>') lines.push(t);
+        });
+        if (lines.length > 0) return lines.join('<br>');
+        return tmp.innerHTML.trim();
+      }
+      return parseQuillToHtml(quill);
+    }
+
     // 2. Load and parse initial content from database
     const initialRaw = targetInput.value || '';
     if (initialRaw.trim()) {
-      const parsedInitial = parseMarkdownAndHtml(initialRaw);
+      let parsedInitial = initialRaw;
+      if (isTitleMode) {
+        parsedInitial = '<p>' + initialRaw.replace(/<br\s*\/?>/gi, '</p><p>') + '</p>';
+      } else {
+        parsedInitial = parseMarkdownAndHtml(initialRaw);
+      }
       quill.clipboard.dangerouslyPasteHTML(0, parsedInitial || initialRaw);
     }
 
@@ -345,7 +371,7 @@
         }
       }
 
-      targetInput.value = parseQuillToHtml(quill);
+      targetInput.value = getCleanOutput();
       updateLinkedPreview();
     });
 
@@ -355,7 +381,7 @@
 
     function updateLinkedPreview() {
       if (previewTargetEl) {
-        previewTargetEl.innerHTML = parseQuillToHtml(quill) || '';
+        previewTargetEl.innerHTML = getCleanOutput() || '';
       }
     }
 
@@ -365,7 +391,7 @@
     const formEl = targetInput.closest('form');
     if (formEl) {
       formEl.addEventListener('submit', (e) => {
-        const cleanVal = parseQuillToHtml(quill);
+        const cleanVal = getCleanOutput();
         targetInput.value = cleanVal;
         updateLinkedPreview();
 
@@ -388,7 +414,7 @@
 
   // Auto-init on DOMContentLoaded
   document.addEventListener('DOMContentLoaded', () => {
-    ['quill-news-editor', 'quill-hero-editor'].forEach((id) => {
+    ['quill-news-editor', 'quill-hero-editor', 'quill-hero-title-editor'].forEach((id) => {
       const el = document.getElementById(id);
       if (el) initQuillInstance(el);
     });

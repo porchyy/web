@@ -106,11 +106,11 @@ include __DIR__ . '/../includes/header.php';
 
     <!-- Segmented Control Switcher -->
     <div class="segmented mt-4" role="tablist" aria-label="สลับประเภทตาราง">
-      <a href="<?= url('schedule?tab=class' . ($selectedGroup ? '&group=' . urlencode($selectedGroup) : '')) ?>" <?= $tab === 'class' ? 'aria-current="page"' : '' ?>>
+      <a href="<?= url('schedule?tab=class' . ($selectedGroup ? '&group=' . urlencode($selectedGroup) : '')) ?>" class="py-2 px-3 text-center d-inline-flex align-items-center justify-content-center" <?= $tab === 'class' ? 'aria-current="page"' : '' ?>>
         <?= icon('book', 16) ?>
         <span>ตารางเรียนรายสัปดาห์</span>
       </a>
-      <a href="<?= url('schedule?tab=activity') ?>" <?= $tab === 'activity' ? 'aria-current="page"' : '' ?>>
+      <a href="<?= url('schedule?tab=activity') ?>" class="py-2 px-3 text-center d-inline-flex align-items-center justify-content-center" <?= $tab === 'activity' ? 'aria-current="page"' : '' ?>>
         <?= icon('calendar', 16) ?>
         <span>ตารางกิจกรรมแผนก</span>
       </a>
@@ -235,6 +235,9 @@ include __DIR__ . '/../includes/header.php';
                 <td class="col-day">
                   <div class="day-label-inner">
                     <span>วัน<?= TH_DAYS[$d] ?></span>
+                    <?php if ($isDayToday): ?>
+                      <span class="badge-today-pill">วันนี้</span>
+                    <?php endif; ?>
                   </div>
                 </td>
                 <?php foreach ($grid[$d] as $cell): ?>

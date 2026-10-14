@@ -152,7 +152,6 @@
 
   document.addEventListener('DOMContentLoaded', () => {
     initStatModeToggle();
-    initFileDropzone();
     initFullPreviewModal();
   });
 })();

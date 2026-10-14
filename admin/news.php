@@ -13,33 +13,6 @@ require_once __DIR__ . '/../includes/services/NewsService.php';
 
 AuthService::requireLogin();
 
-// AJAX: Quick Category Creation
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && (($_POST['sub_action'] ?? '') === 'ajax_add_category')) {
-    verify_csrf();
-    header('Content-Type: application/json; charset=UTF-8');
-
-    $catName = clean_text($_POST['name'] ?? '');
-    if ($catName === '') {
-        echo json_encode(['success' => false, 'error' => 'กรุณาระบุชื่อหมวดหมู่']);
-        exit;
-    }
-
-    $slug = preg_replace('/[^a-z0-9\-]+/i', '-', strtolower($catName));
-    $slug = trim($slug, '-');
-    if ($slug === '') {
-        $slug = 'cat-' . time();
-    }
-
-    try {
-        q("INSERT INTO news_categories (name, slug) VALUES (?, ?)", [$catName, $slug]);
-        $newId = (int) db()->lastInsertId();
-        echo json_encode(['success' => true, 'id' => $newId, 'name' => $catName]);
-    } catch (Exception $e) {
-        echo json_encode(['success' => false, 'error' => 'หมวดหมู่นี้มีอยู่ในระบบแล้ว']);
-    }
-    exit;
-}
-
 $action = filter_input(INPUT_GET, 'action', FILTER_DEFAULT) ?: 'list';
 $newsId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 $error  = null;
@@ -126,7 +99,7 @@ require_once __DIR__ . '/../includes/admin-header.php';
       </a>
     <?php else: ?>
       <button type="button" class="btn btn-sm btn-line" id="btnOpenNewsPreview" data-bs-toggle="modal" data-bs-target="#newsPreviewModal">
-        <?= icon('eye', 16) ?> <span>ดูตัวอย่างหน้าจริง (Full Preview)</span>
+        <?= icon('eye', 16) ?> <span>ดูตัวอย่างหน้าจริง</span>
       </button>
       <a href="<?= url('admin/news.php') ?>" class="btn btn-sm btn-line">
         <?= icon('arrow-left', 16) ?>
@@ -199,7 +172,7 @@ require_once __DIR__ . '/../includes/admin-header.php';
                    id="input-news-featured"
                    <?= !empty($_POST['is_featured'] ?? $editItem['is_featured'] ?? 0) ? 'checked' : '' ?>>
             <label class="form-check-label fw-bold text-navy" for="input-news-featured">
-              ปักหมุดเป็นข่าวเด่น (Featured Announcement)
+              ปักหมุดเป็นข่าวเด่น
             </label>
           </div>
         </div>
@@ -214,7 +187,7 @@ require_once __DIR__ . '/../includes/admin-header.php';
           <div class="form-text">ข้อความเกริ่นนำที่จะแสดงในการ์ดรายการข่าวหน้าแรก</div>
         </div>
 
-        <div class="col-12">
+        <div class="col-12 mb-4">
           <label for="input-news-content" class="form-label">เนื้อหาข่าวฉบับเต็ม <span class="req">*</span></label>
           <div id="quill-news-editor"
                class="quill-editorial-editor"
@@ -294,15 +267,15 @@ require_once __DIR__ . '/../includes/admin-header.php';
       <div class="modal-content">
         <div class="modal-header d-flex justify-content-between align-items-center">
           <h5 class="modal-title" id="newsPreviewModalLabel">
-            <?= icon('eye', 18) ?> แสดงตัวอย่างข่าวสารจริง (Live News Article Preview)
+            <?= icon('eye', 18) ?> แสดงตัวอย่างข่าวสารจริง
           </h5>
           <div class="d-flex align-items-center gap-3">
             <div class="preview-viewport-toggle">
               <button type="button" class="preview-viewport-btn is-active" id="btnNewsPreviewDesktop">
-                🖥️ Desktop
+                Desktop
               </button>
               <button type="button" class="preview-viewport-btn" id="btnNewsPreviewMobile">
-                📱 Mobile
+                Mobile
               </button>
             </div>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="ปิด"></button>
@@ -328,14 +301,14 @@ require_once __DIR__ . '/../includes/admin-header.php';
                 </div>
               </figure>
 
-              <div class="lead-text fw-medium text-navy mb-4" id="modalNewsSummary"></div>
-              <div class="article-body" id="modalNewsContent" style="font-size: 1.05rem; line-height: 1.8;"></div>
+              <div class="lead-text fw-medium text-navy mb-3" id="modalNewsSummary"></div>
+              <div class="article-body" id="modalNewsContent" style="font-size: 1rem; line-height: 1.45;"></div>
             </article>
           </div>
         </div>
 
         <div class="modal-footer">
-          <button type="button" class="btn btn-sm btn-line" data-bs-dismiss="modal">ปิดหน้าต่างพรีวิว</button>
+          <button type="button" class="btn btn-sm btn-line" data-bs-dismiss="modal">ปิดหน้าต่างตัวอย่าง</button>
         </div>
       </div>
     </div>
@@ -379,7 +352,7 @@ require_once __DIR__ . '/../includes/admin-header.php';
               formData.append('name', val);
 
               try {
-                const res = await fetch('<?= url('admin/news.php') ?>', {
+                const res = await fetch('<?= url('api/admin/news-category') ?>', {
                   method: 'POST',
                   body: formData
                 });
@@ -445,14 +418,32 @@ require_once __DIR__ . '/../includes/admin-header.php';
         if (modalTitle && inTitle) modalTitle.textContent = inTitle.value || 'หัวข้อข่าว';
         if (modalCat && catSelect) {
           const selOpt = catSelect.options[catSelect.selectedIndex];
-          modalCat.textContent = selOpt ? selOpt.textContent : 'ข่าวสาร';
+          const catVal = catSelect.value;
+          modalCat.textContent = (catVal && selOpt) ? selOpt.textContent : 'ข่าวสารทั่วไป';
         }
         if (modalSummary && inSummary) modalSummary.textContent = inSummary.value || '';
-        if (modalContent && inContent) modalContent.innerHTML = inContent.value || '';
         
-        if (modalImg) {
-          if (previewImgEl && previewImgEl.src) {
-            modalImg.src = previewImgEl.src;
+        // Sync real-time content directly from active Quill editor instance
+        const quillEditorEl = document.getElementById('quill-news-editor');
+        let contentHtml = '';
+        if (quillEditorEl && quillEditorEl.__quillInstance) {
+          const q = quillEditorEl.__quillInstance;
+          if (q.getText().trim()) {
+            contentHtml = q.root.innerHTML;
+          }
+        } else if (inContent) {
+          contentHtml = inContent.value;
+        }
+        if (modalContent) {
+          modalContent.innerHTML = contentHtml || '<p class="text-muted fst-italic">ไม่มีเนื้อหาข่าว</p>';
+        }
+        
+        // Dynamically query the uploaded preview image at modal trigger time (resolves stale closure)
+        if (modalImg && modalFigWrap) {
+          const livePreviewImg = document.querySelector('.image-upload-preview .preview-img');
+          const currentSrc = livePreviewImg ? livePreviewImg.getAttribute('src') : '';
+          if (currentSrc && currentSrc !== '') {
+            modalImg.src = currentSrc;
             modalFigWrap.style.display = 'block';
           } else {
             modalFigWrap.style.display = 'none';

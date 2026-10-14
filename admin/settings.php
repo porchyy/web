@@ -86,7 +86,7 @@ $statEmployment      = $settings['stat_employment'] ?? '96%';
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
   <div>
     <p class="eyebrow eyebrow-muted mb-1">การจัดการระบบส่วนกลาง</p>
-    <h1 style="font-size: 1.75rem; margin: 0;">ตั้งค่าระบบและการติดต่อ (System Settings)</h1>
+    <h1 style="font-size: 1.75rem; margin: 0;">ตั้งค่าระบบและการติดต่อ</h1>
   </div>
 </div>
 
@@ -108,24 +108,24 @@ $statEmployment      = $settings['stat_employment'] ?? '96%';
   <?= csrf_field() ?>
 
   <!-- Tabs Navigation -->
-  <ul class="nav nav-tabs mb-4" id="settingsTab" role="tablist" style="border-bottom: 2px solid var(--c-line);">
+  <ul class="nav nav-tabs border-bottom mb-4" id="settingsTab" role="tablist">
     <li class="nav-item" role="presentation">
-      <button class="nav-link active font-heading fw-semibold text-navy" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab" aria-controls="general" aria-selected="true" style="border-radius: 0; padding: 12px 20px;">
+      <button class="nav-link active font-heading fw-semibold text-navy py-2 px-3 rounded-0" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab" aria-controls="general" aria-selected="true">
         <?= icon('info', 16) ?> ข้อมูลทั่วไป
       </button>
     </li>
     <li class="nav-item" role="presentation">
-      <button class="nav-link font-heading fw-semibold text-navy" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact" type="button" role="tab" aria-controls="contact" aria-selected="false" style="border-radius: 0; padding: 12px 20px;">
+      <button class="nav-link font-heading fw-semibold text-navy py-2 px-3 rounded-0" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact" type="button" role="tab" aria-controls="contact" aria-selected="false">
         <?= icon('phone', 16) ?> ช่องทางการติดต่อและที่ตั้ง
       </button>
     </li>
     <li class="nav-item" role="presentation">
-      <button class="nav-link font-heading fw-semibold text-navy" id="social-tab" data-bs-toggle="tab" data-bs-target="#social" type="button" role="tab" aria-controls="social" aria-selected="false" style="border-radius: 0; padding: 12px 20px;">
+      <button class="nav-link font-heading fw-semibold text-navy py-2 px-3 rounded-0" id="social-tab" data-bs-toggle="tab" data-bs-target="#social" type="button" role="tab" aria-controls="social" aria-selected="false">
         <?= icon('facebook', 16) ?> โซเชียลมีเดีย
       </button>
     </li>
     <li class="nav-item" role="presentation">
-      <button class="nav-link font-heading fw-semibold text-navy" id="metrics-tab" data-bs-toggle="tab" data-bs-target="#metrics" type="button" role="tab" aria-controls="metrics" aria-selected="false" style="border-radius: 0; padding: 12px 20px;">
+      <button class="nav-link font-heading fw-semibold text-navy py-2 px-3 rounded-0" id="metrics-tab" data-bs-toggle="tab" data-bs-target="#metrics" type="button" role="tab" aria-controls="metrics" aria-selected="false">
         <?= icon('grid', 16) ?> สถิติหน้าแรก
       </button>
     </li>
@@ -236,28 +236,10 @@ $statEmployment      = $settings['stat_employment'] ?? '96%';
     <div class="tab-pane fade" id="metrics" role="tabpanel" aria-labelledby="metrics-tab">
       <div class="admin-card">
         <div class="admin-card-head">
-          <h2>แถบข้อมูลสถิติหน้าแรก (Data Strip Metrics)</h2>
+          <h2>แถบข้อมูลสถิติหน้าแรก</h2>
         </div>
 
-        <div class="mb-4">
-          <label class="form-label d-block">โหมดการแสดงสถิติบนหน้าแรก</label>
-          <div class="d-flex gap-4 mt-2">
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="stat_mode" id="mode_dynamic" value="dynamic" <?= $statMode === 'dynamic' ? 'checked' : '' ?>>
-              <label class="form-check-label fw-medium" for="mode_dynamic">
-                ดึงข้อมูลอัตโนมัติจากฐานข้อมูล (จำนวนอาจารย์, ข่าวสาร, กิจกรรม)
-              </label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="stat_mode" id="mode_manual" value="manual" <?= $statMode === 'manual' ? 'checked' : '' ?>>
-              <label class="form-check-label fw-medium" for="mode_manual">
-                กำหนดตัวเลขเอง (Manual Custom Numbers)
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <div class="row g-3" id="manualStatsFields">
+        <div class="row g-3" id="statsFields">
           <div class="col-12 col-md-4">
             <label class="form-label" for="stat_courses">จำนวนหลักสูตรวิชาชีพ</label>
             <input type="text" id="stat_courses" name="stat_courses" class="form-control mono" value="<?= e($statCourses) ?>">

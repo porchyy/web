@@ -95,6 +95,42 @@
   min-height: 580px;
   border-radius: 16px;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  margin: 0 auto;
+}
+
+/* Force genuine mobile layout inside simulated 375px frame */
+.preview-container-frame.is-mobile .col-12,
+.preview-container-frame.is-mobile .col-lg-6,
+.preview-container-frame.is-mobile [class*="col-"] {
+  flex: 0 0 100% !important;
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+.preview-container-frame.is-mobile .hero {
+  padding: 1.5rem 1rem !important;
+}
+
+.preview-container-frame.is-mobile .hero-title {
+  font-size: 1.85rem !important;
+  line-height: 1.25 !important;
+}
+
+.preview-container-frame.is-mobile .hero-meta {
+  flex-direction: column !important;
+  gap: 0.75rem !important;
+}
+
+.preview-container-frame.is-mobile .hero-figure {
+  margin-top: 1rem !important;
+}
+
+.preview-container-frame.is-mobile article {
+  padding: 1.25rem 1rem !important;
+}
+
+.preview-container-frame.is-mobile article .heading-editorial {
+  font-size: 1.5rem !important;
 }
 
 /* Toast Messages */

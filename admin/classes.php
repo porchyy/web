@@ -9,275 +9,9 @@ require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/helpers.php';
 require_once __DIR__ . '/../includes/services/AuthService.php';
 require_once __DIR__ . '/../includes/services/ScheduleService.php';
+require_once __DIR__ . '/../includes/renderers/scheduler-table.php';
 
 AuthService::requireLogin();
-
-// --------------------------------------------------------------------------
-// Timetable Header & Body Renderer Helpers
-// --------------------------------------------------------------------------
-function renderSchedulerThead(array $periods): void { ?>
-    <tr>
-      <th class="day-col">วัน / คาบ</th>
-      <?php foreach ($periods as $p): ?>
-        <th>
-          <div class="period-name text-truncate" title="<?= e($p['name'] ?: 'คาบ ' . $p['num']) ?>">
-            <?= e($p['name'] ?: 'คาบ ' . $p['num']) ?>
-          </div>
-          <div class="period-time mono text-muted"><?= e($p['label']) ?></div>
-        </th>
-      <?php endforeach; ?>
-    </tr>
-<?php }
-
-function renderSchedulerTbody(array $grid, string $selectedGroup): void {
-    for ($d = 1; $d <= 5; $d++): ?>
-        <tr data-day="<?= $d ?>">
-          <td class="day-cell">
-            วัน<?= TH_DAYS[$d] ?>
-          </td>
-          <?php 
-          $daySlots = $grid[$d] ?? [];
-          foreach ($daySlots as $cell): 
-          ?>
-            <?php if ($cell['type'] === 'flag' || $cell['type'] === 'lunch'): ?>
-              <?php $s = $cell['slot']; ?>
-              <td colspan="<?= $cell['colspan'] ?>">
-                <div class="admin-slot-card admin-slot-card-special slot-type-<?= $cell['type'] ?>"
-                     draggable="true"
-                     data-slot-id="<?= (int) $s['id'] ?>"
-                     data-day="<?= $d ?>"
-                     data-time-start="<?= e(substr($s['time_start'], 0, 5)) ?>"
-                     data-time-end="<?= e(substr($s['time_end'], 0, 5)) ?>"
-                     data-span="<?= $cell['colspan'] ?>"
-                     data-period-num="<?= (int) $cell['period']['num'] ?>">
-                  <div class="slot-resize-handle handle-left" data-side="left" title="ลากขอบซ้ายเพื่อปรับเวลาเริ่มต้น"></div>
-                  <div class="slot-resize-handle handle-right" data-side="right" title="ลากขอบขวาเพื่อปรับเวลาสิ้นสุด"></div>
-                  
-                  <div class="card-head">
-                    <span class="subject-code d-inline-flex align-items-center gap-1">
-                      <?= icon($cell['type'] === 'flag' ? 'flag' : 'clock', 12) ?>
-                      <span><?= $cell['type'] === 'flag' ? 'FLAG' : 'LUNCH' ?></span>
-                    </span>
-                    <span class="slot-drag-handle" title="ลากเพื่อย้ายคาบเรียน">⠿</span>
-                  </div>
-                  <div class="subject-name" title="<?= e($cell['title']) ?>">
-                    <?= e($cell['title']) ?>
-                  </div>
-                  <div class="card-meta">
-                    <span class="card-room text-muted"><?= $cell['type'] === 'flag' ? 'หน้าเสาธง / โฮมรูม' : 'พักรับประทานอาหาร' ?></span>
-                    <span class="card-time mono">
-                      <?= hm($s['time_start']) ?>–<?= hm($s['time_end']) ?>
-                      <?php if ($cell['colspan'] > 1): ?>
-                        (<?= $cell['colspan'] ?> คาบ)
-                      <?php endif; ?>
-                    </span>
-                  </div>
-
-                  <!-- Hover Action Overlay -->
-                  <div class="slot-hover-overlay">
-                    <div class="slot-hover-actions">
-                      <button type="button"
-                              class="btn-overlay-action btn-overlay-edit btn-edit-slot-modal"
-                              data-id="<?= (int) $s['id'] ?>"
-                              data-day="<?= $d ?>"
-                              data-time-start="<?= e(substr($s['time_start'], 0, 5)) ?>"
-                              data-time-end="<?= e(substr($s['time_end'], 0, 5)) ?>"
-                              data-subject-code="<?= e($s['subject_code']) ?>"
-                              data-subject-name="<?= e($s['subject_name']) ?>"
-                              data-teacher-name="<?= e($s['teacher_name'] ?? '') ?>"
-                              data-room="<?= e($s['room'] ?? '') ?>"
-                              data-group="<?= e($s['class_group'] ?? $selectedGroup) ?>"
-                              title="แก้ไขข้อมูล">
-                        <?= icon('pencil', 12) ?>
-                        <span>แก้ไข</span>
-                      </button>
-                      <form method="POST" action="<?= url('admin/classes') ?>" class="d-inline m-0">
-                        <?= csrf_field() ?>
-                        <input type="hidden" name="sub_action" value="delete">
-                        <input type="hidden" name="id" value="<?= (int) $s['id'] ?>">
-                        <input type="hidden" name="class_group" value="<?= e($selectedGroup) ?>">
-                        <button type="submit" class="btn-overlay-action btn-overlay-del" title="ลบ" data-confirm="ยืนยันการลบคาบ<?= $cell['type'] === 'flag' ? 'กิจกรรมหน้าเสาธง' : 'พักกลางวัน' ?>ของวัน<?= TH_DAYS[$d] ?>?">
-                          <?= icon('trash', 12) ?>
-                          <span>ลบ</span>
-                        </button>
-                      </form>
-                    </div>
-                    <span class="slot-overlay-hint">ลากเพื่อย้าย</span>
-                  </div>
-                </div>
-              </td>
-            <?php elseif ($cell['type'] === 'class'): ?>
-              <?php $s = $cell['slot']; ?>
-              <td colspan="<?= $cell['colspan'] ?>">
-                <div class="admin-slot-card"
-                     draggable="true"
-                     data-slot-id="<?= (int) $s['id'] ?>"
-                     data-day="<?= $d ?>"
-                     data-time-start="<?= e(substr($s['time_start'], 0, 5)) ?>"
-                     data-time-end="<?= e(substr($s['time_end'], 0, 5)) ?>"
-                     data-span="<?= $cell['colspan'] ?>"
-                     data-period-num="<?= (int) $cell['period']['num'] ?>">
-                  <div class="slot-resize-handle handle-left" data-side="left" title="ลากขอบซ้ายเพื่อปรับเวลาเริ่มต้น"></div>
-                  <div class="slot-resize-handle handle-right" data-side="right" title="ลากขอบขวาเพื่อปรับเวลาสิ้นสุด"></div>
-                  
-                  <div class="card-head">
-                    <span class="subject-code" title="<?= e($s['subject_code']) ?>"><?= e($s['subject_code']) ?></span>
-                    <span class="slot-drag-handle" title="ลากเพื่อย้ายคาบเรียน">⠿</span>
-                  </div>
-                  <div class="subject-name" title="<?= e($s['subject_name']) ?>">
-                    <?= e($s['subject_name']) ?>
-                  </div>
-                  <div class="card-meta">
-                    <span class="card-room" title="<?= e($s['room'] ?: '-') ?>">
-                      <?= e($s['room'] ?: '-') ?><?= !empty($s['teacher_name']) ? ' · ' . e($s['teacher_name']) : '' ?>
-                    </span>
-                    <span class="card-time mono">
-                      <?= hm($s['time_start']) ?>–<?= hm($s['time_end']) ?>
-                      <?php if ($cell['colspan'] > 1): ?>
-                        (<?= $cell['colspan'] ?> คาบ)
-                      <?php endif; ?>
-                    </span>
-                  </div>
-
-                  <!-- Hover Action Overlay -->
-                  <div class="slot-hover-overlay">
-                    <div class="slot-hover-actions">
-                      <button type="button"
-                              class="btn-overlay-action btn-overlay-edit btn-edit-slot-modal"
-                              data-id="<?= (int) $s['id'] ?>"
-                              data-day="<?= $d ?>"
-                              data-time-start="<?= e(substr($s['time_start'], 0, 5)) ?>"
-                              data-time-end="<?= e(substr($s['time_end'], 0, 5)) ?>"
-                              data-subject-code="<?= e($s['subject_code']) ?>"
-                              data-subject-name="<?= e($s['subject_name']) ?>"
-                              data-teacher-name="<?= e($s['teacher_name'] ?? '') ?>"
-                              data-room="<?= e($s['room'] ?? '') ?>"
-                              data-group="<?= e($s['class_group'] ?? $selectedGroup) ?>"
-                              title="แก้ไขข้อมูล">
-                        <?= icon('pencil', 12) ?>
-                        <span>แก้ไข</span>
-                      </button>
-                      <form method="POST" action="<?= url('admin/classes') ?>" class="d-inline m-0">
-                        <?= csrf_field() ?>
-                        <input type="hidden" name="sub_action" value="delete">
-                        <input type="hidden" name="id" value="<?= (int) $s['id'] ?>">
-                        <input type="hidden" name="class_group" value="<?= e($selectedGroup) ?>">
-                        <button type="submit" class="btn-overlay-action btn-overlay-del" title="ลบ" data-confirm="ยืนยันการลบคาบเรียนนี้?">
-                          <?= icon('trash', 12) ?>
-                          <span>ลบ</span>
-                        </button>
-                      </form>
-                    </div>
-                    <span class="slot-overlay-hint">ลากเพื่อย้าย</span>
-                  </div>
-                </div>
-              </td>
-            <?php else: ?>
-              <td class="admin-slot-empty btn-open-slot-modal"
-                  data-dropzone="true"
-                  data-day="<?= $d ?>"
-                  data-time-start="<?= e(substr($cell['period']['start'], 0, 5)) ?>"
-                  data-time-end="<?= e(substr($cell['period']['end'], 0, 5)) ?>"
-                  data-period-num="<?= (int) $cell['period']['num'] ?>"
-                  data-group="<?= e($selectedGroup) ?>"
-                  title="คลิกเพื่อเพิ่มคาบเรียน ณ เวลานี้">
-                <div class="empty-slot-inner">
-                  <span class="btn-slot-add">
-                    <?= icon('plus', 13) ?>
-                  </span>
-                  <span class="empty-slot-label">เพิ่มคาบ</span>
-                </div>
-              </td>
-            <?php endif; ?>
-          <?php endforeach; ?>
-        </tr>
-    <?php endfor;
-}
-
-// --------------------------------------------------------------------------
-// AJAX Handlers (Drag-and-Drop & Slot Resize)
-// --------------------------------------------------------------------------
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['sub_action'] ?? '') === 'ajax_update_slot') {
-    header('Content-Type: application/json; charset=utf-8');
-    try {
-        verify_csrf();
-        $slotId    = filter_input(INPUT_POST, 'slot_id', FILTER_VALIDATE_INT);
-        $newDay    = filter_input(INPUT_POST, 'day_of_week', FILTER_VALIDATE_INT);
-        $timeStart = trim((string) ($_POST['time_start'] ?? ''));
-        $timeEnd   = trim((string) ($_POST['time_end'] ?? ''));
-
-        if (!$slotId || !$newDay || $timeStart === '' || $timeEnd === '') {
-            throw new InvalidArgumentException("ข้อมูลพารามิเตอร์ไม่ครบถ้วน (slot_id: {$slotId}, day: {$newDay}, start: '{$timeStart}', end: '{$timeEnd}')");
-        }
-
-        $updated  = ScheduleService::updateSlotPosition($slotId, $newDay, $timeStart, $timeEnd);
-        $group    = $updated['class_group'] ?? trim((string) ($_POST['class_group'] ?? 'ปวช.2/1'));
-        $gridData = ScheduleService::getTimetableGrid($group);
-
-        ob_start();
-        renderSchedulerTbody($gridData['grid'], $group);
-        $tbodyHtml = ob_get_clean();
-
-        echo json_encode([
-            'success'    => true,
-            'message'    => 'อัปเดตตำแหน่งคาบเรียนเรียบร้อยแล้ว',
-            'slot'       => $updated,
-            'tbody_html' => $tbodyHtml,
-        ], JSON_UNESCAPED_UNICODE);
-    } catch (Exception $e) {
-        http_response_code(422);
-        echo json_encode([
-            'success' => false,
-            'error'   => $e->getMessage(),
-        ], JSON_UNESCAPED_UNICODE);
-    }
-    exit;
-}
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['sub_action'] ?? '') === 'ajax_update_special_period') {
-    header('Content-Type: application/json; charset=utf-8');
-    try {
-        verify_csrf();
-        $rawPeriodNum = $_POST['period_num'] ?? null;
-        $specialType  = trim((string) ($_POST['special_type'] ?? ''));
-        $timeStart    = trim((string) ($_POST['time_start'] ?? ''));
-        $timeEnd      = trim((string) ($_POST['time_end'] ?? ''));
-        $group        = trim((string) ($_POST['class_group'] ?? 'ปวช.2/1'));
-
-        if ($timeStart === '' || $timeEnd === '') {
-            throw new InvalidArgumentException("ข้อมูลพารามิเตอร์คาบพิเศษไม่ครบถ้วน (start: '{$timeStart}', end: '{$timeEnd}')");
-        }
-        $periodNum = ($rawPeriodNum !== null && is_numeric($rawPeriodNum)) ? (int) $rawPeriodNum : 0;
-
-        $updatedSpecial = ScheduleService::updateSpecialPeriod($periodNum, $timeStart, $timeEnd, $specialType);
-        $gridData       = ScheduleService::getTimetableGrid($group);
-        $updatedPeriods = ScheduleService::getPeriods();
-
-        ob_start();
-        renderSchedulerThead($updatedPeriods);
-        $theadHtml = ob_get_clean();
-
-        ob_start();
-        renderSchedulerTbody($gridData['grid'], $group);
-        $tbodyHtml = ob_get_clean();
-
-        echo json_encode([
-            'success'    => true,
-            'message'    => 'อัปเดตคาบพิเศษเรียบร้อยแล้ว',
-            'period'     => $updatedSpecial,
-            'periods'    => $updatedPeriods,
-            'thead_html' => $theadHtml,
-            'tbody_html' => $tbodyHtml,
-        ], JSON_UNESCAPED_UNICODE);
-    } catch (Exception $e) {
-        http_response_code(422);
-        echo json_encode([
-            'success' => false,
-            'error'   => $e->getMessage(),
-        ], JSON_UNESCAPED_UNICODE);
-    }
-    exit;
-}
 
 // --------------------------------------------------------------------------
 // Standard Form Submissions (CRUD & Period Settings)
@@ -308,19 +42,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $teacherName = trim((string) ($_POST['teacher_name'] ?? ''));
         $room        = trim((string) ($_POST['room'] ?? ''));
         $classGroup  = trim((string) ($_POST['class_group'] ?? 'ปวช.2/1'));
-        $isAjax      = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') || ($_POST['ajax'] ?? '') === '1';
-
         if (!$dayOfWeek || $timeStart === '' || $timeEnd === '' || $subjectName === '') {
             $error = 'กรุณากรอกข้อมูลวัน เวลา และชื่อวิชาให้ครบถ้วน';
-            if ($isAjax) {
-                header('Content-Type: application/json; charset=utf-8');
-                http_response_code(422);
-                echo json_encode(['success' => false, 'error' => $error], JSON_UNESCAPED_UNICODE);
-                exit;
-            }
         } else {
             try {
-                $saved = ScheduleService::saveClassSlot([
+                ScheduleService::saveClassSlot([
                     'id'           => $editId,
                     'day_of_week'  => $dayOfWeek,
                     'time_start'   => $timeStart,
@@ -332,32 +58,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'class_group'  => $classGroup,
                 ]);
 
-                if ($isAjax) {
-                    $gridData = ScheduleService::getTimetableGrid($classGroup);
-                    ob_start();
-                    renderSchedulerTbody($gridData['grid'], $classGroup);
-                    $tbodyHtml = ob_get_clean();
-
-                    header('Content-Type: application/json; charset=utf-8');
-                    echo json_encode([
-                        'success'    => true,
-                        'message'    => $editId ? 'แก้ไขข้อมูลคาบเรียนเรียบร้อยแล้ว' : 'เพิ่มคาบเรียนลงในตารางเรียบร้อยแล้ว',
-                        'slot'       => $saved,
-                        'tbody_html' => $tbodyHtml,
-                    ], JSON_UNESCAPED_UNICODE);
-                    exit;
-                }
-
                 flash($editId ? 'แก้ไขข้อมูลคาบเรียนเรียบร้อยแล้ว' : 'เพิ่มคาบเรียนลงในตารางเรียบร้อยแล้ว');
                 redirect('admin/classes?group=' . urlencode($classGroup));
             } catch (Exception $e) {
                 $error = $e->getMessage();
-                if ($isAjax) {
-                    header('Content-Type: application/json; charset=utf-8');
-                    http_response_code(422);
-                    echo json_encode(['success' => false, 'error' => $error], JSON_UNESCAPED_UNICODE);
-                    exit;
-                }
             }
         }
     }
@@ -578,29 +282,32 @@ $allSlots = ScheduleService::getAllClassSlots();
        GROUP FILTER & VIEW TOGGLE BAR
        ==================================================================== -->
   <div class="scheduler-toolbar d-flex flex-wrap align-items-center justify-content-between gap-3 py-2 px-3 mb-3">
-    <div class="d-flex align-items-center gap-2 flex-wrap">
-      <span class="fw-semibold text-navy d-inline-flex align-items-center gap-1" style="font-size: .875rem;">
+    <div class="d-flex align-items-center gap-2">
+      <label for="adminClassGroupSelect" class="fw-semibold text-navy d-inline-flex align-items-center gap-1 mb-0" style="font-size: .875rem; cursor: pointer;">
         <?= icon('users', 15) ?> <span>กลุ่มเรียน:</span>
-      </span>
-      <div class="d-flex gap-1 flex-wrap">
+      </label>
+      <select id="adminClassGroupSelect"
+              class="form-select form-select-sm"
+              style="width: auto; min-width: 170px; cursor: pointer;"
+              onchange="location.href='<?= url('admin/classes?view=' . $viewMode . '&group=') ?>' + encodeURIComponent(this.value)">
         <?php foreach ($availableGroups as $grp): ?>
-          <a href="<?= url('admin/classes?group=' . urlencode($grp) . '&view=' . $viewMode) ?>"
-             class="btn-group-chip <?= $selectedGroup === $grp ? 'is-active' : '' ?>">
+          <option value="<?= e($grp) ?>" <?= $selectedGroup === $grp ? 'selected' : '' ?>>
             <?= e($grp) ?>
-          </a>
+          </option>
         <?php endforeach; ?>
-      </div>
+      </select>
     </div>
 
-    <div class="d-flex align-items-center gap-3">
-      <span class="mono text-muted d-none d-md-inline" style="font-size: 11.5px;">[TIP] ชี้ที่คาบเพื่อแก้ไข/ลบ หรือลากเพื่อจัดตาราง</span>
-      <div class="d-inline-flex border" style="border-radius: 0; padding: 2px; background: var(--c-bg-alt);">
+    <div class="d-flex align-items-center gap-2">
+      <div class="d-inline-flex gap-1">
         <a href="<?= url('admin/classes?group=' . urlencode($selectedGroup) . '&view=grid') ?>"
-           class="view-mode-btn <?= $viewMode === 'grid' ? 'is-active' : '' ?>" title="มุมมองผังตาราง">
+           class="btn btn-sm <?= $viewMode === 'grid' ? 'btn-navy shadow-sm' : 'btn-outline-secondary bg-white' ?> d-inline-flex align-items-center gap-1 rounded-0"
+           title="มุมมองผังตาราง">
           <?= icon('grid', 14) ?> <span>ผังตาราง</span>
         </a>
         <a href="<?= url('admin/classes?group=' . urlencode($selectedGroup) . '&view=list') ?>"
-           class="view-mode-btn <?= $viewMode === 'list' ? 'is-active' : '' ?>" title="มุมมองรายการ">
+           class="btn btn-sm <?= $viewMode === 'list' ? 'btn-navy shadow-sm' : 'btn-outline-secondary bg-white' ?> d-inline-flex align-items-center gap-1 rounded-0"
+           title="มุมมองรายการ">
           <?= icon('news', 14) ?> <span>รายการ</span>
         </a>
       </div>
@@ -625,7 +332,7 @@ $allSlots = ScheduleService::getAllClassSlots();
              id="schedulerGrid"
              data-csrf="<?= e(csrf_token()) ?>"
              data-group="<?= e($selectedGroup) ?>"
-             data-endpoint="<?= url('admin/classes') ?>"
+             data-endpoint="<?= url('api/admin/classes') ?>"
              data-periods="<?= e(json_encode($periods, JSON_UNESCAPED_UNICODE)) ?>">
         <thead>
           <?php renderSchedulerThead($periods); ?>
@@ -736,7 +443,7 @@ $allSlots = ScheduleService::getAllClassSlots();
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="periodsModalLabel">ตั้งค่าคาบเวลาเรียน (Schedule Periods Configuration)</h5>
+        <h5 class="modal-title" id="periodsModalLabel">ตั้งค่าคาบเวลาเรียน</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="ปิด"></button>
       </div>
       <form method="POST" action="<?= url('admin/classes') ?>">
@@ -826,9 +533,15 @@ $allSlots = ScheduleService::getAllClassSlots();
                      name="class_group"
                      id="modalClassGroup"
                      class="form-control"
+                     list="modalClassGroupList"
                      placeholder="ปวช.2/1"
                      value="<?= e($selectedGroup) ?>"
                      required>
+              <datalist id="modalClassGroupList">
+                <?php foreach ($availableGroups as $grp): ?>
+                  <option value="<?= e($grp) ?>"></option>
+                <?php endforeach; ?>
+              </datalist>
             </div>
 
             <div class="col-12 col-md-4">

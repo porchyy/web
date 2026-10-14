@@ -95,8 +95,8 @@
   border-left: 3.5px solid var(--c-navy);
   border-radius: 0;
   padding: 8px 9px;
-  cursor: grab;
-  transition: border-color 0.12s ease;
+  cursor: pointer;
+  transition: all 0.15s ease;
   user-select: none;
   height: 100%;
   min-height: 80px;
@@ -110,6 +110,7 @@
 
 .admin-slot-card:hover {
   border-color: var(--c-navy);
+  box-shadow: 0 2px 8px rgba(23, 50, 77, 0.08);
 }
 
 .admin-slot-card.is-dragging {
@@ -136,19 +137,19 @@
 
 .admin-slot-card .subject-code {
   font-family: var(--font-mono);
-  font-size: 11.5px;
+  font-size: 12.5px;
   font-weight: 700;
   color: var(--c-navy);
   letter-spacing: 0.25px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  line-height: 1.1;
+  line-height: 1.15;
 }
 
 .admin-slot-card .subject-name {
   font-family: var(--font-heading);
-  font-size: 12.5px;
+  font-size: 13.5px;
   font-weight: 600;
   color: var(--c-ink);
   line-height: 1.3;
@@ -161,7 +162,7 @@
 }
 
 .admin-slot-card .card-meta {
-  font-size: 11px;
+  font-size: 11.5px;
   color: var(--c-muted);
   display: flex;
   align-items: center;
@@ -196,20 +197,16 @@
 }
 
 /* Hover Overlay Action Layer */
-.slot-overlay-actions {
+.slot-hover-overlay {
   position: absolute;
-  top: 4px;
-  right: 4px;
-  display: none;
-  gap: 3px;
+  top: 3px;
+  right: 3px;
   z-index: 10;
-  background: rgba(255, 255, 255, 0.95);
-  padding: 2px;
-  border: 1px solid var(--c-line);
+  display: none;
 }
 
-.admin-slot-card:hover .slot-overlay-actions {
-  display: flex;
+.admin-slot-card:hover .slot-hover-overlay {
+  display: block;
 }
 
 /* Edge Drag-To-Resize Handles */
@@ -235,29 +232,77 @@
   background: rgba(233, 154, 74, 0.4);
 }
 
-/* Empty Slot Drop Target */
-.admin-empty-slot {
+/* Empty Slot Add Target & Dropzone */
+.admin-slot-empty {
   height: 100%;
   min-height: 80px;
   border: 1px dashed var(--c-line);
+  padding: 8px;
+  text-align: center;
+  vertical-align: middle;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  background: transparent;
+}
+
+.admin-slot-empty:hover {
+  border-color: var(--c-navy);
+  border-style: solid;
+  background: rgba(240, 246, 252, 0.75);
+  cursor: pointer;
+}
+
+.admin-slot-empty .empty-slot-inner {
+  height: 100%;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: #cbd5e1;
-  font-size: 20px;
+  gap: 4px;
+  color: #94a3b8;
   cursor: pointer;
+  pointer-events: none;
+}
+
+.admin-slot-empty .btn-slot-add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(23, 50, 77, 0.06);
+  color: var(--c-muted);
   transition: all 0.15s ease;
 }
 
-.admin-empty-slot:hover {
-  border-color: var(--c-navy);
-  color: var(--c-navy);
-  background: var(--c-surface);
+.admin-slot-empty:hover .btn-slot-add {
+  background: var(--c-navy);
+  color: #ffffff;
+  transform: scale(1.12);
 }
 
-.admin-empty-slot.is-drag-over {
-  border: 2px dashed var(--c-navy);
-  background: var(--c-blue-100);
+.admin-slot-empty .empty-slot-label {
+  font-size: 11.5px;
+  color: var(--c-muted);
+  font-weight: 500;
+  transition: color 0.15s ease;
+}
+
+.admin-slot-empty:hover .empty-slot-label {
+  color: var(--c-navy);
+  font-weight: 600;
+}
+
+.admin-slot-empty.drag-over-origin,
+.admin-slot-empty.drag-over-span {
+  border: 2px dashed var(--c-navy) !important;
+  background: var(--c-blue-100) !important;
+}
+
+.admin-slot-empty.drag-over-invalid {
+  border: 2px dashed #dc3545 !important;
+  background: rgba(220, 53, 69, 0.08) !important;
 }
 
 /* Mobile Timetable Day Selector Tabs (< 1024px) */

@@ -51,6 +51,10 @@ ErrorDocument 404 /web/error.php?code=404
 ErrorDocument 403 /web/error.php?code=403
 ErrorDocument 500 /web/error.php?code=500
 
+# Dedicated API micro-endpoints
+RewriteRule ^api/admin/([a-zA-Z0-9_\-]+)/?$ api/admin/$1.php [L,QSA]
+RewriteRule ^api/([a-zA-Z0-9_\-]+)/?$ api/$1.php [L,QSA]
+
 # Admin routes
 RewriteRule ^admin/?$ admin/index.php [L]
 RewriteRule ^admin/banner/?$ admin/hero.php [L]

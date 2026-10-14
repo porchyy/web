@@ -135,7 +135,7 @@ require_once __DIR__ . '/../includes/admin-header.php';
   <!-- ====================================================================
        ADD / EDIT FORM
        ==================================================================== -->
-  <div class="admin-card mx-auto" style="max-width: 600px;">
+  <div class="admin-card mx-auto" style="max-width: 760px;">
     <div class="admin-card-head">
       <h3><?= $action === 'edit' ? 'แก้ไขผู้ใช้งาน #' . (int) $editItem['id'] : 'เพิ่มผู้ใช้งานใหม่' ?></h3>
     </div>
@@ -147,64 +147,64 @@ require_once __DIR__ . '/../includes/admin-header.php';
         <input type="hidden" name="id" value="<?= (int) $editItem['id'] ?>">
       <?php endif; ?>
 
-      <div class="mb-3">
-        <label for="input-user-username" class="form-label">ชื่อผู้ใช้งาน (Username) <span class="req">*</span></label>
-        <input type="text"
-               name="username"
-               id="input-user-username"
-               class="form-control mono"
-               placeholder="เช่น admin หรือ editor01"
-               value="<?= e($_POST['username'] ?? $editItem['username'] ?? '') ?>"
-               required>
-      </div>
+      <div class="row g-3">
+        <div class="col-12 col-md-6">
+          <label for="input-user-username" class="form-label">ชื่อผู้ใช้งาน <span class="req">*</span></label>
+          <input type="text"
+                 name="username"
+                 id="input-user-username"
+                 class="form-control mono"
+                 placeholder="เช่น admin หรือ editor01"
+                 value="<?= e($_POST['username'] ?? $editItem['username'] ?? '') ?>"
+                 required>
+        </div>
 
-      <div class="mb-3">
-        <label for="input-user-fullname" class="form-label">ชื่อ-นามสกุลจริง <span class="req">*</span></label>
-        <input type="text"
-               name="full_name"
-               id="input-user-fullname"
-               class="form-control"
-               placeholder="เช่น อ.สมชาย ใจดี"
-               value="<?= e($_POST['full_name'] ?? $editItem['full_name'] ?? '') ?>"
-               required>
-      </div>
-
-      <div class="mb-3">
-        <label for="input-user-password" class="form-label">
-          รหัสผ่าน <?= $action === 'edit' ? '<span class="text-muted">(เว้นว่างไว้หากไม่ต้องการเปลี่ยน)</span>' : '<span class="req">*</span>' ?>
-        </label>
-        <div class="pw-field">
-          <input type="password"
-                 name="password"
-                 id="input-user-password"
+        <div class="col-12 col-md-6">
+          <label for="input-user-fullname" class="form-label">ชื่อ-นามสกุลจริง <span class="req">*</span></label>
+          <input type="text"
+                 name="full_name"
+                 id="input-user-fullname"
                  class="form-control"
-                 placeholder="••••••••"
-                 minlength="6"
-                 <?= $action === 'new' ? 'required' : '' ?>>
-          <button type="button" class="pw-toggle" aria-label="แสดงรหัสผ่าน">
-            <?= icon('eye', 18) ?>
-          </button>
+                 placeholder="เช่น อ.สมชาย ใจดี"
+                 value="<?= e($_POST['full_name'] ?? $editItem['full_name'] ?? '') ?>"
+                 required>
         </div>
-        <div class="form-text">ความยาวอย่างน้อย 6 ตัวอักษร</div>
-      </div>
 
-      <?php if ($isAdmin): ?>
-        <div class="mb-4">
-          <label for="select-user-role" class="form-label">ระดับสิทธิ์</label>
-          <select name="role" id="select-user-role" class="form-select">
-            <option value="admin" <?= ($_POST['role'] ?? $editItem['role'] ?? '') === 'admin' ? 'selected' : '' ?>>Admin (ผู้ดูแลระบบสูงสุด)</option>
-            <option value="editor" <?= ($_POST['role'] ?? $editItem['role'] ?? '') === 'editor' ? 'selected' : '' ?>>Editor (เจ้าหน้าที่แก้ไขข้อมูล)</option>
-          </select>
-        </div>
-      <?php else: ?>
-        <div class="mb-4">
-          <label class="form-label">ระดับสิทธิ์</label>
-          <div>
-            <span class="tag"><?= e($editItem['role'] ?? 'editor') ?></span>
-            <span class="text-muted small ms-2">(เฉพาะผู้ดูแลระบบหลักที่สามารถปรับเปลี่ยนสิทธิ์ได้)</span>
+        <div class="col-12 col-md-6">
+          <label for="input-user-password" class="form-label">
+            รหัสผ่าน <?= $action === 'edit' ? '<span class="text-muted">(เว้นว่างไว้หากไม่ต้องการเปลี่ยน)</span>' : '<span class="req">*</span>' ?>
+          </label>
+          <div class="pw-field">
+            <input type="password"
+                   name="password"
+                   id="input-user-password"
+                   class="form-control"
+                   placeholder="••••••••"
+                   minlength="6"
+                   <?= $action === 'new' ? 'required' : '' ?>>
+            <button type="button" class="pw-toggle" aria-label="แสดงรหัสผ่าน">
+              <?= icon('eye', 18) ?>
+            </button>
           </div>
+          <div class="form-text">ความยาวอย่างน้อย 6 ตัวอักษร</div>
         </div>
-      <?php endif; ?>
+
+        <div class="col-12 col-md-6">
+          <?php if ($isAdmin): ?>
+            <label for="select-user-role" class="form-label">ระดับสิทธิ์</label>
+            <select name="role" id="select-user-role" class="form-select">
+              <option value="admin" <?= ($_POST['role'] ?? $editItem['role'] ?? '') === 'admin' ? 'selected' : '' ?>>Admin (ผู้ดูแลระบบสูงสุด)</option>
+              <option value="editor" <?= ($_POST['role'] ?? $editItem['role'] ?? '') === 'editor' ? 'selected' : '' ?>>Editor (เจ้าหน้าที่แก้ไขข้อมูล)</option>
+            </select>
+          <?php else: ?>
+            <label class="form-label">ระดับสิทธิ์</label>
+            <div>
+              <span class="tag"><?= e($editItem['role'] ?? 'editor') ?></span>
+              <div class="form-text">เฉพาะผู้ดูแลระบบหลักที่สามารถปรับเปลี่ยนสิทธิ์ได้</div>
+            </div>
+          <?php endif; ?>
+        </div>
+      </div>
 
       <div class="pt-3 border-top d-flex justify-content-end gap-2">
         <a href="<?= url($isAdmin ? 'admin/users.php' : 'admin/index.php') ?>" class="btn btn-line">ยกเลิก</a>

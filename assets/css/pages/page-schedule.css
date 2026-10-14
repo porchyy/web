@@ -18,7 +18,10 @@
   align-items: center;
   justify-content: center;
   gap: var(--s-2);
-  min-height: 44px;
+  min-height: 48px;
+  padding: 8px 14px;
+  line-height: 1.35;
+  text-align: center;
   font-weight: 500;
   font-size: 0.9375rem;
   text-decoration: none;
@@ -203,6 +206,40 @@
   color: var(--c-navy);
   text-align: center;
   font-family: var(--font-heading);
+  transition: background-color var(--dur) var(--ease-out), border-color var(--dur) var(--ease-out);
+}
+
+/* User View: Active Day & Interactive Row Hover */
+.week-table tbody tr {
+  transition: background-color var(--dur) var(--ease-out);
+}
+
+.week-table tbody tr:hover td {
+  background-color: rgba(240, 246, 252, 0.7);
+}
+
+.week-table tbody tr.is-today td {
+  background-color: rgba(240, 248, 255, 0.55);
+}
+
+.week-table tbody tr.is-today td.col-day {
+  background-color: var(--c-blue-100);
+  border-left: 4px solid var(--c-accent);
+  color: var(--c-navy);
+}
+
+.badge-today-pill {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  color: #ffffff;
+  background: var(--c-accent);
+  border-radius: 3px;
+  padding: 1px 6px;
+  margin-top: 3px;
+  letter-spacing: 0.2px;
+  line-height: 1.25;
 }
 
 /* Card Slot inside Public Week Table */
@@ -217,6 +254,21 @@
   border-radius: var(--radius);
   font-size: 13px;
   line-height: 1.35;
+  transition: transform var(--dur) var(--ease-out), box-shadow var(--dur) var(--ease-out), border-color var(--dur) var(--ease-out);
+}
+
+.week-table td.slot-class {
+  transition: background-color var(--dur) var(--ease-out);
+}
+
+.week-table td.slot-class:hover {
+  background-color: #f0f7fc;
+}
+
+.week-table td.slot-class:hover .cell-slot {
+  border-left-color: var(--c-accent);
+  box-shadow: 0 4px 12px rgba(23, 50, 77, 0.1);
+  transform: translateY(-1px);
 }
 
 .cell-slot .slot-code {
@@ -242,13 +294,14 @@
 
 /* Live Indicators & Highlights */
 .is-current-class {
-  border-left: 3px solid var(--c-accent) !important;
-  background: rgba(233, 154, 74, 0.06) !important;
+  border-left: 3.5px solid var(--c-accent) !important;
+  background: rgba(233, 154, 74, 0.08) !important;
+  box-shadow: 0 2px 8px rgba(233, 154, 74, 0.12);
 }
 
 .is-next-class {
-  border-left: 3px solid var(--c-navy) !important;
-  background: rgba(23, 50, 77, 0.03) !important;
+  border-left: 3.5px solid var(--c-navy) !important;
+  background: rgba(23, 50, 77, 0.04) !important;
 }
 
 .bg-today-highlight {
@@ -260,6 +313,7 @@
   background: var(--c-blue-100) !important;
   color: var(--c-navy) !important;
   font-weight: 700;
+  border-bottom: 2px solid var(--c-accent) !important;
 }
 
 /* Mobile Slot Card */
@@ -507,8 +561,43 @@
     width: 80px !important;
   }
 
+  .badge-today-pill {
+    display: none !important;
+  }
+
+  .week-table tbody tr:hover td,
+  .week-table tbody tr.is-today td,
+  .week-table tbody td.slot-class:hover,
+  .week-table tbody td.slot-empty:hover {
+    background: transparent !important;
+  }
+
+  .week-table tbody tr.is-today td.col-day {
+    background: #f8fafc !important;
+    border-left: 1px solid #94a3b8 !important;
+    color: #17324d !important;
+  }
+
+  .week-table th.is-current-period {
+    background: #f1f5f9 !important;
+    color: #17324d !important;
+    border-bottom: 1px solid #94a3b8 !important;
+  }
+
+  .is-current-class,
+  .is-next-class {
+    border-left: 2px solid #17324d !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    transform: none !important;
+  }
+
   .cell-slot {
     padding: 2px !important;
+    border-left: 2px solid #17324d !important;
+    box-shadow: none !important;
+    transform: none !important;
+    background: transparent !important;
   }
 
   .slot-code {

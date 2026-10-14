@@ -21,27 +21,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verify_csrf();
     $subAction = filter_input(INPUT_POST, 'sub_action', FILTER_DEFAULT);
 
-    if ($subAction === 'reorder') {
-        $orderJson = $_POST['order_ids'] ?? '[]';
-        $orderIds = json_decode($orderJson, true) ?: [];
-        if (!empty($orderIds)) {
-            FacultyService::reorderTeachers($orderIds);
-        }
-        header('Content-Type: application/json; charset=utf-8');
-        echo json_encode(['success' => true]);
-        exit;
-    }
-
-    if ($subAction === 'swap_head') {
-        $newHeadId = filter_input(INPUT_POST, 'new_head_id', FILTER_VALIDATE_INT);
-        $success = false;
-        if ($newHeadId) {
-            $success = FacultyService::setHeadTeacher($newHeadId);
-        }
-        header('Content-Type: application/json; charset=utf-8');
-        echo json_encode(['success' => $success]);
-        exit;
-    }
 
     if ($subAction === 'delete') {
         $delId = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
@@ -348,7 +327,7 @@ require_once __DIR__ . '/../includes/admin-header.php';
 
       <div class="tree-slot-grid"
            data-tree-grid
-           data-reorder-endpoint="<?= url('admin/teachers') ?>"
+           data-reorder-endpoint="<?= url('api/admin/teachers') ?>"
            data-csrf="<?= csrf_token() ?>">
         <?php foreach ($facultyMembers as $index => $teacher): ?>
           <div class="tree-slot-card"
