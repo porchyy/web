@@ -10,6 +10,8 @@ require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/helpers.php';
 require_once __DIR__ . '/../includes/services/AuthService.php';
 require_once __DIR__ . '/../includes/services/SettingService.php';
+require_once __DIR__ . '/../includes/services/ScheduleService.php';
+require_once __DIR__ . '/../includes/services/FacultyService.php';
 
 AuthService::requireLogin();
 
@@ -35,10 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         SettingService::set('hero_caption', clean_text(trim((string) ($_POST['hero_caption'] ?? ''))));
 
         // Metrics
-        SettingService::set('stat_mode', trim((string) ($_POST['stat_mode'] ?? 'dynamic')));
-        SettingService::set('stat_courses', clean_text(trim((string) ($_POST['stat_courses'] ?? ''))));
-        SettingService::set('stat_labs', clean_text(trim((string) ($_POST['stat_labs'] ?? ''))));
-        SettingService::set('stat_employment', clean_text(trim((string) ($_POST['stat_employment'] ?? ''))));
+        SettingService::set('stat_employment', clean_text(trim((string) ($_POST['stat_employment'] ?? '96%'))));
 
         // Image upload
         $newImage = upload_image('hero_image');
@@ -67,24 +66,16 @@ $heroIntro   = SettingService::get('hero_intro', 'หลักสูตรที
 $heroCaption = SettingService::get('hero_caption', 'ภาพถ่ายพื้นที่เรียนรู้และห้องปฏิบัติการคอมพิวเตอร์');
 $heroImage   = SettingService::get('hero_image', 'uploads/seed/hero-lab.jpg');
 
-$statMode    = SettingService::get('stat_mode', 'dynamic');
-$statCourses = SettingService::get('stat_courses', '18');
-$statLabs    = SettingService::get('stat_labs', '04');
 $statEmploy  = SettingService::get('stat_employment', '96%');
+$profCount   = ScheduleService::getProfessionalCourseCount();
+$teachCount  = count(FacultyService::getAllTeachers());
 
 require_once __DIR__ . '/../includes/admin-header.php';
 ?>
 
-<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-  <div>
-    <p class="eyebrow eyebrow-muted mb-1">ตั้งค่าหน้าแรก</p>
-    <h1 style="font-size: 1.75rem; margin: 0;">ภาพแบนเนอร์และข้อมูลประชาสัมพันธ์หลัก</h1>
-  </div>
-  <div>
-    <button type="button" class="btn btn-sm btn-line" id="btnOpenHeroPreview" data-bs-toggle="modal" data-bs-target="#heroPreviewModal">
-      <?= icon('eye', 16) ?> <span>ดูตัวอย่างหน้าจริง</span>
-    </button>
-  </div>
+<div class="mb-4">
+  <p class="eyebrow eyebrow-muted mb-1">ตั้งค่าหน้าแรก</p>
+  <h1 style="font-size: 1.75rem; margin: 0;">ภาพแบนเนอร์และข้อมูลประชาสัมพันธ์หลัก</h1>
 </div>
 
 <?php if ($error): ?>
@@ -207,45 +198,20 @@ require_once __DIR__ . '/../includes/admin-header.php';
           <h3>ตัวเลขสถิติและข้อมูลแสดงผลหน้าแรก</h3>
         </div>
 
-        <!-- STAT MODE SELECTION -->
         <div class="mb-3">
-          <label class="form-label fw-semibold">โหมดการแสดงผลสถิติ</label>
-          <div class="d-flex flex-column flex-sm-row gap-3">
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="stat_mode" id="modeDynamic" value="dynamic" <?= $statMode === 'dynamic' ? 'checked' : '' ?>>
-              <label class="form-check-label" for="modeDynamic">
-                <strong>นับอัตโนมัติ</strong> (อาจารย์ ข่าวสาร กิจกรรมจากฐานข้อมูลจริง)
-              </label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="stat_mode" id="modeManual" value="manual" <?= $statMode === 'manual' ? 'checked' : '' ?>>
-              <label class="form-check-label" for="modeManual">
-                <strong>กำหนดเอง</strong> (ระบุตัวเลขเฉพาะกิจ)
-              </label>
+          <div class="row g-3">
+            <div class="col-12 col-md-6">
+              <label for="stat_employment" class="form-label">อัตราการมีงานทำของผู้สำเร็จการศึกษา</label>
+              <input type="text" name="stat_employment" id="stat_employment" class="form-control mono" placeholder="เช่น 96%" value="<?= e($statEmploy) ?>">
+              <div class="form-text">ระบุเปอร์เซ็นต์อัตราการมีงานทำหรือศึกษาต่อ</div>
             </div>
           </div>
         </div>
 
-        <!-- CONDITIONAL MANUAL INPUTS (HIDDEN WHEN DYNAMIC) -->
-        <div id="stat-manual-inputs" class="row g-3 p-3 border mb-3 <?= $statMode === 'dynamic' ? 'd-none' : '' ?>" style="background: var(--c-surface); border-radius: var(--radius);">
-          <div class="col-12">
-            <span class="mono text-muted" style="font-size: 12px;">กำหนดตัวเลขสถิติแบบระบุเอง:</span>
-          </div>
-          <div class="col-6 col-md-4">
-            <label for="stat_courses" class="form-label">จำนวนวิชา</label>
-            <input type="text" name="stat_courses" id="stat_courses" class="form-control mono" value="<?= e($statCourses) ?>">
-          </div>
-          <div class="col-6 col-md-4">
-            <label for="stat_labs" class="form-label">ห้องแล็บ</label>
-            <input type="text" name="stat_labs" id="stat_labs" class="form-control mono" value="<?= e($statLabs) ?>">
-          </div>
-          <div class="col-12 col-md-4">
-            <label for="stat_employment" class="form-label">อัตรามีงานทำ</label>
-            <input type="text" name="stat_employment" id="stat_employment" class="form-control mono" value="<?= e($statEmploy) ?>">
-          </div>
-        </div>
-
-        <div class="mt-4 pt-3 border-top d-flex justify-content-end">
+        <div class="mt-4 pt-3 border-top d-flex justify-content-end align-items-center gap-2">
+          <button type="button" class="btn btn-line d-inline-flex align-items-center gap-1" id="btnOpenHeroPreview" data-bs-toggle="modal" data-bs-target="#heroPreviewModal">
+            <?= icon('eye', 16) ?> <span>ดูตัวอย่างหน้าจริง</span>
+          </button>
           <button type="submit" class="btn btn-navy">
             <?= icon('check', 16) ?>
             <span>บันทึกการเปลี่ยนแปลง</span>

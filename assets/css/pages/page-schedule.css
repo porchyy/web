@@ -95,24 +95,6 @@
   border-bottom: 1px solid var(--c-line);
 }
 
-.slot-time {
-  font-family: var(--font-mono);
-  line-height: 1.4;
-}
-
-.slot-time .start {
-  display: block;
-  color: var(--c-navy);
-  font-weight: 500;
-  font-size: 0.9375rem;
-}
-
-.slot-time .end {
-  display: block;
-  color: var(--c-muted);
-  font-size: 0.8125rem;
-}
-
 .slot h3 {
   font-size: 1.0625rem;
   margin: 2px 0 var(--s-2);
@@ -206,7 +188,9 @@
   color: var(--c-navy);
   text-align: center;
   font-family: var(--font-heading);
-  transition: background-color var(--dur) var(--ease-out), border-color var(--dur) var(--ease-out);
+  transition:
+    background-color var(--dur) var(--ease-out),
+    border-color var(--dur) var(--ease-out);
 }
 
 /* User View: Active Day & Interactive Row Hover */
@@ -249,16 +233,28 @@
   flex-direction: column;
   justify-content: space-between;
   padding: 6px 8px;
-  border-left: 3px solid var(--c-navy);
   background: #ffffff;
   border-radius: var(--radius);
   font-size: 13px;
   line-height: 1.35;
-  transition: transform var(--dur) var(--ease-out), box-shadow var(--dur) var(--ease-out), border-color var(--dur) var(--ease-out);
+  transition:
+    transform var(--dur) var(--ease-out),
+    box-shadow var(--dur) var(--ease-out),
+    border-color var(--dur) var(--ease-out);
 }
 
 .week-table td.slot-class {
+  padding: 0 !important;
+  vertical-align: stretch;
   transition: background-color var(--dur) var(--ease-out);
+}
+
+.week-table td.slot-class .cell-slot {
+  height: 100%;
+  width: 100%;
+  border-radius: 0;
+  box-sizing: border-box;
+  padding: 8px 10px;
 }
 
 .week-table td.slot-class:hover {
@@ -266,9 +262,9 @@
 }
 
 .week-table td.slot-class:hover .cell-slot {
-  border-left-color: var(--c-accent);
-  box-shadow: 0 4px 12px rgba(23, 50, 77, 0.1);
-  transform: translateY(-1px);
+  box-shadow:
+    inset 0 0 0 1px rgba(23, 50, 77, 0.1),
+    0 4px 12px rgba(23, 50, 77, 0.08);
 }
 
 .cell-slot .slot-code {
@@ -293,27 +289,26 @@
 }
 
 /* Live Indicators & Highlights */
-.is-current-class {
-  border-left: 3.5px solid var(--c-accent) !important;
-  background: rgba(233, 154, 74, 0.08) !important;
-  box-shadow: 0 2px 8px rgba(233, 154, 74, 0.12);
+/* 2. What active class is it: Emerald Live Active Class */
+.is-current-class,
+.week-table td.slot-class.is-current-class .cell-slot,
+.slot-card-mobile.is-current-class {
+  border-left: 2px solid #10b981 !important;
+}
+
+.is-today .is-next-class div,
+.is-today .is-current-class div {
+  background-color: rgba(240, 248, 255, 0.55) !important;
 }
 
 .is-next-class {
-  border-left: 3.5px solid var(--c-navy) !important;
+  border-left: 3.5px solid #619ae6 !important;
   background: rgba(23, 50, 77, 0.04) !important;
 }
 
 .bg-today-highlight {
   background: var(--c-surface) !important;
   border-left: 3px solid var(--c-accent);
-}
-
-.is-current-period {
-  background: var(--c-blue-100) !important;
-  color: var(--c-navy) !important;
-  font-weight: 700;
-  border-bottom: 2px solid var(--c-accent) !important;
 }
 
 /* Mobile Slot Card */
@@ -578,15 +573,17 @@
     color: #17324d !important;
   }
 
-  .week-table th.is-current-period {
-    background: #f1f5f9 !important;
-    color: #17324d !important;
-    border-bottom: 1px solid #94a3b8 !important;
-  }
-
   .is-current-class,
   .is-next-class {
-    border-left: 2px solid #17324d !important;
+    border-left: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    transform: none !important;
+  }
+
+  .week-table td.slot-class.is-current-class .cell-slot,
+  .slot-card-mobile.is-current-class {
+    border-left: 0 !important;
     background: transparent !important;
     box-shadow: none !important;
     transform: none !important;
@@ -594,7 +591,7 @@
 
   .cell-slot {
     padding: 2px !important;
-    border-left: 2px solid #17324d !important;
+    border-left: 0 !important;
     box-shadow: none !important;
     transform: none !important;
     background: transparent !important;

@@ -13,7 +13,7 @@ require_once __DIR__ . '/../includes/services/AuthService.php';
 
 // Metrics
 $cntNews       = (int) q("SELECT COUNT(*) FROM news")->fetchColumn();
-$cntClasses    = (int) q("SELECT COUNT(*) FROM class_schedule")->fetchColumn();
+$cntClasses    = (int) q("SELECT COUNT(*) FROM classes")->fetchColumn();
 $cntActivities = (int) q("SELECT COUNT(*) FROM activities")->fetchColumn();
 $cntTeachers   = (int) q("SELECT COUNT(*) FROM teachers")->fetchColumn();
 $cntClub       = (int) q("SELECT COUNT(*) FROM club_members")->fetchColumn();
@@ -51,7 +51,7 @@ $upcomingActs = q("
   </div>
   <div class="stat-box">
     <span class="num"><?= $cntClasses ?></span>
-    <span class="label">คาบเรียนในตาราง</span>
+    <span class="label">รายวิชาในหลักสูตร</span>
   </div>
   <div class="stat-box">
     <span class="num"><?= $cntActivities ?></span>

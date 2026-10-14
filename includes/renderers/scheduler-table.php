@@ -64,7 +64,6 @@ if (!function_exists('renderSchedulerTbody')) {
                       <div class="card-meta">
                         <span class="card-room text-muted"><?= $cell['type'] === 'flag' ? 'หน้าเสาธง / โฮมรูม' : 'พักรับประทานอาหาร' ?></span>
                         <span class="card-time mono">
-                          <?= hm($s['time_start']) ?>–<?= hm($s['time_end']) ?>
                           <?php if ($cell['colspan'] > 1): ?>
                             (<?= $cell['colspan'] ?> คาบ)
                           <?php endif; ?>
@@ -86,7 +85,7 @@ if (!function_exists('renderSchedulerTbody')) {
                                   data-room="<?= e($s['room'] ?? '') ?>"
                                   data-group="<?= e($s['class_group'] ?? $selectedGroup) ?>"
                                   title="แก้ไขข้อมูล">
-                            <?= icon('pencil', 12) ?>
+                            <?= icon('pencil', 16) ?>
                           </button>
                           <form method="POST" action="<?= url('admin/classes') ?>" class="d-inline m-0">
                             <?= csrf_field() ?>
@@ -94,7 +93,7 @@ if (!function_exists('renderSchedulerTbody')) {
                             <input type="hidden" name="id" value="<?= (int) $s['id'] ?>">
                             <input type="hidden" name="class_group" value="<?= e($selectedGroup) ?>">
                             <button type="submit" class="btn btn-sm bg-white border shadow-sm p-1 lh-1 text-danger" title="ลบ" data-confirm="ยืนยันการลบคาบ<?= $cell['type'] === 'flag' ? 'กิจกรรมหน้าเสาธง' : 'พักกลางวัน' ?>ของวัน<?= TH_DAYS[$d] ?>?">
-                              <?= icon('trash', 12) ?>
+                              <?= icon('trash', 16) ?>
                             </button>
                           </form>
                         </div>
@@ -107,6 +106,8 @@ if (!function_exists('renderSchedulerTbody')) {
                     <div class="admin-slot-card"
                          draggable="true"
                          data-slot-id="<?= (int) $s['id'] ?>"
+                         data-class-id="<?= (int) ($s['class_id'] ?? 0) ?>"
+                         data-course-type="<?= e($s['course_type'] ?? 'regular') ?>"
                          data-day="<?= $d ?>"
                          data-time-start="<?= e(substr($s['time_start'], 0, 5)) ?>"
                          data-time-end="<?= e(substr($s['time_end'], 0, 5)) ?>"
@@ -121,8 +122,13 @@ if (!function_exists('renderSchedulerTbody')) {
                       <div class="slot-resize-handle handle-left" data-side="left" title="ลากขอบซ้ายเพื่อปรับเวลาเริ่มต้น"></div>
                       <div class="slot-resize-handle handle-right" data-side="right" title="ลากขอบขวาเพื่อปรับเวลาสิ้นสุด"></div>
                       
-                      <div class="card-head">
-                        <span class="subject-code" title="<?= e($s['subject_code']) ?>"><?= e($s['subject_code']) ?></span>
+                      <div class="card-head d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center gap-1">
+                          <span class="subject-code" title="<?= e($s['subject_code']) ?>"><?= e($s['subject_code']) ?></span>
+                          <span class="badge badge-sm <?= ($s['course_type'] ?? 'regular') === 'professional' ? 'bg-warning text-dark' : 'bg-light text-muted border' ?>" style="font-size: 9px; padding: 1px 4px; font-weight: normal; border-radius: 2px;">
+                            <?= ($s['course_type'] ?? 'regular') === 'professional' ? 'วิชาชีพ' : 'สามัญ' ?>
+                          </span>
+                        </div>
                         <span class="slot-drag-handle" title="ลากเพื่อย้ายคาบเรียน">⠿</span>
                       </div>
                       <div class="subject-name" title="<?= e($s['subject_name']) ?>">
@@ -133,7 +139,6 @@ if (!function_exists('renderSchedulerTbody')) {
                           <?= e($s['room'] ?: '-') ?><?= !empty($s['teacher_name']) ? ' · ' . e($s['teacher_name']) : '' ?>
                         </span>
                         <span class="card-time mono">
-                          <?= hm($s['time_start']) ?>–<?= hm($s['time_end']) ?>
                           <?php if ($cell['colspan'] > 1): ?>
                             (<?= $cell['colspan'] ?> คาบ)
                           <?php endif; ?>
@@ -146,6 +151,7 @@ if (!function_exists('renderSchedulerTbody')) {
                           <button type="button"
                                   class="btn btn-sm bg-white border shadow-sm p-1 lh-1 text-primary btn-edit-slot-modal"
                                   data-id="<?= (int) $s['id'] ?>"
+                                  data-class-id="<?= (int) ($s['class_id'] ?? 0) ?>"
                                   data-day="<?= $d ?>"
                                   data-time-start="<?= e(substr($s['time_start'], 0, 5)) ?>"
                                   data-time-end="<?= e(substr($s['time_end'], 0, 5)) ?>"
@@ -155,7 +161,22 @@ if (!function_exists('renderSchedulerTbody')) {
                                   data-room="<?= e($s['room'] ?? '') ?>"
                                   data-group="<?= e($s['class_group'] ?? $selectedGroup) ?>"
                                   title="แก้ไขข้อมูล">
-                            <?= icon('pencil', 12) ?>
+                            <?= icon('pencil', 16) ?>
+                          </button>
+                          <button type="button"
+                                  class="btn btn-sm bg-white border shadow-sm p-1 lh-1 text-success btn-duplicate-slot-modal"
+                                  data-id="<?= (int) $s['id'] ?>"
+                                  data-class-id="<?= (int) ($s['class_id'] ?? 0) ?>"
+                                  data-day="<?= $d ?>"
+                                  data-time-start="<?= e(substr($s['time_start'], 0, 5)) ?>"
+                                  data-time-end="<?= e(substr($s['time_end'], 0, 5)) ?>"
+                                  data-subject-code="<?= e($s['subject_code']) ?>"
+                                  data-subject-name="<?= e($s['subject_name']) ?>"
+                                  data-teacher-name="<?= e($s['teacher_name'] ?? '') ?>"
+                                  data-room="<?= e($s['room'] ?? '') ?>"
+                                  data-group="<?= e($s['class_group'] ?? $selectedGroup) ?>"
+                                  title="ทำซ้ำคาบเรียนนี้ไปยังวัน/เวลาอื่น">
+                            <?= icon('copy', 16) ?>
                           </button>
                           <form method="POST" action="<?= url('admin/classes') ?>" class="d-inline m-0">
                             <?= csrf_field() ?>
@@ -163,7 +184,7 @@ if (!function_exists('renderSchedulerTbody')) {
                             <input type="hidden" name="id" value="<?= (int) $s['id'] ?>">
                             <input type="hidden" name="class_group" value="<?= e($selectedGroup) ?>">
                             <button type="submit" class="btn btn-sm bg-white border shadow-sm p-1 lh-1 text-danger" title="ลบ" data-confirm="ยืนยันการลบคาบเรียนนี้?">
-                              <?= icon('trash', 12) ?>
+                              <?= icon('trash', 16) ?>
                             </button>
                           </form>
                         </div>

@@ -44,30 +44,21 @@ class SettingService
     public static function getHomeStats(): array
     {
         return CacheService::remember('home_stats', 60, function () {
-            $mode = self::get('stat_mode', 'dynamic');
+            // 1. Dynamic count of professional courses from classes master table
+            $countProf = (int) q("SELECT COUNT(*) FROM classes WHERE course_type = 'professional'")->fetchColumn();
 
-            if ($mode === 'manual') {
-                return [
-                    'mode' => 'manual',
-                    'items' => [
-                        ['num' => self::get('stat_courses', '18'), 'unit' => 'รายวิชา', 'label' => 'หลักสูตรวิชาชีพเฉพาะทาง'],
-                        ['num' => self::get('stat_labs', '04'), 'unit' => 'ห้อง', 'label' => 'ห้องปฏิบัติการคอมพิวเตอร์'],
-                        ['num' => self::get('stat_employment', '96%'), 'unit' => '', 'label' => 'อัตราการได้งานทำหลังจบ'],
-                    ]
-                ];
-            }
+            // 2. Dynamic count of teachers
+            $countTeachers = (int) q("SELECT COUNT(*) FROM teachers")->fetchColumn();
 
-            // Dynamic counts from live DB
-            $cntTeachers   = (int) q("SELECT COUNT(*) FROM teachers")->fetchColumn();
-            $cntNews       = (int) q("SELECT COUNT(*) FROM news")->fetchColumn();
-            $cntActivities = (int) q("SELECT COUNT(*) FROM activities WHERE event_date >= CURDATE()")->fetchColumn();
+            // 3. Employment rate (customizable percentage in admin/hero.php)
+            $employmentRate = self::get('stat_employment', '96%');
 
             return [
                 'mode' => 'dynamic',
                 'items' => [
-                    ['num' => (string) $cntTeachers, 'unit' => 'ท่าน', 'label' => 'คณาจารย์ประจำแผนกวิชา'],
-                    ['num' => (string) $cntNews, 'unit' => 'เรื่อง', 'label' => 'ข่าวสารและประกาศเผยแพร่'],
-                    ['num' => (string) $cntActivities, 'unit' => 'กิจกรรม', 'label' => 'กิจกรรมและโครงการเร็ว ๆ นี้'],
+                    ['num' => (string) $countProf, 'unit' => 'รายวิชา', 'label' => 'หลักสูตรวิชาชีพเฉพาะทาง'],
+                    ['num' => (string) $countTeachers, 'unit' => 'ท่าน', 'label' => 'คณาจารย์ประจำแผนกวิชา'],
+                    ['num' => $employmentRate, 'unit' => '', 'label' => 'อัตราการได้งานทำหลังจบ'],
                 ]
             ];
         });

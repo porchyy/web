@@ -176,16 +176,35 @@ class ScheduleService
 
     public static function getScheduleByDay(string $group = ''): array
     {
+        $selectFields = "
+            s.id,
+            s.class_id,
+            s.day_of_week,
+            s.time_start,
+            s.time_end,
+            s.class_group,
+            COALESCE(c.subject_code, s.subject_code) AS subject_code,
+            COALESCE(c.subject_name, s.subject_name) AS subject_name,
+            COALESCE(c.course_type, 'regular') AS course_type,
+            COALESCE(NULLIF(s.teacher_name, ''), c.default_teacher, '') AS teacher_name,
+            COALESCE(NULLIF(s.room, ''), c.default_room, '') AS room,
+            COALESCE(c.credit, 3) AS credit
+        ";
+
         if (!empty($group) && $group !== 'all') {
             $slots = q("
-                SELECT * FROM class_schedule
-                WHERE class_group = ?
-                ORDER BY day_of_week ASC, time_start ASC
+                SELECT {$selectFields}
+                FROM class_schedule s
+                LEFT JOIN classes c ON s.class_id = c.id
+                WHERE s.class_group = ?
+                ORDER BY s.day_of_week ASC, s.time_start ASC
             ", [$group])->fetchAll();
         } else {
             $slots = q("
-                SELECT * FROM class_schedule
-                ORDER BY day_of_week ASC, time_start ASC
+                SELECT {$selectFields}
+                FROM class_schedule s
+                LEFT JOIN classes c ON s.class_id = c.id
+                ORDER BY s.day_of_week ASC, s.time_start ASC
             ")->fetchAll();
         }
 
@@ -319,9 +338,140 @@ class ScheduleService
         ")->fetchAll();
     }
 
+    public static function getAllClasses(): array
+    {
+        return self::getClasses();
+    }
+
+    /* --------------------------------------------------------------------------
+     * Master Courses Catalog (classes table)
+     * -------------------------------------------------------------------------- */
+
+    public static function getClasses(?string $prefix = null, ?string $courseType = null): array
+    {
+        $sql = "SELECT * FROM classes WHERE 1=1";
+        $params = [];
+        if (!empty($prefix) && $prefix !== 'all') {
+            $sql .= " AND subject_code LIKE ?";
+            $params[] = $prefix . '%';
+        }
+        if (!empty($courseType) && $courseType !== 'all') {
+            $sql .= " AND course_type = ?";
+            $params[] = $courseType;
+        }
+        $sql .= " ORDER BY subject_code ASC";
+        return q($sql, $params)->fetchAll();
+    }
+
+    public static function getClassById(int $id): ?array
+    {
+        $res = q("SELECT * FROM classes WHERE id = ?", [$id])->fetch();
+        return $res ?: null;
+    }
+
+    public static function getClassByCode(string $code): ?array
+    {
+        $res = q("SELECT * FROM classes WHERE subject_code = ?", [trim($code)])->fetch();
+        return $res ?: null;
+    }
+
+    public static function saveClass(array $data): int
+    {
+        $id             = !empty($data['id']) ? (int) $data['id'] : null;
+        $subjectCode    = clean_text(trim((string) ($data['subject_code'] ?? '')));
+        $subjectName    = clean_text(trim((string) ($data['subject_name'] ?? '')));
+        $courseType     = in_array($data['course_type'] ?? '', ['professional', 'regular'], true) ? $data['course_type'] : 'professional';
+        $defaultTeacher = clean_text(trim((string) ($data['default_teacher'] ?? '')));
+        $defaultRoom    = clean_text(trim((string) ($data['default_room'] ?? '')));
+        $credit         = max(1, min(6, (int) ($data['credit'] ?? 3)));
+
+        if ($subjectCode === '' || $subjectName === '') {
+            throw new InvalidArgumentException("กรุณากรอกรหัสวิชาและชื่อวิชาให้ครบถ้วน");
+        }
+
+        // Duplicate code check
+        $dupCheck = q("SELECT id FROM classes WHERE subject_code = ? AND id != ?", [$subjectCode, $id ?: 0])->fetch();
+        if ($dupCheck) {
+            throw new RuntimeException("รหัสวิชา '{$subjectCode}' นี้มีอยู่ในระบบแล้ว");
+        }
+
+        if ($id) {
+            q("
+                UPDATE classes
+                SET subject_code = ?, subject_name = ?, course_type = ?, default_teacher = ?, default_room = ?, credit = ?
+                WHERE id = ?
+            ", [$subjectCode, $subjectName, $courseType, $defaultTeacher, $defaultRoom, $credit, $id]);
+
+            // Synchronize fallback columns in class_schedule for this class_id
+            q("
+                UPDATE class_schedule
+                SET subject_code = ?, subject_name = ?
+                WHERE class_id = ?
+            ", [$subjectCode, $subjectName, $id]);
+
+            $savedId = $id;
+        } else {
+            q("
+                INSERT INTO classes (subject_code, subject_name, course_type, default_teacher, default_room, credit)
+                VALUES (?, ?, ?, ?, ?, ?)
+            ", [$subjectCode, $subjectName, $courseType, $defaultTeacher, $defaultRoom, $credit]);
+            $savedId = (int) db()->lastInsertId();
+        }
+
+        CacheService::forgetPattern('schedule_');
+        CacheService::forgetPattern('home_stats_');
+        return $savedId;
+    }
+
+    public static function deleteClass(int $id): bool
+    {
+        // Guard: Check if class is placed in active schedules
+        $inUseCount = (int) q("SELECT COUNT(*) FROM class_schedule WHERE class_id = ?", [$id])->fetchColumn();
+        if ($inUseCount > 0) {
+            throw new RuntimeException("ไม่สามารถลบวิชานี้ได้ เนื่องจากมีคาบเรียนผูกอยู่ในตารางเรียนจำนวน {$inUseCount} คาบ กรุณาย้ายหรือลบคาบเรียนที่เกี่ยวข้องก่อน");
+        }
+
+        q("DELETE FROM classes WHERE id = ?", [$id]);
+        CacheService::forgetPattern('schedule_');
+        CacheService::forgetPattern('home_stats_');
+        return true;
+    }
+
+    public static function getClassPrefixes(): array
+    {
+        $rows = q("SELECT DISTINCT SUBSTRING_INDEX(subject_code, '-', 1) AS prefix FROM classes WHERE subject_code LIKE '%-%' ORDER BY prefix ASC")->fetchAll(PDO::FETCH_COLUMN);
+        return array_values(array_filter($rows));
+    }
+
+    public static function getProfessionalCourseCount(): int
+    {
+        return (int) q("SELECT COUNT(*) FROM classes WHERE course_type = 'professional'")->fetchColumn();
+    }
+
+    /* --------------------------------------------------------------------------
+     * Timetable Slots (class_schedule table)
+     * -------------------------------------------------------------------------- */
+
     public static function getClassSlotById(int $id): ?array
     {
-        $res = q("SELECT * FROM class_schedule WHERE id = ?", [$id])->fetch();
+        $res = q("
+            SELECT 
+                s.id,
+                s.class_id,
+                s.day_of_week,
+                s.time_start,
+                s.time_end,
+                s.class_group,
+                COALESCE(c.subject_code, s.subject_code) AS subject_code,
+                COALESCE(c.subject_name, s.subject_name) AS subject_name,
+                COALESCE(c.course_type, 'regular') AS course_type,
+                COALESCE(NULLIF(s.teacher_name, ''), c.default_teacher, '') AS teacher_name,
+                COALESCE(NULLIF(s.room, ''), c.default_room, '') AS room,
+                COALESCE(c.credit, 3) AS credit
+            FROM class_schedule s
+            LEFT JOIN classes c ON s.class_id = c.id
+            WHERE s.id = ?
+        ", [$id])->fetch();
         return $res ?: null;
     }
 
@@ -365,13 +515,14 @@ class ScheduleService
             WHERE id = ?
         ", [$newDay, $newTimeStart, $newTimeEnd, $slotId]);
 
-        CacheService::forgetPattern('schedule_grid_');
+        CacheService::forgetPattern('schedule_');
         return self::getClassSlotById($slotId);
     }
 
     public static function saveClassSlot(array $data): int
     {
         $id          = !empty($data['id']) ? (int) $data['id'] : null;
+        $classId     = !empty($data['class_id']) ? (int) $data['class_id'] : null;
         $dayOfWeek   = (int) ($data['day_of_week'] ?? 1);
         $timeStart   = trim((string) ($data['time_start'] ?? '08:30'));
         $timeEnd     = trim((string) ($data['time_end'] ?? '10:30'));
@@ -381,7 +532,18 @@ class ScheduleService
         $room        = clean_text(trim((string) ($data['room'] ?? '')));
         $classGroup  = clean_text(trim((string) ($data['class_group'] ?? 'ปวช.2/1')));
 
-        // Check for collision
+        // If class_id is provided, populate defaults from master if fields are empty
+        if ($classId) {
+            $course = self::getClassById($classId);
+            if ($course) {
+                if ($subjectCode === '') $subjectCode = $course['subject_code'];
+                if ($subjectName === '') $subjectName = $course['subject_name'];
+                if ($teacherName === '') $teacherName = $course['default_teacher'] ?? '';
+                if ($room === '') $room = $course['default_room'] ?? '';
+            }
+        }
+
+        // Check for collision in the same group
         $collision = q("
             SELECT id, subject_code, subject_name
             FROM class_schedule
@@ -397,25 +559,26 @@ class ScheduleService
         if ($id) {
             q("
                 UPDATE class_schedule
-                SET day_of_week = ?, time_start = ?, time_end = ?, subject_code = ?, subject_name = ?, teacher_name = ?, room = ?, class_group = ?
+                SET class_id = ?, day_of_week = ?, time_start = ?, time_end = ?, subject_code = ?, subject_name = ?, teacher_name = ?, room = ?, class_group = ?
                 WHERE id = ?
-            ", [$dayOfWeek, $timeStart, $timeEnd, $subjectCode, $subjectName, $teacherName, $room, $classGroup, $id]);
-            return $id;
+            ", [$classId, $dayOfWeek, $timeStart, $timeEnd, $subjectCode, $subjectName, $teacherName, $room, $classGroup, $id]);
+            $savedId = $id;
         } else {
             q("
-                INSERT INTO class_schedule (day_of_week, time_start, time_end, subject_code, subject_name, teacher_name, room, class_group)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            ", [$dayOfWeek, $timeStart, $timeEnd, $subjectCode, $subjectName, $teacherName, $room, $classGroup]);
-            $insertedId = (int) db()->lastInsertId();
-            CacheService::forgetPattern('schedule_grid_');
-            return $insertedId;
+                INSERT INTO class_schedule (class_id, day_of_week, time_start, time_end, subject_code, subject_name, teacher_name, room, class_group)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ", [$classId, $dayOfWeek, $timeStart, $timeEnd, $subjectCode, $subjectName, $teacherName, $room, $classGroup]);
+            $savedId = (int) db()->lastInsertId();
         }
+
+        CacheService::forgetPattern('schedule_');
+        return $savedId;
     }
 
     public static function deleteClassSlot(int $id): bool
     {
         q("DELETE FROM class_schedule WHERE id = ?", [$id]);
-        CacheService::forgetPattern('schedule_grid_');
+        CacheService::forgetPattern('schedule_');
         return true;
     }
 

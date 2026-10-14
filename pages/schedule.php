@@ -187,10 +187,26 @@ include __DIR__ . '/../includes/header.php';
                   $isNext    = ($d === $currentDayNum && $slotId === $nextSlotId);
                   $cardClass = $isCurrent ? 'is-current-class' : ($isNext ? 'is-next-class' : '');
                   ?>
-                  <div class="slot-card-mobile p-3 bg-white border <?= $cardClass ?>">
+                  <div class="slot-card-mobile p-3 bg-white border js-slot-card <?= $cardClass ?>"
+                       role="button"
+                       tabindex="0"
+                       data-code="<?= e($slot['subject_code']) ?>"
+                       data-name="<?= e($slot['subject_name']) ?>"
+                       data-type="<?= e($slot['course_type'] ?? 'regular') ?>"
+                       data-credit="<?= (int) ($slot['credit'] ?? 3) ?>"
+                       data-teacher="<?= e($slot['teacher_name'] ?: '-') ?>"
+                       data-room="<?= e($slot['room'] ?: '-') ?>"
+                       data-time="<?= hm($slot['time_start']) ?> – <?= hm($slot['time_end']) ?>"
+                       data-day="วัน<?= TH_DAYS[$d] ?>"
+                       data-group="<?= e($selectedGroup) ?>"
+                       title="คลิกเพื่อดูรายละเอียดรายวิชา">
                     <div class="d-flex justify-content-between align-items-center mb-1">
-                      <span class="mono fw-bold slot-code"><?= e($slot['subject_code']) ?></span>
-                      <span class="mono text-muted slot-time"><?= hm($slot['time_start']) ?> – <?= hm($slot['time_end']) ?></span>
+                      <div class="d-flex align-items-center gap-1">
+                        <span class="mono fw-bold slot-code"><?= e($slot['subject_code']) ?></span>
+                        <span class="badge badge-sm <?= ($slot['course_type'] ?? 'regular') === 'professional' ? 'bg-warning text-dark' : 'bg-light text-muted border' ?>" style="font-size: 10px; padding: 2px 5px;">
+                          <?= ($slot['course_type'] ?? 'regular') === 'professional' ? 'วิชาชีพ' : 'วิชาสามัญ' ?>
+                        </span>
+                      </div>
                     </div>
                     <div class="fw-bold mb-2 slot-name"><?= e($slot['subject_name']) ?></div>
                     <div class="d-flex justify-content-between align-items-center text-muted slot-meta">
@@ -216,10 +232,7 @@ include __DIR__ . '/../includes/header.php';
                 </div>
               </th>
               <?php foreach ($periods as $p): ?>
-                <?php
-                $isCurrentP = ($currentTime >= $p['start'] . ':00' && $currentTime <= $p['end'] . ':00' && $currentDayNum >= 1 && $currentDayNum <= 5);
-                ?>
-                <th class="<?= $isCurrentP ? 'is-current-period' : '' ?>">
+                <th>
                   <div class="period-head-inner">
                     <div class="period-name"><?= e($p['name'] ?: 'คาบ ' . $p['num']) ?></div>
                     <div class="period-time mono"><?= e($p['label']) ?></div>
@@ -246,16 +259,14 @@ include __DIR__ . '/../includes/header.php';
                       <div class="special-slot-inner">
                         <div class="special-icon"><?= icon('flag', 14) ?></div>
                         <div class="special-title"><?= e($cell['title']) ?></div>
-                        <div class="special-time mono"><?= hm($cell['slot']['time_start']) ?>–<?= hm($cell['slot']['time_end']) ?></div>
-                      </div>
+                        </div>
                     </td>
                   <?php elseif ($cell['type'] === 'lunch'): ?>
                     <td colspan="<?= $cell['colspan'] ?>" class="slot-lunch">
                       <div class="special-slot-inner">
                         <div class="special-icon"><?= icon('clock', 14) ?></div>
                         <div class="special-title"><?= e($cell['title']) ?></div>
-                        <div class="special-time mono"><?= hm($cell['slot']['time_start']) ?>–<?= hm($cell['slot']['time_end']) ?></div>
-                      </div>
+                        </div>
                     </td>
                   <?php elseif ($cell['type'] === 'class'): ?>
                     <?php
@@ -266,10 +277,26 @@ include __DIR__ . '/../includes/header.php';
                     $highlightClass = $isCurrent ? 'is-current-class' : ($isNext ? 'is-next-class' : '');
                     ?>
                     <td colspan="<?= $cell['colspan'] ?>" class="slot-class <?= $highlightClass ?>">
-                      <div class="cell-slot">
-                        <div class="slot-head">
-                          <span class="mono fw-bold slot-code"><?= e($s['subject_code']) ?></span>
-                          <span class="mono slot-time"><?= hm($s['time_start']) ?>–<?= hm($s['time_end']) ?></span>
+                      <div class="cell-slot js-slot-card"
+                           role="button"
+                           tabindex="0"
+                           data-code="<?= e($s['subject_code']) ?>"
+                           data-name="<?= e($s['subject_name']) ?>"
+                           data-type="<?= e($s['course_type'] ?? 'regular') ?>"
+                           data-credit="<?= (int) ($s['credit'] ?? 3) ?>"
+                           data-teacher="<?= e($s['teacher_name'] ?: '-') ?>"
+                           data-room="<?= e($s['room'] ?: '-') ?>"
+                           data-time="<?= hm($s['time_start']) ?>–<?= hm($s['time_end']) ?>"
+                           data-day="วัน<?= TH_DAYS[$d] ?>"
+                           data-group="<?= e($selectedGroup) ?>"
+                           title="คลิกเพื่อดูรายละเอียดรายวิชา">
+                        <div class="slot-head d-flex justify-content-between align-items-center">
+                          <div class="d-flex align-items-center gap-1">
+                            <span class="mono fw-bold slot-code"><?= e($s['subject_code']) ?></span>
+                            <span class="badge badge-sm <?= ($s['course_type'] ?? 'regular') === 'professional' ? 'bg-warning text-dark' : 'bg-light text-muted border' ?>" style="font-size: 9px; padding: 1px 4px; font-weight: normal;">
+                              <?= ($s['course_type'] ?? 'regular') === 'professional' ? 'วิชาชีพ' : 'สามัญ' ?>
+                            </span>
+                          </div>
                         </div>
                         <div class="s" title="<?= e($s['subject_name']) ?>">
                           <?= e($s['subject_name']) ?>
@@ -386,9 +413,46 @@ include __DIR__ . '/../includes/header.php';
   </div>
 </section>
 
-<!-- Script for Mobile Tab Switching -->
+<!-- Course Details Modal -->
+<div class="modal fade" id="courseDetailModal" tabindex="-1" aria-labelledby="courseDetailModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title d-flex align-items-center gap-2" id="courseDetailModalTitle">
+          <span class="mono fw-bold text-navy" id="detailSubjectCode"></span>
+          <span class="badge" id="detailCourseType"></span>
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="ปิด"></button>
+      </div>
+      <div class="modal-body">
+        <h4 class="fw-bold mb-3" id="detailSubjectName"></h4>
+        <dl class="row g-2 mb-0" style="font-size: 14.5px;">
+          <dt class="col-4 text-muted">จำนวนหน่วยกิต</dt>
+          <dd class="col-8 mono fw-semibold" id="detailCredit">-</dd>
+
+          <dt class="col-4 text-muted">วันและเวลาเรียน</dt>
+          <dd class="col-8 mono" id="detailTime">-</dd>
+
+          <dt class="col-4 text-muted">อาจารย์ผู้สอน</dt>
+          <dd class="col-8" id="detailTeacher">-</dd>
+
+          <dt class="col-4 text-muted">ห้องเรียน / แล็บ</dt>
+          <dd class="col-8 mono" id="detailRoom">-</dd>
+
+          <dt class="col-4 text-muted">กลุ่มเรียน</dt>
+          <dd class="col-8" id="detailGroup">-</dd>
+        </dl>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-sm btn-line" data-bs-dismiss="modal">ปิดหน้าต่าง</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+  // Mobile Tab Switching
   const tabs = document.querySelectorAll('.day-tab');
   const slotGroups = document.querySelectorAll('.slot-group');
 
@@ -411,6 +475,46 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   });
+
+  // Interactive Course Slot Click -> Open Details Modal
+  const modalEl = document.getElementById('courseDetailModal');
+  if (modalEl && typeof bootstrap !== 'undefined') {
+    const detailModal = bootstrap.Modal.getOrCreateInstance(modalEl);
+
+    document.addEventListener('click', (e) => {
+      const card = e.target.closest('.js-slot-card');
+      if (!card) return;
+
+      const code    = card.getAttribute('data-code') || '';
+      const name    = card.getAttribute('data-name') || '';
+      const type    = card.getAttribute('data-type') || 'regular';
+      const credit  = card.getAttribute('data-credit') || '3';
+      const teacher = card.getAttribute('data-teacher') || '-';
+      const room    = card.getAttribute('data-room') || '-';
+      const time    = card.getAttribute('data-time') || '';
+      const day     = card.getAttribute('data-day') || '';
+      const group   = card.getAttribute('data-group') || '';
+
+      document.getElementById('detailSubjectCode').textContent = code;
+      document.getElementById('detailSubjectName').textContent = name;
+      document.getElementById('detailCredit').textContent = `${credit} หน่วยกิต`;
+      document.getElementById('detailTime').textContent = `${day} ${time}`;
+      document.getElementById('detailTeacher').textContent = teacher;
+      document.getElementById('detailRoom').textContent = room;
+      document.getElementById('detailGroup').textContent = group;
+
+      const typeBadge = document.getElementById('detailCourseType');
+      if (type === 'professional') {
+        typeBadge.className = 'badge bg-warning text-dark';
+        typeBadge.textContent = 'วิชาชีพเฉพาะ';
+      } else {
+        typeBadge.className = 'badge bg-light text-muted border';
+        typeBadge.textContent = 'วิชาสามัญ / พื้นฐาน';
+      }
+
+      detailModal.show();
+    });
+  }
 });
 </script>
 

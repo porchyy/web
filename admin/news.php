@@ -98,9 +98,6 @@ require_once __DIR__ . '/../includes/admin-header.php';
         <span>เพิ่มข่าวสารใหม่</span>
       </a>
     <?php else: ?>
-      <button type="button" class="btn btn-sm btn-line" id="btnOpenNewsPreview" data-bs-toggle="modal" data-bs-target="#newsPreviewModal">
-        <?= icon('eye', 16) ?> <span>ดูตัวอย่างหน้าจริง</span>
-      </button>
       <a href="<?= url('admin/news.php') ?>" class="btn btn-sm btn-line">
         <?= icon('arrow-left', 16) ?>
         <span>กลับหน้ารายการข่าว</span>
@@ -251,8 +248,11 @@ require_once __DIR__ . '/../includes/admin-header.php';
         </div>
       </div>
 
-      <div class="mt-4 pt-3 border-top d-flex justify-content-end gap-2">
+      <div class="mt-4 pt-3 border-top d-flex justify-content-end align-items-center gap-2">
         <a href="<?= url('admin/news.php') ?>" class="btn btn-line">ยกเลิก</a>
+        <button type="button" class="btn btn-line d-inline-flex align-items-center gap-1" id="btnOpenNewsPreview" data-bs-toggle="modal" data-bs-target="#newsPreviewModal">
+          <?= icon('eye', 16) ?> <span>ดูตัวอย่างหน้าจริง</span>
+        </button>
         <button type="submit" class="btn btn-navy">
           <?= icon('check', 16) ?>
           <span>บันทึกข้อมูล</span>
@@ -459,9 +459,14 @@ require_once __DIR__ . '/../includes/admin-header.php';
        NEWS LIST TABLE (PRODUCTIVITY RESTYLED)
        ==================================================================== -->
   <div class="admin-card">
-    <div class="admin-card-head d-flex justify-content-between align-items-center">
-      <h3>รายการข่าวสารทั้งหมด (<?= count($allNews) ?>)</h3>
-      <div class="mono text-muted" style="font-size: 13px;">ตารางจัดการเนื้อหา</div>
+    <div class="admin-card-head d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <h3 class="mb-0">รายการข่าวสารทั้งหมด (<?= count($allNews) ?>)</h3>
+      <div class="position-relative" style="width: 240px;">
+        <input type="text" id="newsSearchInput" class="form-control form-control-sm ps-4" placeholder="ค้นหาข่าว หรือหมวดหมู่...">
+        <span class="position-absolute top-50 start-0 translate-middle-y ms-2 text-muted" style="pointer-events: none;">
+          <?= icon('search', 14) ?>
+        </span>
+      </div>
     </div>
 
     <div class="table-responsive">
@@ -483,7 +488,7 @@ require_once __DIR__ . '/../includes/admin-header.php';
             </tr>
           <?php else: ?>
             <?php foreach ($allNews as $newsItem): ?>
-              <tr>
+              <tr class="news-list-row">
                 <td>
                   <?php if (!empty($newsItem['image_path']) && file_exists(ROOT_PATH . '/' . $newsItem['image_path'])): ?>
                     <img src="<?= url($newsItem['image_path']) ?>" class="table-thumb" alt="">
@@ -543,6 +548,37 @@ require_once __DIR__ . '/../includes/admin-header.php';
       </table>
     </div>
   </div>
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const newsSearch = document.getElementById('newsSearchInput');
+    const rows = document.querySelectorAll('.news-list-row');
+    if (newsSearch && rows.length > 0) {
+      newsSearch.addEventListener('input', function() {
+        const q = this.value.trim().toLowerCase();
+        let matchCount = 0;
+        rows.forEach(tr => {
+          const text = tr.textContent.toLowerCase();
+          const matches = text.includes(q);
+          tr.style.display = matches ? '' : 'none';
+          if (matches) matchCount++;
+        });
+        let emptyRow = document.getElementById('newsSearchEmptyRow');
+        if (matchCount === 0) {
+          if (!emptyRow) {
+            emptyRow = document.createElement('tr');
+            emptyRow.id = 'newsSearchEmptyRow';
+            emptyRow.innerHTML = '<td colspan="6" class="text-center py-4 text-muted">ไม่พบข่าวสารที่ตรงกับคำค้นหา</td>';
+            const tbody = document.querySelector('.admin-table tbody');
+            if (tbody) tbody.appendChild(emptyRow);
+          }
+          emptyRow.style.display = '';
+        } else if (emptyRow) {
+          emptyRow.style.display = 'none';
+        }
+      });
+    }
+  });
+  </script>
 <?php endif; ?>
 
 <?php require_once __DIR__ . '/../includes/admin-footer.php'; ?>

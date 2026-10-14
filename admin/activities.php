@@ -95,9 +95,14 @@ require_once __DIR__ . '/../includes/admin-header.php';
      ACTIVITIES LIST TABLE (PRODUCTIVITY RESTYLED)
      ==================================================================== -->
 <div class="admin-card">
-  <div class="admin-card-head d-flex justify-content-between align-items-center">
-    <h3>รายการกิจกรรมทั้งหมด (<?= count($allActivities) ?> กิจกรรม)</h3>
-    <span class="mono text-muted" style="font-size: 13px;">กำหนดการและปฏิทินงาน</span>
+  <div class="admin-card-head d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <h3 class="mb-0">รายการกิจกรรมทั้งหมด (<?= count($allActivities) ?> กิจกรรม)</h3>
+    <div class="position-relative" style="width: 240px;">
+      <input type="text" id="actSearchInput" class="form-control form-control-sm ps-4" placeholder="ค้นหากิจกรรม หรือสถานที่...">
+      <span class="position-absolute top-50 start-0 translate-middle-y ms-2 text-muted" style="pointer-events: none;">
+        <?= icon('search', 14) ?>
+      </span>
+    </div>
   </div>
 
   <div class="table-responsive">
@@ -126,7 +131,7 @@ require_once __DIR__ . '/../includes/admin-header.php';
             $isPast = strtotime($item['event_date']) < strtotime(date('Y-m-d'));
             $isToday = $item['event_date'] === date('Y-m-d');
             ?>
-            <tr>
+            <tr class="activity-list-row">
               <td class="mono fw-semibold text-navy">
                 <?= thai_date($item['event_date']) ?>
                 <?php if ($item['event_date_end']): ?>
@@ -361,6 +366,35 @@ document.addEventListener('DOMContentLoaded', () => {
       bsModal.show();
     });
   });
+
+  // Real-time Activities Search
+  const actSearch = document.getElementById('actSearchInput');
+  const rows = document.querySelectorAll('.activity-list-row');
+  if (actSearch && rows.length > 0) {
+    actSearch.addEventListener('input', function() {
+      const q = this.value.trim().toLowerCase();
+      let matchCount = 0;
+      rows.forEach(tr => {
+        const text = tr.textContent.toLowerCase();
+        const matches = text.includes(q);
+        tr.style.display = matches ? '' : 'none';
+        if (matches) matchCount++;
+      });
+      let emptyRow = document.getElementById('actSearchEmptyRow');
+      if (matchCount === 0) {
+        if (!emptyRow) {
+          emptyRow = document.createElement('tr');
+          emptyRow.id = 'actSearchEmptyRow';
+          emptyRow.innerHTML = '<td colspan="6" class="text-center py-4 text-muted">ไม่พบกิจกรรมที่ตรงกับคำค้นหา</td>';
+          const tbody = document.querySelector('.admin-table tbody');
+          if (tbody) tbody.appendChild(emptyRow);
+        }
+        emptyRow.style.display = '';
+      } else if (emptyRow) {
+        emptyRow.style.display = 'none';
+      }
+    });
+  }
 });
 </script>
 

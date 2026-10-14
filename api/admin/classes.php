@@ -120,7 +120,8 @@ try {
             break;
 
         case 'save':
-            $editId      = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
+            $editId      = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT) ?: null;
+            $classId     = filter_input(INPUT_POST, 'class_id', FILTER_VALIDATE_INT) ?: null;
             $dayOfWeek   = filter_input(INPUT_POST, 'day_of_week', FILTER_VALIDATE_INT);
             $timeStart   = trim((string) ($_POST['time_start'] ?? ''));
             $timeEnd     = trim((string) ($_POST['time_end'] ?? ''));
@@ -130,12 +131,13 @@ try {
             $room        = trim((string) ($_POST['room'] ?? ''));
             $classGroup  = trim((string) ($_POST['class_group'] ?? 'ปวช.2/1'));
 
-            if (!$dayOfWeek || $timeStart === '' || $timeEnd === '' || $subjectName === '') {
-                throw new InvalidArgumentException('กรุณากรอกข้อมูลวัน เวลา และชื่อวิชาให้ครบถ้วน');
+            if (!$dayOfWeek || $timeStart === '' || $timeEnd === '' || ($classId === null && $subjectName === '')) {
+                throw new InvalidArgumentException('กรุณากรอกข้อมูลวัน เวลา และเลือกหรือระบุรายวิชาให้ครบถ้วน');
             }
 
-            $saved = ScheduleService::saveClassSlot([
+            $savedId = ScheduleService::saveClassSlot([
                 'id'           => $editId,
+                'class_id'     => $classId,
                 'day_of_week'  => $dayOfWeek,
                 'time_start'   => $timeStart,
                 'time_end'     => $timeEnd,
@@ -154,8 +156,74 @@ try {
             echo json_encode([
                 'success'    => true,
                 'message'    => $editId ? 'แก้ไขข้อมูลคาบเรียนเรียบร้อยแล้ว' : 'เพิ่มคาบเรียนลงในตารางเรียบร้อยแล้ว',
-                'slot'       => $saved,
+                'slot_id'    => $savedId,
                 'tbody_html' => $tbodyHtml,
+            ], JSON_UNESCAPED_UNICODE);
+            break;
+
+        case 'save_course':
+            $courseId       = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT) ?: null;
+            $subjectCode    = trim((string) ($_POST['subject_code'] ?? ''));
+            $subjectName    = trim((string) ($_POST['subject_name'] ?? ''));
+            $courseType     = trim((string) ($_POST['course_type'] ?? 'professional'));
+            $defaultTeacher = trim((string) ($_POST['default_teacher'] ?? ''));
+            $defaultRoom    = trim((string) ($_POST['default_room'] ?? ''));
+            $credit         = filter_input(INPUT_POST, 'credit', FILTER_VALIDATE_INT) ?: 3;
+
+            $savedId = ScheduleService::saveClass([
+                'id'              => $courseId,
+                'subject_code'    => $subjectCode,
+                'subject_name'    => $subjectName,
+                'course_type'     => $courseType,
+                'default_teacher' => $defaultTeacher,
+                'default_room'    => $defaultRoom,
+                'credit'          => $credit,
+            ]);
+
+            $course = ScheduleService::getClassById($savedId);
+            echo json_encode([
+                'success' => true,
+                'message' => $courseId ? 'แก้ไขข้อมูลรายวิชาเรียบร้อยแล้ว' : 'เพิ่มรายวิชาใหม่เรียบร้อยแล้ว',
+                'course'  => $course,
+            ], JSON_UNESCAPED_UNICODE);
+            break;
+
+        case 'delete_course':
+            $courseId = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
+            if (!$courseId) {
+                throw new InvalidArgumentException('ไม่พบรหัสรายวิชาที่ต้องการลบ');
+            }
+            ScheduleService::deleteClass($courseId);
+            echo json_encode([
+                'success' => true,
+                'message' => 'ลบรายวิชาออกจากระบบเรียบร้อยแล้ว',
+            ], JSON_UNESCAPED_UNICODE);
+            break;
+
+        case 'get_courses':
+            $prefix     = trim((string) ($_POST['prefix'] ?? ''));
+            $courseType = trim((string) ($_POST['course_type'] ?? ''));
+            $courses    = ScheduleService::getClasses($prefix ?: null, $courseType ?: null);
+            echo json_encode([
+                'success' => true,
+                'courses' => $courses,
+            ], JSON_UNESCAPED_UNICODE);
+            break;
+
+        case 'get_course_detail':
+            $courseId = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
+            if (!$courseId) {
+                throw new InvalidArgumentException('ไม่พบรหัสรายวิชา');
+            }
+            $course = ScheduleService::getClassById($courseId);
+            if (!$course) {
+                http_response_code(404);
+                echo json_encode(['success' => false, 'error' => 'ไม่พบข้อมูลรายวิชาในระบบ'], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
+            echo json_encode([
+                'success' => true,
+                'course'  => $course,
             ], JSON_UNESCAPED_UNICODE);
             break;
 

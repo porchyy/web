@@ -124,11 +124,6 @@ $statEmployment      = $settings['stat_employment'] ?? '96%';
         <?= icon('facebook', 16) ?> โซเชียลมีเดีย
       </button>
     </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link font-heading fw-semibold text-navy py-2 px-3 rounded-0" id="metrics-tab" data-bs-toggle="tab" data-bs-target="#metrics" type="button" role="tab" aria-controls="metrics" aria-selected="false">
-        <?= icon('grid', 16) ?> สถิติหน้าแรก
-      </button>
-    </li>
   </ul>
 
   <!-- Tab Content -->
@@ -227,35 +222,6 @@ $statEmployment      = $settings['stat_employment'] ?? '96%';
             <label class="form-label" for="contact_facebook_url">ลิงก์ URL แฟนเพจ Facebook</label>
             <input type="url" id="contact_facebook_url" name="contact_facebook_url" class="form-control mono" value="<?= e($contactFbUrl) ?>">
             <div class="form-text">เช่น https://facebook.com/your-page-id</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Tab 4: สถิติหน้าแรก -->
-    <div class="tab-pane fade" id="metrics" role="tabpanel" aria-labelledby="metrics-tab">
-      <div class="admin-card">
-        <div class="admin-card-head">
-          <h2>แถบข้อมูลสถิติหน้าแรก</h2>
-        </div>
-
-        <div class="row g-3" id="statsFields">
-          <div class="col-12 col-md-4">
-            <label class="form-label" for="stat_courses">จำนวนหลักสูตรวิชาชีพ</label>
-            <input type="text" id="stat_courses" name="stat_courses" class="form-control mono" value="<?= e($statCourses) ?>">
-            <div class="form-text">เช่น 18 (รายวิชา)</div>
-          </div>
-
-          <div class="col-12 col-md-4">
-            <label class="form-label" for="stat_labs">ห้องปฏิบัติการคอมพิวเตอร์</label>
-            <input type="text" id="stat_labs" name="stat_labs" class="form-control mono" value="<?= e($statLabs) ?>">
-            <div class="form-text">เช่น 04 (ห้อง)</div>
-          </div>
-
-          <div class="col-12 col-md-4">
-            <label class="form-label" for="stat_employment">อัตราการได้งานทำ</label>
-            <input type="text" id="stat_employment" name="stat_employment" class="form-control mono" value="<?= e($statEmployment) ?>">
-            <div class="form-text">เช่น 96%</div>
           </div>
         </div>
       </div>
