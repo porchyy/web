@@ -188,35 +188,23 @@
   }
 
   /**
-   * 3. News List Client-Side Search Filter
+   * 3. News List Client-Side Search Filter with Autocomplete
    */
   function initNewsSearchFilter() {
-    const newsSearch = document.getElementById('newsSearchInput');
-    const rows = document.querySelectorAll('.news-list-row');
-    if (!newsSearch || rows.length === 0) return;
+    if (typeof AdminSearchAutocomplete === 'undefined') return;
 
-    newsSearch.addEventListener('input', function () {
-      const q = this.value.trim().toLowerCase();
-      let matchCount = 0;
-      rows.forEach(tr => {
-        const text = tr.textContent.toLowerCase();
-        const matches = text.includes(q);
-        tr.style.display = matches ? '' : 'none';
-        if (matches) matchCount++;
-      });
-      let emptyRow = document.getElementById('newsSearchEmptyRow');
-      if (matchCount === 0) {
-        if (!emptyRow) {
-          emptyRow = document.createElement('tr');
-          emptyRow.id = 'newsSearchEmptyRow';
-          emptyRow.innerHTML = '<td colspan="6" class="text-center py-4 text-muted">ไม่พบข่าวสารที่ตรงกับคำค้นหา</td>';
-          const tbody = document.querySelector('.admin-table tbody');
-          if (tbody) tbody.appendChild(emptyRow);
-        }
-        emptyRow.style.display = '';
-      } else if (emptyRow) {
-        emptyRow.style.display = 'none';
-      }
+    AdminSearchAutocomplete.init({
+      inputSelector: '#newsSearchInput',
+      clearBtnSelector: '#btnNewsClearSearch',
+      dropdownSelector: '#newsAutocompleteList',
+      rowSelector: '.news-list-row',
+      emptyRowId: 'newsSearchEmptyRow',
+      emptyMessage: 'ไม่พบข่าวสารที่ตรงกับคำค้นหา',
+      getItemData: (row) => ({
+        title: row.dataset.title || '',
+        meta: row.dataset.meta || '',
+        searchContent: row.textContent.toLowerCase()
+      })
     });
   }
 })();

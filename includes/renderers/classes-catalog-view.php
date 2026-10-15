@@ -140,7 +140,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!emptyMsg) {
           emptyMsg = document.createElement('tr');
           emptyMsg.id = 'catalogSearchEmptyRow';
-          emptyMsg.innerHTML = '<td colspan="7" class="text-center py-4 text-muted">ไม่พบรายวิชาที่ตรงกับคำค้นหา</td>';
+          const emptyTd = document.createElement('td');
+          emptyTd.colSpan = 7;
+          emptyTd.className = 'text-center py-4 text-muted';
+          emptyTd.textContent = 'ไม่พบรายวิชาที่ตรงกับคำค้นหา';
+          emptyMsg.appendChild(emptyTd);
           document.querySelector('#tableCoursesCatalog tbody').appendChild(emptyMsg);
         }
         emptyMsg.style.display = '';

@@ -54,16 +54,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        if (!$dayOfWeek || $dayOfWeek < 1 || $dayOfWeek > 5) {
-            $error = 'วันในสัปดาห์ไม่ถูกต้อง (ต้องเป็นวันจันทร์-ศุกร์)';
-        } elseif ($timeStart === '' || $timeEnd === '') {
-            $error = 'กรุณาระบุเวลาเริ่มต้นและสิ้นสุดของคาบเรียน';
-        } elseif (strtotime("1970-01-01 $timeStart") >= strtotime("1970-01-01 $timeEnd")) {
-            $error = 'เวลาเริ่มต้นต้องมาก่อนเวลาสิ้นสุด';
-        } elseif ($subjectCode === '' || $subjectName === '') {
-            $error = 'กรุณาระบุรหัสวิชาและชื่อรายวิชา';
-        } elseif ($classGroup === '') {
-            $error = 'กรุณาระบุกลุ่มเรียน เช่น ปวช.2/1 หรือ ปวส.1/2';
+        $validationError = match (true) {
+            !$dayOfWeek || $dayOfWeek < 1 || $dayOfWeek > 5 => 'วันในสัปดาห์ไม่ถูกต้อง (ต้องเป็นวันจันทร์-ศุกร์)',
+            $timeStart === '' || $timeEnd === '' => 'กรุณาระบุเวลาเริ่มต้นและสิ้นสุดของคาบเรียน',
+            strtotime("1970-01-01 $timeStart") >= strtotime("1970-01-01 $timeEnd") => 'เวลาเริ่มต้นต้องมาก่อนเวลาสิ้นสุด',
+            $subjectCode === '' || $subjectName === '' => 'กรุณาระบุรหัสวิชาและชื่อรายวิชา',
+            $classGroup === '' => 'กรุณาระบุกลุ่มเรียน เช่น ปวช.2/1 หรือ ปวส.1/2',
+            default => null,
+        };
+
+        if ($validationError !== null) {
+            $error = $validationError;
         } else {
             try {
                 ScheduleService::saveClassSlot([

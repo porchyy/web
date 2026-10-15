@@ -207,16 +207,35 @@
     const timeEnd = cardEl.getAttribute("data-time-end") || "";
     const span = cardEl.getAttribute("data-span") || "1";
 
-    ghost.innerHTML = `
-      <div style="padding: 6px 10px; font-family: var(--font-body, sans-serif); line-height: 1.3;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
-          <strong style="font-size: 11.5px; color: var(--c-navy, #17324d);">${subCode}</strong>
-          <span style="font-size: 10.5px; font-family: var(--font-mono, monospace); color: var(--c-navy, #17324d); font-weight: 600;">(${span} คาบ)</span>
-        </div>
-        <div style="font-size: 12px; font-weight: 600; color: #1e293b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;">${subName}</div>
-        <div style="font-size: 10.5px; color: #64748b; font-family: var(--font-mono, monospace); margin-top: 2px;">${timeStart} – ${timeEnd}</div>
-      </div>
-    `;
+    const wrap = document.createElement("div");
+    wrap.style.cssText = "padding: 6px 10px; font-family: var(--font-body, sans-serif); line-height: 1.3;";
+
+    const head = document.createElement("div");
+    head.style.cssText = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;";
+
+    const codeEl = document.createElement("strong");
+    codeEl.style.cssText = "font-size: 11.5px; color: var(--c-navy, #17324d);";
+    codeEl.textContent = subCode;
+
+    const spanEl = document.createElement("span");
+    spanEl.style.cssText = "font-size: 10.5px; font-family: var(--font-mono, monospace); color: var(--c-navy, #17324d); font-weight: 600;";
+    spanEl.textContent = `(${span} คาบ)`;
+
+    head.appendChild(codeEl);
+    head.appendChild(spanEl);
+
+    const nameEl = document.createElement("div");
+    nameEl.style.cssText = "font-size: 12px; font-weight: 600; color: #1e293b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;";
+    nameEl.textContent = subName;
+
+    const timeEl = document.createElement("div");
+    timeEl.style.cssText = "font-size: 10.5px; color: #64748b; font-family: var(--font-mono, monospace); margin-top: 2px;";
+    timeEl.textContent = `${timeStart} – ${timeEnd}`;
+
+    wrap.appendChild(head);
+    wrap.appendChild(nameEl);
+    wrap.appendChild(timeEl);
+    ghost.appendChild(wrap);
 
     ghost.style.width = Math.max(160, Math.min(240, rect.width)) + "px";
     ghost.style.left = pointerX + "px";

@@ -58,8 +58,8 @@
   background-repeat: no-repeat;
   background-position: right 14px center;
   border: 1px solid var(--c-line, #D5DEE8);
-  border-radius: 9999px;
-  padding: 6px 36px 6px 16px;
+  border-radius: 0;
+  padding: 6px 36px 6px 14px;
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--c-navy, #193651);
@@ -87,7 +87,7 @@
   justify-content: center;
   gap: 0.5rem;
   padding: 8px 18px;
-  border-radius: 8px;
+  border-radius: 0;
   font-size: 0.9375rem;
   font-weight: 500;
   text-decoration: none;
@@ -149,7 +149,7 @@
   height: 46px;
   padding: 0 16px;
   min-width: 145px;
-  border-radius: 6px;
+  border-radius: 0;
   font-size: 0.9375rem;
   font-weight: 500;
   cursor: pointer;
@@ -911,10 +911,27 @@
 
   .week-table th,
   .week-table td {
-    padding: 4px 6px !important;
+    padding: 6px 8px !important;
     border: 1px solid #94a3b8 !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
+  }
+
+  .week-table td.slot-class {
+    padding: 0 !important;
+    vertical-align: top !important;
+  }
+
+  .week-table td.slot-class .cell-slot {
+    padding: 6px 8px !important;
+    box-sizing: border-box !important;
+    height: 100% !important;
+  }
+
+  .slot-flag .special-slot-inner,
+  .slot-lunch .special-slot-inner,
+  .slot-empty .empty-slot-inner {
+    padding: 6px 8px !important;
   }
 
   .week-table th {
@@ -964,7 +981,7 @@
   }
 
   .cell-slot {
-    padding: 2px !important;
+    padding: 6px 8px !important;
     border-left: 0 !important;
     box-shadow: none !important;
     transform: none !important;
@@ -983,4 +1000,247 @@
   .d-md-none {
     display: none !important;
   }
+}
+
+/* ==========================================================================
+   SCHEDULE PRINT VIEW (Shared between @media print and PNG Export)
+   ========================================================================== */
+.schedule-print-view {
+  background: #ffffff !important;
+  color: #0e1e2e !important;
+  font-family: 'Prompt', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  padding: 24px !important;
+  box-sizing: border-box !important;
+}
+
+.schedule-print-view .page-head-print {
+  font-size: 1.25rem !important;
+  font-weight: 700 !important;
+  margin: 0 0 8px 0 !important;
+  padding-bottom: 8px !important;
+  color: #17324d !important;
+  border-bottom: 1.5px solid #17324d !important;
+  font-family: 'Prompt', sans-serif !important;
+}
+
+.schedule-print-view .print-metadata-header {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  font-family: 'IBM Plex Mono', Menlo, Consolas, monospace !important;
+  font-size: 11px !important;
+  color: #57606a !important;
+  margin-bottom: 8px !important;
+  padding-bottom: 4px !important;
+  border-bottom: 1px dashed #cbd5e1 !important;
+}
+
+.schedule-print-view .timetable-wrap-user {
+  overflow: visible !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+}
+
+.schedule-print-view .week-table {
+  width: 100% !important;
+  table-layout: fixed !important;
+  border-collapse: collapse !important;
+  border: 1.5px solid #17324d !important;
+  font-size: 11px !important;
+  line-height: 1.35 !important;
+}
+
+.schedule-print-view .week-table tbody tr,
+.schedule-print-view .week-table tbody td {
+  height: auto !important;
+  min-height: 0 !important;
+}
+
+.schedule-print-view .week-table th,
+.schedule-print-view .week-table td {
+  padding: 6px 8px !important;
+  border: 1px solid #94a3b8 !important;
+  background: #ffffff !important;
+  color: #0e1e2e !important;
+  box-sizing: border-box !important;
+}
+
+.schedule-print-view .week-table th {
+  background: #f1f5f9 !important;
+  color: #17324d !important;
+  font-weight: 700 !important;
+  text-align: center !important;
+}
+
+.schedule-print-view .period-head-inner .period-name {
+  font-weight: 700 !important;
+  font-size: 11px !important;
+  color: #17324d !important;
+}
+
+.schedule-print-view .period-head-inner .period-time {
+  font-family: 'IBM Plex Mono', Menlo, Consolas, monospace !important;
+  font-size: 10px !important;
+  color: #57606a !important;
+}
+
+.schedule-print-view .week-table td.col-day {
+  background: #f8fafc !important;
+  font-weight: 700 !important;
+  color: #17324d !important;
+  width: 85px !important;
+  text-align: center !important;
+  border-left: 1px solid #94a3b8 !important;
+  font-size: 11.5px !important;
+}
+
+.schedule-print-view .week-table td.slot-class {
+  padding: 0 !important;
+  vertical-align: top !important;
+  background: #ffffff !important;
+}
+
+.schedule-print-view .week-table td.slot-class .cell-slot {
+  padding: 6px 8px !important;
+  box-sizing: border-box !important;
+  height: 100% !important;
+  min-height: 68px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+  transform: none !important;
+  border-left: 0 !important;
+  border-radius: 0 !important;
+}
+
+.schedule-print-view .cell-slot .slot-head {
+  margin-bottom: 2px !important;
+}
+
+.schedule-print-view .cell-slot .slot-code {
+  font-weight: 700 !important;
+  color: #17324d !important;
+  font-size: 11px !important;
+  font-family: 'IBM Plex Mono', Menlo, Consolas, monospace !important;
+}
+
+.schedule-print-view .cell-slot .badge {
+  background: transparent !important;
+  border: none !important;
+  color: #57606a !important;
+  font-weight: normal !important;
+  font-size: 9.5px !important;
+  padding: 0 !important;
+}
+
+.schedule-print-view .cell-slot .s,
+.schedule-print-view .cell-slot .slot-name {
+  display: block !important;
+  -webkit-line-clamp: unset !important;
+  -webkit-box-orient: unset !important;
+  overflow: visible !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  font-family: 'Prompt', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  line-height: 1.35 !important;
+  margin: 2px 0 4px 0 !important;
+  color: #0e1e2e !important;
+}
+
+.schedule-print-view .cell-slot .r {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 4px !important;
+  margin-top: auto !important;
+  padding-top: 4px !important;
+  border-top: 1px dashed #cbd5e1 !important;
+}
+
+.schedule-print-view .cell-slot .r .teacher {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 3px !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  max-width: none !important;
+  font-family: 'Prompt', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-size: 10px !important;
+  color: #57606a !important;
+  line-height: 1.25 !important;
+}
+
+.schedule-print-view .cell-slot .r .room {
+  flex-shrink: 0 !important;
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  color: #57606a !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  font-family: 'IBM Plex Mono', Menlo, Consolas, monospace !important;
+}
+
+.schedule-print-view .badge-today-pill,
+.schedule-print-view .is-current-class,
+.schedule-print-view .is-next-class {
+  border-left: 0 !important;
+  box-shadow: none !important;
+  transform: none !important;
+  background: transparent !important;
+}
+
+.schedule-print-view .badge-today-pill {
+  display: none !important;
+}
+
+.schedule-print-view .week-table tbody tr.is-today td {
+  background: transparent !important;
+}
+
+.schedule-print-view .week-table tbody tr.is-today td.col-day {
+  background: #f8fafc !important;
+  border-left: 1px solid #94a3b8 !important;
+  color: #17324d !important;
+}
+
+.schedule-print-view .week-table tbody tr:hover td,
+.schedule-print-view .week-table tbody td.slot-class:hover,
+.schedule-print-view .week-table tbody td.slot-empty:hover {
+  background: transparent !important;
+}
+
+.schedule-print-view .slot-flag,
+.schedule-print-view .slot-lunch,
+.schedule-print-view .slot-empty {
+  background: #f8fafc !important;
+}
+
+.schedule-print-view .slot-flag .special-slot-inner,
+.schedule-print-view .slot-lunch .special-slot-inner,
+.schedule-print-view .slot-empty .empty-slot-inner {
+  padding: 6px 8px !important;
+  text-align: center !important;
+  font-size: 11px !important;
+  color: #57606a !important;
+}
+
+.schedule-print-view .special-title {
+  font-weight: 600 !important;
+  color: #17324d !important;
+  font-size: 11px !important;
+}
+
+.schedule-print-view .special-time {
+  display: none !important;
 }

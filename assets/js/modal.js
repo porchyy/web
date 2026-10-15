@@ -125,7 +125,9 @@
     open: function (options) {
       const {
         title = '',
+        body = null,
         bodyHtml = '',
+        footer = null,
         footerHtml = '',
         size = '', // 'modal-lg', 'modal-xl', etc.
         onShown = null,
@@ -133,31 +135,61 @@
       } = options || {};
 
       const modalId = 'modal-dynamic-' + Date.now();
-      const html = `
-        <div class="modal fade" id="${modalId}" tabindex="-1" aria-hidden="true">
-          <div class="modal-dialog modal-dialog-centered ${size}">
-            <div class="modal-content">
-              ${title ? `
-                <div class="modal-header">
-                  <h5 class="modal-title">${escapeHtml(title)}</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="ปิด"></button>
-                </div>
-              ` : ''}
-              <div class="modal-body">
-                ${bodyHtml}
-              </div>
-              ${footerHtml ? `
-                <div class="modal-footer">
-                  ${footerHtml}
-                </div>
-              ` : ''}
-            </div>
-          </div>
-        </div>
-      `;
+      const modalEl = document.createElement('div');
+      modalEl.className = 'modal fade';
+      modalEl.id = modalId;
+      modalEl.tabIndex = -1;
+      modalEl.setAttribute('aria-hidden', 'true');
 
-      document.body.insertAdjacentHTML('beforeend', html);
-      const modalEl = document.getElementById(modalId);
+      const dialogEl = document.createElement('div');
+      dialogEl.className = 'modal-dialog modal-dialog-centered' + (size ? ' ' + size : '');
+
+      const contentEl = document.createElement('div');
+      contentEl.className = 'modal-content';
+
+      if (title) {
+        const headerEl = document.createElement('div');
+        headerEl.className = 'modal-header';
+
+        const titleEl = document.createElement('h5');
+        titleEl.className = 'modal-title';
+        titleEl.textContent = title;
+
+        const closeBtn = document.createElement('button');
+        closeBtn.type = 'button';
+        closeBtn.className = 'btn-close';
+        closeBtn.setAttribute('data-bs-dismiss', 'modal');
+        closeBtn.setAttribute('aria-label', 'ปิด');
+
+        headerEl.appendChild(titleEl);
+        headerEl.appendChild(closeBtn);
+        contentEl.appendChild(headerEl);
+      }
+
+      const bodyEl = document.createElement('div');
+      bodyEl.className = 'modal-body';
+      if (body instanceof Node) {
+        bodyEl.appendChild(body);
+      } else if (bodyHtml) {
+        bodyEl.innerHTML = bodyHtml;
+      }
+      contentEl.appendChild(bodyEl);
+
+      if (footer instanceof Node || footerHtml) {
+        const footerEl = document.createElement('div');
+        footerEl.className = 'modal-footer';
+        if (footer instanceof Node) {
+          footerEl.appendChild(footer);
+        } else if (footerHtml) {
+          footerEl.innerHTML = footerHtml;
+        }
+        contentEl.appendChild(footerEl);
+      }
+
+      dialogEl.appendChild(contentEl);
+      modalEl.appendChild(dialogEl);
+      document.body.appendChild(modalEl);
+
       const bsModal = new bootstrap.Modal(modalEl);
 
       if (typeof onShown === 'function') {

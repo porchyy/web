@@ -97,11 +97,28 @@ require_once __DIR__ . '/../includes/admin-header.php';
 <div class="admin-card">
   <div class="admin-card-head d-flex flex-wrap justify-content-between align-items-center gap-2">
     <h3 class="mb-0">รายการกิจกรรมทั้งหมด (<?= count($allActivities) ?> กิจกรรม)</h3>
-    <div class="position-relative" style="width: 240px;">
-      <input type="text" id="actSearchInput" class="form-control form-control-sm ps-4" placeholder="ค้นหากิจกรรม หรือสถานที่...">
-      <span class="position-absolute top-50 start-0 translate-middle-y ms-2 text-muted" style="pointer-events: none;">
-        <?= icon('search', 14) ?>
-      </span>
+    <div class="admin-search-wrap">
+      <div class="admin-search-group">
+        <span class="admin-search-prefix" aria-hidden="true"><?= icon('search', 14) ?></span>
+        <input type="text"
+               id="actSearchInput"
+               class="admin-search-input"
+               placeholder="ค้นหากิจกรรม หรือสถานที่..."
+               autocomplete="off"
+               role="combobox"
+               aria-autocomplete="list"
+               aria-expanded="false"
+               aria-controls="actAutocompleteList">
+        <button type="button"
+                id="btnActClearSearch"
+                class="admin-search-clear"
+                title="ล้างคำค้นหา"
+                aria-label="ล้างคำค้นหา"
+                style="display: none;">
+          <?= icon('close', 13) ?>
+        </button>
+      </div>
+      <ul id="actAutocompleteList" class="admin-autocomplete-dropdown" role="listbox" hidden></ul>
     </div>
   </div>
 
@@ -131,11 +148,21 @@ require_once __DIR__ . '/../includes/admin-header.php';
             $isPast = strtotime($item['event_date']) < strtotime(date('Y-m-d'));
             $isToday = $item['event_date'] === date('Y-m-d');
             ?>
-            <tr class="activity-list-row">
-              <td class="mono fw-semibold text-navy">
-                <?= thai_date($item['event_date']) ?>
+            <tr class="activity-list-row"
+                data-title="<?= e($item['title']) ?>"
+                data-meta="<?= e($item['location'] ?: '') ?>">
+              <td style="font-family: var(--font-body); font-size: 13.5px;">
+                <?php
+                $evTimestamp = strtotime($item['event_date']);
+                $dayOfWeekShort = TH_DAYS_SHORT[(int) date('N', $evTimestamp)] ?? '';
+                ?>
+                <span class="fw-semibold text-navy d-block">
+                  <?= $dayOfWeekShort ? $dayOfWeekShort . ' ' : '' ?><?= thai_date($item['event_date']) ?>
+                </span>
                 <?php if ($item['event_date_end']): ?>
-                  <span class="d-block text-muted" style="font-size: 11.5px;">– <?= thai_date($item['event_date_end']) ?></span>
+                  <span class="text-muted d-block" style="font-size: 12px; margin-top: 2px;">
+                    – <?= thai_date($item['event_date_end']) ?>
+                  </span>
                 <?php endif; ?>
               </td>
               <td>
@@ -367,35 +394,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Real-time Activities Search
-  const actSearch = document.getElementById('actSearchInput');
-  const rows = document.querySelectorAll('.activity-list-row');
-  if (actSearch && rows.length > 0) {
-    actSearch.addEventListener('input', function() {
-      const q = this.value.trim().toLowerCase();
-      let matchCount = 0;
-      rows.forEach(tr => {
-        const text = tr.textContent.toLowerCase();
-        const matches = text.includes(q);
-        tr.style.display = matches ? '' : 'none';
-        if (matches) matchCount++;
-      });
-      let emptyRow = document.getElementById('actSearchEmptyRow');
-      if (matchCount === 0) {
-        if (!emptyRow) {
-          emptyRow = document.createElement('tr');
-          emptyRow.id = 'actSearchEmptyRow';
-          emptyRow.innerHTML = '<td colspan="6" class="text-center py-4 text-muted">ไม่พบกิจกรรมที่ตรงกับคำค้นหา</td>';
-          const tbody = document.querySelector('.admin-table tbody');
-          if (tbody) tbody.appendChild(emptyRow);
-        }
-        emptyRow.style.display = '';
-      } else if (emptyRow) {
-        emptyRow.style.display = 'none';
-      }
+  // Initialize Unified Autocomplete Search
+  if (typeof AdminSearchAutocomplete !== 'undefined') {
+    AdminSearchAutocomplete.init({
+      inputSelector: '#actSearchInput',
+      clearBtnSelector: '#btnActClearSearch',
+      dropdownSelector: '#actAutocompleteList',
+      rowSelector: '.activity-list-row',
+      emptyRowId: 'actSearchEmptyRow',
+      emptyMessage: 'ไม่พบกิจกรรมที่ตรงกับคำค้นหา',
+      getItemData: (row) => ({
+        title: row.dataset.title || '',
+        meta: row.dataset.meta || '',
+        searchContent: row.textContent.toLowerCase()
+      })
     });
   }
 });
 </script>
 
+<script src="<?= url('assets/js/admin-search-autocomplete.js') ?>"></script>
 <?php require_once __DIR__ . '/../includes/admin-footer.php'; ?>

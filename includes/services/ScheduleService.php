@@ -60,11 +60,6 @@ class ScheduleService
         return $inserted;
     }
 
-    public static function ensureSpecialSlots(string $group = 'ปวช.2/1'): void
-    {
-        self::restoreDefaultSpecialSlots($group);
-    }
-
     public static function getPeriods(): array
     {
         $json = SettingService::get('schedule_periods');

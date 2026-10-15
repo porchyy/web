@@ -326,11 +326,28 @@ require_once __DIR__ . '/../includes/admin-header.php';
   <div class="admin-card">
     <div class="admin-card-head d-flex flex-wrap justify-content-between align-items-center gap-2">
       <h3 class="mb-0">รายการข่าวสารทั้งหมด (<?= count($allNews) ?>)</h3>
-      <div class="position-relative" style="width: 240px;">
-        <input type="text" id="newsSearchInput" class="form-control form-control-sm ps-4" placeholder="ค้นหาข่าว หรือหมวดหมู่...">
-        <span class="position-absolute top-50 start-0 translate-middle-y ms-2 text-muted" style="pointer-events: none;">
-          <?= icon('search', 14) ?>
-        </span>
+      <div class="admin-search-wrap">
+        <div class="admin-search-group">
+          <span class="admin-search-prefix" aria-hidden="true"><?= icon('search', 14) ?></span>
+          <input type="text"
+                 id="newsSearchInput"
+                 class="admin-search-input"
+                 placeholder="ค้นหาข่าว หรือหมวดหมู่..."
+                 autocomplete="off"
+                 role="combobox"
+                 aria-autocomplete="list"
+                 aria-expanded="false"
+                 aria-controls="newsAutocompleteList">
+          <button type="button"
+                  id="btnNewsClearSearch"
+                  class="admin-search-clear"
+                  title="ล้างคำค้นหา"
+                  aria-label="ล้างคำค้นหา"
+                  style="display: none;">
+            <?= icon('close', 13) ?>
+          </button>
+        </div>
+        <ul id="newsAutocompleteList" class="admin-autocomplete-dropdown" role="listbox" hidden></ul>
       </div>
     </div>
 
@@ -353,7 +370,9 @@ require_once __DIR__ . '/../includes/admin-header.php';
             </tr>
           <?php else: ?>
             <?php foreach ($allNews as $newsItem): ?>
-              <tr class="news-list-row">
+              <tr class="news-list-row"
+                  data-title="<?= e($newsItem['title']) ?>"
+                  data-meta="<?= e($newsItem['category_name']) ?>">
                 <td>
                   <?php if (!empty($newsItem['image_path']) && file_exists(ROOT_PATH . '/' . $newsItem['image_path'])): ?>
                     <img src="<?= url($newsItem['image_path']) ?>" class="table-thumb" alt="">
@@ -370,8 +389,8 @@ require_once __DIR__ . '/../includes/admin-header.php';
                 <td>
                   <span class="tag" style="font-size: 12px;"><?= e($newsItem['category_name']) ?></span>
                 </td>
-                <td class="mono" style="font-size: 13px;">
-                  <?= thai_date($newsItem['published_at']) ?>
+                <td style="font-family: var(--font-body); font-size: 13px;">
+                  <span class="text-navy"><?= thai_date($newsItem['published_at']) ?></span>
                 </td>
                 <td class="text-center">
                   <?php if ($newsItem['is_featured']): ?>
@@ -415,5 +434,6 @@ require_once __DIR__ . '/../includes/admin-header.php';
   </div>
 <?php endif; ?>
 
+<script src="<?= url('assets/js/admin-search-autocomplete.js') ?>"></script>
 <script src="<?= url('assets/js/admin-news.js') ?>"></script>
 <?php require_once __DIR__ . '/../includes/admin-footer.php'; ?>

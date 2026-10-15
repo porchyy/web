@@ -211,14 +211,35 @@
       } else {
         // Reset to placeholder
         if (previewContainerEl) {
-          previewContainerEl.innerHTML = `
-            <div class="preview-placeholder">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>
-              </svg>
-              <span>ยังไม่มีรูปภาพ</span>
-            </div>
-          `;
+          previewContainerEl.textContent = '';
+          const placeholder = document.createElement('div');
+          placeholder.className = 'preview-placeholder';
+
+          const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+          svg.setAttribute('width', '32');
+          svg.setAttribute('height', '32');
+          svg.setAttribute('viewBox', '0 0 24 24');
+          svg.setAttribute('fill', 'none');
+          svg.setAttribute('stroke', 'currentColor');
+          svg.setAttribute('stroke-width', '1.5');
+
+          const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          circle.setAttribute('cx', '12');
+          circle.setAttribute('cy', '8');
+          circle.setAttribute('r', '4');
+
+          const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          path.setAttribute('d', 'M4 21a8 8 0 0 1 16 0');
+
+          svg.appendChild(circle);
+          svg.appendChild(path);
+
+          const span = document.createElement('span');
+          span.textContent = 'ยังไม่มีรูปภาพ';
+
+          placeholder.appendChild(svg);
+          placeholder.appendChild(span);
+          previewContainerEl.appendChild(placeholder);
         }
       }
 

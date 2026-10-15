@@ -155,9 +155,7 @@
       return '';
     }
 
-    // Apply inline markdown cleanup to any residual text
-    rawHtml = parseInlineMarkdown(rawHtml);
-    return rawHtml;
+    return rawHtml.trim();
   }
 
   /**
@@ -415,7 +413,11 @@
       let parsedInitial = initialRaw;
       if (isTitleMode) {
         parsedInitial = '<p>' + initialRaw.replace(/<br\s*\/?>/gi, '</p><p>') + '</p>';
+      } else if (/<[a-z0-9]+/i.test(initialRaw)) {
+        // Already structured HTML from database/sanitizer: paste directly
+        parsedInitial = initialRaw;
       } else {
+        // Plain text or legacy markdown format: parse into HTML
         parsedInitial = parseMarkdownAndHtml(initialRaw);
       }
       quill.clipboard.dangerouslyPasteHTML(0, parsedInitial || initialRaw);
