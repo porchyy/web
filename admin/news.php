@@ -189,6 +189,7 @@ require_once __DIR__ . '/../includes/admin-header.php';
           <div id="quill-news-editor"
                class="quill-editorial-editor"
                data-target-input="input-news-content"
+               data-preview-target="modalNewsContent"
                data-placeholder="พิมพ์หรือวางเนื้อหาข่าวสารที่นี่..."></div>
           <textarea name="content"
                     id="input-news-content"

@@ -175,6 +175,7 @@ require_once __DIR__ . '/../includes/admin-header.php';
                class="quill-editorial-editor"
                data-target-input="hero_title"
                data-type="title"
+               data-preview-target="modalHeroTitle"
                data-placeholder="พิมพ์ข้อความพาดหัวหลัก เช่น เทคโนโลยี ธุรกิจดิจิทัล..."></div>
           <textarea name="hero_title"
                     id="hero_title"
@@ -189,6 +190,7 @@ require_once __DIR__ . '/../includes/admin-header.php';
           <div id="quill-hero-editor"
                class="quill-editorial-editor"
                data-target-input="hero_intro"
+               data-preview-target="modalHeroIntro"
                data-placeholder="พิมพ์คำอธิบายแนะนำแผนกวิชาที่นี่..."></div>
           <textarea name="hero_intro"
                     id="hero_intro"

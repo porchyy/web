@@ -162,7 +162,15 @@
         contentHtml = inContent.value;
       }
       if (modalContent) {
-        modalContent.innerHTML = contentHtml || '<p class="text-muted fst-italic">ไม่มีเนื้อหาข่าว</p>';
+        const render = window.renderSafeHtml || (window.DBTQuillParser && window.DBTQuillParser.renderSafe);
+        if (typeof render === 'function') {
+          render(modalContent, contentHtml, {
+            isTitle: false,
+            fallback: 'ไม่มีเนื้อหาข่าว'
+          });
+        } else {
+          modalContent.textContent = contentHtml || 'ไม่มีเนื้อหาข่าว';
+        }
       }
 
       // Dynamically query the uploaded preview image at modal trigger time

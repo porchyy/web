@@ -245,22 +245,169 @@
       });
     }
 
-    // Helper to serialize Quill content respecting title mode
-    function getCleanOutput() {
-      if (isTitleMode) {
-        const raw = parseQuillToHtml(quill);
-        const tmp = document.createElement('div');
-        tmp.innerHTML = raw;
-        const lines = [];
-        tmp.querySelectorAll('p, div, h1, h2, h3, h4').forEach((el) => {
-          const t = el.innerHTML.trim();
-          if (t && t !== '<br>') lines.push(t);
-        });
-        if (lines.length > 0) return lines.join('<br>');
-        return tmp.innerHTML.trim();
-      }
-      return parseQuillToHtml(quill);
+  /**
+   * Safe DOM Sanitizer & Renderer (Ponytail / Zero external dependencies)
+   * Constructs clean, native DOM nodes from HTML or Quill content in an inert Document.
+   * Completely eliminates innerHTML on live elements and prevents XSS.
+   *
+   * @param {HTMLElement} targetEl - Destination DOM element
+   * @param {string} content - Raw HTML or text with tags/line breaks
+   * @param {Object} [options]
+   * @param {boolean} [options.isTitle] - Title mode: preserves line breaks as <br>, unwraps block tags
+   * @param {string} [options.fallback] - Fallback text if content is empty
+   */
+  function renderSafeHtml(targetEl, content, options = {}) {
+    if (!targetEl || typeof targetEl.appendChild !== 'function') return;
+
+    const isTitle = Boolean(options.isTitle);
+    const raw = typeof content === 'string' ? content.trim() : '';
+
+    while (targetEl.firstChild) {
+      targetEl.removeChild(targetEl.firstChild);
     }
+
+    if (!raw) {
+      if (options.fallback) {
+        targetEl.appendChild(document.createTextNode(options.fallback));
+      }
+      return;
+    }
+
+    let htmlToParse = raw;
+    if (isTitle) {
+      htmlToParse = htmlToParse.replace(/\r?\n/g, '<br>');
+    }
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlToParse, 'text/html');
+
+    const allowedTitleTags = new Set(['strong', 'b', 'em', 'i', 'u', 's', 'span', 'br']);
+    const allowedBodyTags = new Set([
+      'p', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'del', 'strike', 'hr',
+      'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'blockquote',
+      'code', 'pre', 'a', 'span', 'table', 'thead', 'tbody', 'tr', 'th', 'td'
+    ]);
+    const allowedTags = isTitle ? allowedTitleTags : allowedBodyTags;
+
+    const dangerousTags = new Set([
+      'script', 'style', 'iframe', 'frame', 'object', 'embed', 'applet',
+      'svg', 'math', 'form', 'input', 'button', 'select', 'textarea', 'option',
+      'link', 'meta', 'base'
+    ]);
+
+    function isSafeUrl(url) {
+      if (!url) return false;
+      const clean = url.trim();
+      return /^(?:https?:\/\/|mailto:|tel:|\/|#|\.\/)/i.test(clean) && !/^[\s\x00-\x1f]*javascript:/i.test(clean);
+    }
+
+    function buildCleanNode(node) {
+      if (!node) return null;
+
+      if (node.nodeType === Node.TEXT_NODE) {
+        return document.createTextNode(node.nodeValue);
+      }
+
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        const tagName = node.nodeName.toLowerCase();
+
+        if (dangerousTags.has(tagName)) {
+          return null;
+        }
+
+        // In title mode, block elements are unwrapped with line-breaks (<br>)
+        if (isTitle && ['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(tagName)) {
+          const frag = document.createDocumentFragment();
+          for (let i = 0; i < node.childNodes.length; i++) {
+            const childNode = buildCleanNode(node.childNodes[i]);
+            if (childNode) frag.appendChild(childNode);
+          }
+          if (node.nextSibling) {
+            frag.appendChild(document.createElement('br'));
+          }
+          return frag;
+        }
+
+        if (!allowedTags.has(tagName)) {
+          const frag = document.createDocumentFragment();
+          for (let i = 0; i < node.childNodes.length; i++) {
+            const childNode = buildCleanNode(node.childNodes[i]);
+            if (childNode) frag.appendChild(childNode);
+          }
+          return frag;
+        }
+
+        const cleanEl = document.createElement(tagName);
+
+        if (tagName === 'a') {
+          const href = node.getAttribute('href');
+          const safeHref = href && isSafeUrl(href) ? href.trim() : '#';
+          cleanEl.setAttribute('href', safeHref);
+          cleanEl.setAttribute('target', '_blank');
+          cleanEl.setAttribute('rel', 'noopener noreferrer');
+          const title = node.getAttribute('title');
+          if (title) cleanEl.setAttribute('title', title.trim());
+        }
+
+        if (tagName === 'td' || tagName === 'th') {
+          const colspan = node.getAttribute('colspan');
+          if (colspan && /^\d+$/.test(colspan)) cleanEl.setAttribute('colspan', colspan);
+          const rowspan = node.getAttribute('rowspan');
+          if (rowspan && /^\d+$/.test(rowspan)) cleanEl.setAttribute('rowspan', rowspan);
+        }
+
+        const className = node.getAttribute('class');
+        if (className && /^[a-zA-Z0-9_\-\s]+$/.test(className)) {
+          cleanEl.className = className.trim();
+        }
+
+        for (let i = 0; i < node.childNodes.length; i++) {
+          const childNode = buildCleanNode(node.childNodes[i]);
+          if (childNode) cleanEl.appendChild(childNode);
+        }
+
+        return cleanEl;
+      }
+
+      return null;
+    }
+
+    const fragment = document.createDocumentFragment();
+    const sourceNodes = doc.body.childNodes;
+    for (let i = 0; i < sourceNodes.length; i++) {
+      const cleanChild = buildCleanNode(sourceNodes[i]);
+      if (cleanChild) fragment.appendChild(cleanChild);
+    }
+
+    if (!fragment.hasChildNodes() && options.fallback) {
+      targetEl.appendChild(document.createTextNode(options.fallback));
+    } else {
+      targetEl.appendChild(fragment);
+    }
+  }
+
+  // Expose globally for all admin modules
+  window.renderSafeHtml = renderSafeHtml;
+
+  // Helper to serialize Quill content respecting title mode
+  function getCleanOutputForQuill(quill, isTitleMode) {
+    if (isTitleMode) {
+      const raw = parseQuillToHtml(quill);
+      const doc = new DOMParser().parseFromString(raw, 'text/html');
+      const lines = [];
+      doc.body.querySelectorAll('p, div, h1, h2, h3, h4').forEach((el) => {
+        const t = el.innerHTML.trim();
+        if (t && t !== '<br>') lines.push(t);
+      });
+      if (lines.length > 0) return lines.join('<br>');
+      return doc.body.innerHTML.trim();
+    }
+    return parseQuillToHtml(quill);
+  }
+
+  function getCleanOutput() {
+    return getCleanOutputForQuill(quill, isTitleMode);
+  }
 
     // 2. Load and parse initial content from database
     const initialRaw = targetInput.value || '';
@@ -291,7 +438,7 @@
     // 4. Live Typing Markdown Shortcuts (Keystroke triggers)
     quill.on('text-change', (delta, oldDelta, source) => {
       if (source !== 'user') {
-        targetInput.value = parseQuillToHtml(quill);
+        targetInput.value = getCleanOutput();
         return;
       }
 
@@ -386,7 +533,7 @@
 
     function updateLinkedPreview() {
       if (previewTargetEl) {
-        previewTargetEl.innerHTML = getCleanOutput() || '';
+        renderSafeHtml(previewTargetEl, getCleanOutput(), { isTitle: isTitleMode });
       }
     }
 
@@ -431,6 +578,7 @@
     parseInlineMarkdown,
     parseMarkdownAndHtml,
     parseQuillToHtml,
-    initQuillInstance
+    initQuillInstance,
+    renderSafe: renderSafeHtml
   };
 })();
