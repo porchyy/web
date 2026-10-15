@@ -94,58 +94,76 @@ $activitiesByMonth = ScheduleService::getActivitiesGroupedByMonth();
 include __DIR__ . '/../includes/header.php';
 ?>
 
-<div class="page-head">
+<div class="page-head" style="padding-bottom: var(--s-3);">
   <div class="container-xl">
     <p class="eyebrow">
       <span>ตารางเรียนและกิจกรรม</span>
     </p>
     <h1>ตารางเรียนและตารางกิจกรรม</h1>
-    <p class="lead-text">
+    <p class="lead-text mb-0">
       ตรวจสอบเวลาเรียนรายวิชาตามมาตรฐานหลักสูตร สอศ. และติดตามกำหนดการกิจกรรม เสวนา อบรมเชิงปฏิบัติการประจำภาคเรียน
     </p>
-
-    <!-- Segmented Control Switcher -->
-    <div class="segmented mt-4" role="tablist" aria-label="สลับประเภทตาราง">
-      <a href="<?= url('schedule?tab=class' . ($selectedGroup ? '&group=' . urlencode($selectedGroup) : '')) ?>" class="py-2 px-3 text-center d-inline-flex align-items-center justify-content-center" <?= $tab === 'class' ? 'aria-current="page"' : '' ?>>
-        <?= icon('book', 16) ?>
-        <span>ตารางเรียนรายสัปดาห์</span>
-      </a>
-      <a href="<?= url('schedule?tab=activity') ?>" class="py-2 px-3 text-center d-inline-flex align-items-center justify-content-center" <?= $tab === 'activity' ? 'aria-current="page"' : '' ?>>
-        <?= icon('calendar', 16) ?>
-        <span>ตารางกิจกรรมแผนก</span>
-      </a>
-    </div>
   </div>
 </div>
 
-<section class="section">
+<section class="section" style="padding-top: var(--s-3);">
   <div class="<?= $tab === 'class' ? 'container-fluid px-3 px-xl-4 px-xxl-5' : 'container-xl' ?>">
+
+    <!-- Schedule Control Toolbar (Responsive Full-Width Card) -->
+    <div class="schedule-control-card">
+      <!-- Upper Section: Group Dropdown & Tabs Switcher (Horizontal on Desktop) -->
+      <div class="scc-header-row">
+        <div class="scc-group-row">
+          <form method="get" action="<?= url('schedule') ?>" class="d-flex align-items-center gap-2 m-0 flex-wrap" id="form-schedule-group">
+            <input type="hidden" name="tab" value="class">
+            <label for="select-schedule-group" class="scc-label">
+              <?= icon('users', 16) ?> ระดับชั้น / กลุ่มเรียน
+            </label>
+            <div class="scc-select-wrap">
+              <select id="select-schedule-group" name="group" class="scc-select" onchange="this.form.submit()">
+                <?php foreach ($availableGroups as $grp): ?>
+                  <option value="<?= e($grp) ?>" <?= $selectedGroup === $grp ? 'selected' : '' ?>>
+                    <?= e($grp) ?>
+                  </option>
+                <?php endforeach; ?>
+              </select>
+            </div>
+          </form>
+        </div>
+
+        <div class="scc-tabs-row" role="tablist" aria-label="สลับประเภทตาราง">
+          <a href="<?= url('schedule?tab=class' . ($selectedGroup ? '&group=' . urlencode($selectedGroup) : '')) ?>" class="scc-tab <?= $tab === 'class' ? 'is-active' : '' ?>" <?= $tab === 'class' ? 'aria-current="page"' : '' ?>>
+            <?= icon('book', 18) ?>
+            <span>ตารางเรียนรายสัปดาห์</span>
+          </a>
+          <a href="<?= url('schedule?tab=activity') ?>" class="scc-tab <?= $tab === 'activity' ? 'is-active' : '' ?>" <?= $tab === 'activity' ? 'aria-current="page"' : '' ?>>
+            <?= icon('calendar', 18) ?>
+            <span>ตารางกิจกรรมแผนก</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Lower Section: View Label & Action Buttons (Side-by-side on Desktop) -->
+      <div class="scc-bottom-row">
+        <span class="scc-sublabel">เลือกมุมมองตาราง</span>
+
+        <div class="scc-action-buttons">
+          <button type="button" class="scc-btn scc-btn-print" onclick="window.print()">
+            <?= icon('printer', 16) ?>
+            <span>พิมพ์ตารางเรียน</span>
+          </button>
+          <button type="button" class="scc-btn scc-btn-pdf" onclick="window.print()">
+            <?= icon('file-pdf', 16) ?>
+            <span>บันทึกเป็น PDF</span>
+          </button>
+        </div>
+      </div>
+    </div>
 
     <?php if ($tab === 'class'): ?>
       <!-- ==================================================================
            CLASS TIMETABLE VIEW (มาตรฐาน สอศ.)
            ================================================================== -->
-      
-      <!-- Group Filter & Print Bar -->
-      <div class="group-select-bar d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4 p-3 bg-white border">
-        <form method="get" action="<?= url('schedule') ?>" class="d-flex align-items-center gap-2 m-0 flex-wrap" id="form-schedule-group">
-          <input type="hidden" name="tab" value="class">
-          <label for="select-schedule-group" class="fw-semibold text-navy mb-0" style="font-size: .875rem;">
-            <?= icon('users', 16) ?> ระดับชั้น / กลุ่มเรียน:
-          </label>
-          <select id="select-schedule-group" name="group" class="form-select form-select-sm" style="width: auto; min-width: 140px;" onchange="this.form.submit()">
-            <?php foreach ($availableGroups as $grp): ?>
-              <option value="<?= e($grp) ?>" <?= $selectedGroup === $grp ? 'selected' : '' ?>>
-                <?= e($grp) ?>
-              </option>
-            <?php endforeach; ?>
-          </select>
-        </form>
-
-        <button type="button" class="btn btn-sm btn-line btn-print" onclick="window.print()">
-          <?= icon('book', 14) ?> พิมพ์ / บันทึกตารางเรียน
-        </button>
-      </div>
 
       <!-- Print-Only Header Metadata -->
       <div class="print-metadata-header d-none">

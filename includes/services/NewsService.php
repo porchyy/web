@@ -144,6 +144,39 @@ class NewsService
         ];
     }
 
+    public static function searchSuggestions(string $query, ?string $catSlug = null, int $limit = 6): array
+    {
+        $query = trim($query);
+        if ($query === '') {
+            return [];
+        }
+
+        $limit = max(1, min(20, $limit));
+        $where = "WHERE n.title LIKE ?";
+        $params = ["%{$query}%"];
+
+        if (!empty($catSlug) && $catSlug !== 'all') {
+            $where .= " AND c.slug = ?";
+            $params[] = $catSlug;
+        }
+
+        $params[] = "{$query}%";
+        $params[] = $limit;
+
+        return q("
+            SELECT n.id, n.title, c.name as category_name, c.slug as category_slug
+            FROM news n
+            JOIN news_categories c ON n.category_id = c.id
+            {$where}
+            ORDER BY 
+                CASE WHEN n.title LIKE ? THEN 1 ELSE 2 END,
+                n.published_at DESC, 
+                n.id DESC
+            LIMIT ?
+        ", $params)->fetchAll();
+    }
+
+
     public static function getAll(): array
     {
         return q("

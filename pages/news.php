@@ -97,11 +97,23 @@ $totalCount = NewsService::countAll();
 // Fetch paginated news
 $pagination = NewsService::getPaginated($currentPage, 9, $catSlug, $searchQuery);
 $newsList   = $pagination['items'];
+$filteredTotal = $pagination['total'];
+
+// Resolve active category name for accessibility & results status
+$activeCategoryName = '';
+if ($catSlug !== '') {
+    foreach ($categories as $cat) {
+        if ($cat['slug'] === $catSlug) {
+            $activeCategoryName = $cat['name'];
+            break;
+        }
+    }
+}
 
 include __DIR__ . '/../includes/header.php';
 ?>
 
-<div class="page-head">
+<div class="page-head news-page-head">
   <div class="container-xl">
     <p class="eyebrow">
       <span>ข่าวสารและประกาศ</span>
@@ -114,89 +126,168 @@ include __DIR__ . '/../includes/header.php';
 </div>
 
 <!-- ========================================================================
-     CATEGORY FILTER CHIPS
+     NEWS TOOLBAR & FILTER SECTION (Gestalt Common Region)
      ======================================================================== -->
-<section class="section" style="padding-top: var(--s-5); padding-bottom: var(--s-5); border-bottom: 1px solid var(--c-line);">
+<section class="news-toolbar-section">
   <div class="container-xl">
-    <div class="row align-items-center gy-3">
-      <div class="col-12 col-md-7">
-        <div class="chip-scroll" role="tablist" aria-label="กรองหมวดหมู่ข่าว">
-          <a href="<?= url('news' . ($searchQuery ? '?q=' . urlencode($searchQuery) : '')) ?>" class="chip" <?= empty($catSlug) ? 'aria-current="page"' : '' ?>>
+    <div class="news-toolbar" role="region" aria-label="เครื่องมือกรองและค้นหาข่าวสาร">
+      <!-- Category Filter Chips (Single-Row on Desktop, Scroll on Mobile) -->
+      <nav class="news-categories-nav" aria-label="หมวดหมู่ข่าวสาร">
+        <div class="news-chip-scroll" role="tablist">
+          <a href="<?= url('news' . ($searchQuery ? '?q=' . urlencode($searchQuery) : '')) ?>"
+             class="chip"
+             <?= empty($catSlug) ? 'aria-current="page"' : '' ?>
+             role="tab"
+             aria-selected="<?= empty($catSlug) ? 'true' : 'false' ?>"
+             aria-label="ข่าวสารทั้งหมด จำนวน <?= $totalCount ?> รายการ">
             <span>ทั้งหมด</span>
             <span class="count"><?= $totalCount ?></span>
           </a>
           <?php foreach ($categories as $cat): ?>
-            <a href="<?= url('news?cat=' . urlencode($cat['slug']) . ($searchQuery ? '&q=' . urlencode($searchQuery) : '')) ?>" class="chip" <?= $catSlug === $cat['slug'] ? 'aria-current="page"' : '' ?>>
+            <a href="<?= url('news?cat=' . urlencode($cat['slug']) . ($searchQuery ? '&q=' . urlencode($searchQuery) : '')) ?>"
+               class="chip"
+               <?= $catSlug === $cat['slug'] ? 'aria-current="page"' : '' ?>
+               role="tab"
+               aria-selected="<?= $catSlug === $cat['slug'] ? 'true' : 'false' ?>"
+               aria-label="หมวด <?= e($cat['name']) ?> จำนวน <?= (int) $cat['news_count'] ?> รายการ">
               <span><?= e($cat['name']) ?></span>
               <span class="count"><?= (int) $cat['news_count'] ?></span>
             </a>
           <?php endforeach; ?>
         </div>
-      </div>
-      <div class="col-12 col-md-5">
-        <form method="get" action="<?= url('news') ?>" class="d-flex align-items-center gap-2 justify-content-md-end m-0">
-          <?php if ($catSlug): ?>
-            <input type="hidden" name="cat" value="<?= e($catSlug) ?>">
-          <?php endif; ?>
+      </nav>
+
+      <!-- Integrated Search Form -->
+      <form method="get" action="<?= url('news') ?>" class="news-search-form" role="search" id="news-search-form">
+        <?php if ($catSlug): ?>
+          <input type="hidden" name="cat" value="<?= e($catSlug) ?>" id="news-search-cat">
+        <?php endif; ?>
+        <label for="news-search-input" class="visually-hidden">ค้นหาข่าวสารหรือคำสำคัญ</label>
+        <div class="search-input-group">
+          <span class="search-icon-prefix" aria-hidden="true">
+            <?= icon('search', 16) ?>
+          </span>
           <input type="search"
+                 id="news-search-input"
                  name="q"
-                 class="form-control form-control-sm"
-                 style="max-width: 260px;"
-                 placeholder="ค้นหาข่าวสาร..."
-                 value="<?= e($searchQuery) ?>">
-          <button type="submit" class="btn btn-sm btn-navy" style="white-space: nowrap;">
+                 class="form-control form-control-sm news-search-input"
+                 placeholder="ค้นหาชื่อข่าวหรือคำสำคัญ..."
+                 value="<?= e($searchQuery) ?>"
+                 autocomplete="off"
+                 role="combobox"
+                 aria-autocomplete="list"
+                 aria-expanded="false"
+                 aria-controls="news-autocomplete-list"
+                 aria-haspopup="listbox">
+          <?php if ($searchQuery !== ''): ?>
+            <a href="<?= url('news' . ($catSlug ? '?cat=' . urlencode($catSlug) : '')) ?>"
+               class="btn-clear-search"
+               title="ล้างคำค้นหา"
+               aria-label="ล้างคำค้นหา">
+              <?= icon('close', 14) ?>
+            </a>
+          <?php endif; ?>
+          <button type="submit" class="btn btn-sm btn-navy btn-search-submit" aria-label="กดเพื่อค้นหา">
             <span>ค้นหา</span>
           </button>
-          <?php if ($searchQuery !== ''): ?>
-            <a href="<?= url('news' . ($catSlug ? '?cat=' . urlencode($catSlug) : '')) ?>" class="btn btn-sm btn-line text-muted">ล้าง</a>
-          <?php endif; ?>
-        </form>
+        </div>
+        <ul id="news-autocomplete-list"
+            class="news-autocomplete-dropdown"
+            role="listbox"
+            aria-label="รายการข่าวที่แนะนำ"
+            hidden>
+        </ul>
+      </form>
+    </div>
+
+    <!-- Active Filter & Results Count Bar -->
+    <div class="news-status-bar" role="status" aria-live="polite">
+      <div class="news-status-text">
+        <?php if ($searchQuery !== '' && $activeCategoryName !== ''): ?>
+          <span>ผลการค้นหา "<strong><?= e($searchQuery) ?></strong>" ในหมวด <strong><?= e($activeCategoryName) ?></strong> (พบ <strong><?= $filteredTotal ?></strong> รายการ)</span>
+        <?php elseif ($searchQuery !== ''): ?>
+          <span>ผลการค้นหา "<strong><?= e($searchQuery) ?></strong>" (พบ <strong><?= $filteredTotal ?></strong> รายการ)</span>
+        <?php elseif ($activeCategoryName !== ''): ?>
+          <span>หมวดหมู่ <strong><?= e($activeCategoryName) ?></strong> (พบ <strong><?= $filteredTotal ?></strong> รายการ)</span>
+        <?php else: ?>
+          <span>แสดงข่าวสารทั้งหมด <strong><?= $filteredTotal ?></strong> รายการ</span>
+        <?php endif; ?>
       </div>
+
+      <?php if ($searchQuery !== '' || $catSlug !== ''): ?>
+        <a href="<?= url('news') ?>" class="btn-reset-filters" aria-label="ล้างตัวกรองและแสดงข่าวสารทั้งหมด">
+          <?= icon('refresh', 13) ?>
+          <span>แสดงทั้งหมด</span>
+        </a>
+      <?php endif; ?>
     </div>
   </div>
 </section>
 
 <!-- ========================================================================
-     NEWS CONTENT LIST
+     NEWS CONTENT LIST (Layer-Cake Scannable Cards)
      ======================================================================== -->
-<section class="section">
+<section class="news-content-section">
   <div class="container-xl">
 
     <?php if (empty($newsList)): ?>
-      <div class="text-center py-5 text-muted">
-        <?= icon('news', 40) ?>
-        <p class="mt-3">ไม่พบข่าวสารในเงื่อนไขที่ค้นหา</p>
+      <div class="news-empty-state">
+        <div class="empty-icon" aria-hidden="true">
+          <?= icon('news', 48) ?>
+        </div>
+        <h2 class="empty-title">ไม่พบข่าวสารในเงื่อนไขที่เลือก</h2>
+        <p class="empty-desc">
+          <?php if ($searchQuery !== ''): ?>
+            ลองตรวจสอบคำสะกด หรือค้นหาด้วยคำสำคัญอื่น
+          <?php else: ?>
+            ยังไม่มีเนื้อหาข่าวสารในหมวดหมู่นี้ในขณะนี้
+          <?php endif; ?>
+        </p>
+        <div class="mt-3">
+          <a href="<?= url('news') ?>" class="btn btn-navy btn-sm">
+            <?= icon('refresh', 14) ?>
+            <span>กลับไปหน้าข่าวสารทั้งหมด</span>
+          </a>
+        </div>
       </div>
     <?php else: ?>
-      <ul class="news-list">
+      <div class="news-grid" role="feed" aria-label="รายการข่าวสารและประกาศ">
         <?php foreach ($newsList as $item): ?>
-          <li>
-            <a href="<?= url('news?id=' . $item['id']) ?>" class="news-row">
-              <div>
-                <div class="meta-line mb-1">
-                  <span class="tag"><?= e($item['category_name']) ?></span>
+          <article class="news-card">
+            <a href="<?= url('news?id=' . $item['id']) ?>" class="news-card-link">
+              <div class="news-card-content">
+                <div class="news-meta">
+                  <span class="news-cat-tag"><?= e($item['category_name']) ?></span>
                   <?php if ($item['is_featured']): ?>
-                    <span class="badge-active">ข่าวเด่น</span>
+                    <span class="news-badge-featured">
+                      <?= icon('flag', 12) ?> ข่าวเด่น
+                    </span>
                   <?php endif; ?>
-                  <span class="dot"></span>
-                  <span class="text-muted" style="font-size: 13px;"><?= thai_date($item['published_at']) ?></span>
+                  <span class="news-meta-dot" aria-hidden="true">•</span>
+                  <time class="news-date" datetime="<?= e($item['published_at']) ?>">
+                    <?= icon('calendar', 13) ?>
+                    <span><?= thai_date($item['published_at']) ?></span>
+                  </time>
                 </div>
-                <h3><?= e($item['title']) ?></h3>
-                <p class="text-muted mb-0" style="font-size: .875rem;">
+                
+                <h2 class="news-title"><?= e($item['title']) ?></h2>
+                
+                <p class="news-summary">
                   <?= e($item['summary']) ?>
                 </p>
               </div>
-              <div class="thumb">
+
+              <div class="news-card-thumb">
                 <?php if (!empty($item['image_path']) && file_exists(ROOT_PATH . '/' . $item['image_path'])): ?>
-                  <img src="<?= url($item['image_path']) ?>" alt="<?= e($item['title']) ?>" loading="lazy">
+                  <img src="<?= url($item['image_path']) ?>" alt="<?= e($item['title']) ?>" loading="lazy" width="160" height="120">
                 <?php else: ?>
-                  <div class="monogram"><?= e(SITE_SHORT) ?></div>
+                  <div class="news-monogram" aria-hidden="true"><?= e(SITE_SHORT) ?></div>
                 <?php endif; ?>
               </div>
             </a>
-          </li>
+          </article>
         <?php endforeach; ?>
-      </ul>
+      </div>
 
       <!-- Pagination -->
       <?php
@@ -209,5 +300,211 @@ include __DIR__ . '/../includes/header.php';
 
   </div>
 </section>
+
+<script>
+(function() {
+  const form = document.getElementById('news-search-form');
+  const input = document.getElementById('news-search-input');
+  const list = document.getElementById('news-autocomplete-list');
+  const catInput = document.getElementById('news-search-cat');
+  if (!form || !input || !list) return;
+
+  const endpoint = <?= json_encode(url('api/news-search.php')) ?>;
+  let activeIndex = -1;
+  let debounceTimer = null;
+  let abortCtrl = null;
+  let currentItems = [];
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  function highlightMatches(text, query) {
+    if (!query) return escapeHtml(text);
+    const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const parts = text.split(new RegExp(`(${escaped})`, 'gi'));
+    return parts.map(p => {
+      if (p.toLowerCase() === query.toLowerCase()) {
+        return `<mark class="sugg-match">${escapeHtml(p)}</mark>`;
+      }
+      return escapeHtml(p);
+    }).join('');
+  }
+
+  function closeDropdown() {
+    list.hidden = true;
+    list.innerHTML = '';
+    activeIndex = -1;
+    currentItems = [];
+    input.setAttribute('aria-expanded', 'false');
+    input.removeAttribute('aria-activedescendant');
+  }
+
+  function openDropdown() {
+    if (currentItems.length > 0) {
+      list.hidden = false;
+      input.setAttribute('aria-expanded', 'true');
+    }
+  }
+
+  function updateActiveOption() {
+    const options = list.querySelectorAll('.news-suggest-item');
+    options.forEach((opt, idx) => {
+      const isActive = idx === activeIndex;
+      opt.classList.toggle('is-active', isActive);
+      opt.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      if (isActive) {
+        input.setAttribute('aria-activedescendant', opt.id);
+        opt.scrollIntoView({ block: 'nearest' });
+      }
+    });
+    if (activeIndex === -1) {
+      input.removeAttribute('aria-activedescendant');
+    }
+  }
+
+  function selectItem(title) {
+    input.value = title;
+    closeDropdown();
+    form.submit();
+  }
+
+  function renderSuggestions(items, query) {
+    currentItems = items;
+    activeIndex = -1;
+    list.innerHTML = '';
+
+    if (!items || items.length === 0) {
+      const empty = document.createElement('li');
+      empty.className = 'news-suggest-empty';
+      empty.textContent = 'ไม่พบข่าวที่ตรงกับคำค้นหา';
+      list.appendChild(empty);
+      list.hidden = false;
+      input.setAttribute('aria-expanded', 'true');
+      return;
+    }
+
+    items.forEach((item, idx) => {
+      const li = document.createElement('li');
+      li.id = 'sugg-opt-' + idx;
+      li.className = 'news-suggest-item';
+      li.setAttribute('role', 'option');
+      li.setAttribute('aria-selected', 'false');
+      li.dataset.title = item.title;
+
+      const titleSpan = document.createElement('span');
+      titleSpan.className = 'news-suggest-title';
+      titleSpan.innerHTML = highlightMatches(item.title, query);
+
+      const catSpan = document.createElement('span');
+      catSpan.className = 'news-suggest-cat';
+      catSpan.textContent = item.category_name;
+
+      li.appendChild(titleSpan);
+      li.appendChild(catSpan);
+
+      li.addEventListener('mousedown', function(e) {
+        e.preventDefault();
+      });
+
+      li.addEventListener('click', function() {
+        selectItem(item.title);
+      });
+
+      list.appendChild(li);
+    });
+
+    list.hidden = false;
+    input.setAttribute('aria-expanded', 'true');
+  }
+
+  function fetchSuggestions(query) {
+    if (abortCtrl) {
+      abortCtrl.abort();
+    }
+    abortCtrl = new AbortController();
+
+    const cat = catInput ? catInput.value : '';
+    const url = new URL(endpoint, window.location.origin);
+    url.searchParams.set('q', query);
+    if (cat) {
+      url.searchParams.set('cat', cat);
+    }
+
+    fetch(url.toString(), {
+      signal: abortCtrl.signal,
+      headers: { 'Accept': 'application/json' }
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.success) {
+          renderSuggestions(data.items, query);
+        } else {
+          closeDropdown();
+        }
+      })
+      .catch(err => {
+        if (err.name !== 'AbortError') {
+          closeDropdown();
+        }
+      });
+  }
+
+  input.addEventListener('input', function() {
+    const val = this.value.trim();
+    clearTimeout(debounceTimer);
+
+    if (val.length < 1) {
+      closeDropdown();
+      return;
+    }
+
+    debounceTimer = setTimeout(() => {
+      fetchSuggestions(val);
+    }, 200);
+  });
+
+  input.addEventListener('keydown', function(e) {
+    const options = list.querySelectorAll('.news-suggest-item');
+    if (!options.length || list.hidden) {
+      if (e.key === 'ArrowDown' && input.value.trim().length >= 1) {
+        fetchSuggestions(input.value.trim());
+      }
+      return;
+    }
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      activeIndex = (activeIndex + 1) % options.length;
+      updateActiveOption();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      activeIndex = activeIndex <= 0 ? options.length - 1 : activeIndex - 1;
+      updateActiveOption();
+    } else if (e.key === 'Enter') {
+      if (activeIndex >= 0 && options[activeIndex]) {
+        e.preventDefault();
+        selectItem(options[activeIndex].dataset.title);
+      }
+    } else if (e.key === 'Escape') {
+      closeDropdown();
+    }
+  });
+
+  input.addEventListener('focus', function() {
+    if (currentItems.length > 0) {
+      openDropdown();
+    }
+  });
+
+  document.addEventListener('click', function(e) {
+    if (!form.contains(e.target)) {
+      closeDropdown();
+    }
+  });
+})();
+</script>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>

@@ -3,6 +3,290 @@
  * Reference: STYLE.md Section 2.5 & Track 6.1 (Clean Editorial Brutalism)
  */
 
+/* Unified Schedule Control Card (Aligned with Screenshot 2026-10-15 190555.png) */
+/* Unified Schedule Control Card (Responsive Full-Width Card) */
+.schedule-control-card {
+  background: #ffffff;
+  border: 1px solid var(--c-line, #D5DEE8);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: var(--s-4);
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  box-shadow: 0 1px 3px rgba(23, 50, 77, 0.05);
+}
+
+.scc-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.scc-group-row {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.scc-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: var(--c-navy, #193651);
+  font-size: 0.9375rem;
+  margin-bottom: 0;
+  white-space: nowrap;
+}
+
+.scc-select-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.scc-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: #ffffff;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23193651' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  border: 1px solid var(--c-line, #D5DEE8);
+  border-radius: 9999px;
+  padding: 6px 36px 6px 16px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--c-navy, #193651);
+  min-width: 140px;
+  cursor: pointer;
+  transition: border-color var(--dur), box-shadow var(--dur);
+}
+
+.scc-select:focus {
+  border-color: var(--c-navy, #193651);
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(25, 54, 81, 0.12);
+}
+
+.scc-tabs-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.scc-tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  text-decoration: none;
+  min-height: 46px;
+  border: 1px solid var(--c-line, #D5DEE8);
+  background: #f8fafc;
+  color: var(--c-navy, #193651);
+  transition: background-color var(--dur), border-color var(--dur), color var(--dur), box-shadow var(--dur);
+  white-space: nowrap;
+}
+
+.scc-tab:hover {
+  background: #eef3f8;
+  color: var(--c-navy, #193651);
+}
+
+.scc-tab.is-active,
+.scc-tab[aria-current="page"] {
+  background: var(--c-navy, #193651);
+  border-color: var(--c-navy, #193651);
+  color: #ffffff;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(25, 54, 81, 0.2);
+}
+
+.scc-tab.is-active svg,
+.scc-tab[aria-current="page"] svg {
+  stroke: #ffffff;
+}
+
+.scc-bottom-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.scc-sublabel {
+  font-size: 0.875rem;
+  color: var(--c-muted, #64748B);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Action Buttons (พิมพ์ตารางเรียน / บันทึกเป็น PDF) */
+.scc-action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.scc-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 46px;
+  padding: 0 20px;
+  min-width: 170px;
+  border-radius: 6px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color var(--dur), border-color var(--dur), opacity var(--dur);
+  box-sizing: border-box;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.scc-btn-print {
+  background-color: #193651;
+  color: #ffffff;
+  border: 1px solid #193651;
+}
+
+.scc-btn-print:hover {
+  background-color: #12283d;
+  border-color: #12283d;
+  color: #ffffff;
+}
+
+.scc-btn-print svg {
+  stroke: #ffffff;
+}
+
+.scc-btn-pdf {
+  background-color: #ffffff;
+  color: #193651;
+  border: 1px solid #D5DEE8;
+}
+
+.scc-btn-pdf:hover {
+  background-color: #f8fafc;
+  border-color: #193651;
+  color: #193651;
+}
+
+.scc-btn-pdf svg {
+  stroke: #193651;
+}
+
+/* Tablet Breakpoint (577px - 991px) */
+@media (max-width: 991px) {
+  .scc-header-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  .scc-group-row {
+    width: 100%;
+  }
+  .scc-tabs-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+  }
+  .scc-tab {
+    width: 100%;
+  }
+  .scc-bottom-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+  .scc-action-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    width: 100%;
+  }
+  .scc-btn {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+/* Mobile Breakpoint (<= 576px) */
+@media (max-width: 576px) {
+  .schedule-control-card {
+    padding: 1rem;
+    gap: 1rem;
+    border-radius: 10px;
+  }
+  .scc-header-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.875rem;
+  }
+  .scc-group-row {
+    width: 100%;
+  }
+  .scc-group-row form {
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 0.5rem !important;
+    width: 100%;
+  }
+  .scc-select-wrap {
+    width: 100%;
+    display: block;
+  }
+  .scc-select {
+    width: 100%;
+    min-width: 0;
+  }
+  .scc-tabs-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+  }
+  .scc-tab {
+    width: 100%;
+    min-height: 44px;
+  }
+  .scc-bottom-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.625rem;
+  }
+  .scc-sublabel {
+    font-size: 0.8125rem;
+  }
+  .scc-action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+  }
+  .scc-btn {
+    width: 100%;
+    min-width: 0;
+    height: 46px;
+    font-size: 0.875rem;
+  }
+}
+
 .segmented {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -119,9 +403,25 @@
   border: 1px solid var(--c-line);
   border-radius: var(--radius);
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f8fafc;
   box-shadow: none;
   margin-bottom: 2rem;
   width: 100%;
+}
+
+.timetable-wrap-user::-webkit-scrollbar {
+  height: 6px;
+}
+
+.timetable-wrap-user::-webkit-scrollbar-track {
+  background: #f8fafc;
+}
+
+.timetable-wrap-user::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
 }
 
 .week-table {
@@ -267,25 +567,72 @@
     0 4px 12px rgba(23, 50, 77, 0.08);
 }
 
+/* Typography & Spacing Hierarchy inside Cell Slots (Scope 2) */
+.cell-slot .slot-head {
+  margin-bottom: 4px;
+}
+
 .cell-slot .slot-code {
   font-family: var(--font-mono);
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 11.5px;
+  font-weight: 700;
   color: var(--c-navy);
+  letter-spacing: 0.02em;
 }
 
+.cell-slot .s,
 .cell-slot .slot-name {
   font-family: var(--font-heading);
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 600;
-  color: var(--c-ink);
-  margin: 2px 0;
+  line-height: 1.35;
+  color: #1e293b;
+  margin: 2px 0 6px 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
 }
 
-.cell-slot .slot-room {
-  font-family: var(--font-mono);
-  font-size: 11.5px;
+.cell-slot .r {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 5px;
+  border-top: 1px dashed #e2e8f0;
+  font-size: 11px;
   color: var(--c-muted);
+}
+
+.cell-slot .r .teacher {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 68%;
+  color: #475569;
+}
+
+.cell-slot .r .room,
+.cell-slot .slot-room {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--c-navy);
+  background: var(--c-blue-100);
+  padding: 1px 5px;
+  border-radius: var(--radius-sm);
+  border: 1px solid #d0e4f0;
 }
 
 /* Live Indicators & Highlights */
@@ -488,6 +835,7 @@
   .nav-bottom,
   .segmented,
   .group-select-bar,
+  .schedule-control-card,
   .btn-print,
   .skip-link,
   .page-head p.eyebrow,
