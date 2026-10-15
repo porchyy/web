@@ -7,7 +7,6 @@ require_once __DIR__ . '/../includes/helpers.php';
 require_once __DIR__ . '/../includes/services/ScheduleService.php';
 
 $activeNav = 'schedule';
-$pageTitle = 'ตารางเรียนและกิจกรรม';
 
 send_cache_headers(60, 120);
 
@@ -28,6 +27,10 @@ if (empty($availableGroups)) {
 }
 $queryGroup = trim((string) (filter_input(INPUT_GET, 'group', FILTER_DEFAULT) ?? ''));
 $selectedGroup = in_array($queryGroup, $availableGroups, true) ? $queryGroup : $availableGroups[0];
+$cleanGroup = str_replace(['/', '\\', ' '], '-', $selectedGroup);
+
+$exportFileName = ($tab === 'class') ? "ตารางเรียน_กลุ่ม_{$cleanGroup}" : "ตารางกิจกรรมแผนก";
+$pageTitle = ($tab === 'class') ? "ตารางเรียน กลุ่ม {$selectedGroup}" : 'ตารางกิจกรรมแผนก';
 
 // Fetch Schedule Grid & Periods (สอศ. Standard)
 $gridData      = ScheduleService::getTimetableGrid($selectedGroup);
@@ -148,13 +151,17 @@ include __DIR__ . '/../includes/header.php';
         <span class="scc-sublabel">เลือกมุมมองตาราง</span>
 
         <div class="scc-action-buttons">
-          <button type="button" class="scc-btn scc-btn-print" onclick="window.print()">
+          <button type="button" class="scc-btn scc-btn-print" onclick="exportSchedulePrint()" title="พิมพ์ตาราง">
             <?= icon('printer', 16) ?>
             <span>พิมพ์ตารางเรียน</span>
           </button>
-          <button type="button" class="scc-btn scc-btn-pdf" onclick="window.print()">
+          <button type="button" class="scc-btn scc-btn-pdf" onclick="exportSchedulePDF()" title="บันทึกเป็น PDF พร้อมตั้งชื่อไฟล์">
             <?= icon('file-pdf', 16) ?>
             <span>บันทึกเป็น PDF</span>
+          </button>
+          <button type="button" class="scc-btn scc-btn-png" id="btn-export-png" onclick="exportSchedulePNG()" title="บันทึกเป็นรูปภาพ PNG">
+            <?= icon('image', 16) ?>
+            <span>บันทึกเป็นรูปภาพ (PNG)</span>
           </button>
         </div>
       </div>
@@ -534,6 +541,256 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
+// PDF & Print Export with Clean Auto Filename
+function exportSchedulePrint() {
+  window.print();
+}
+
+function exportSchedulePDF() {
+  const originalTitle = document.title;
+  const targetFileName = <?= json_encode($exportFileName) ?>;
+  document.title = targetFileName;
+  window.print();
+  const restoreTitle = () => {
+    document.title = originalTitle;
+    window.removeEventListener('afterprint', restoreTitle);
+  };
+  window.addEventListener('afterprint', restoreTitle);
+  setTimeout(restoreTitle, 2000);
+}
+
+// PNG Export using html2canvas (Full Weekly Table at 2x resolution)
+function loadHtml2Canvas() {
+  if (typeof html2canvas !== 'undefined') {
+    return Promise.resolve();
+  }
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+    s.onload = resolve;
+    s.onerror = () => reject(new Error('ไม่สามารถโหลดไลบรารีสำหรับสร้างรูปภาพได้'));
+    document.head.appendChild(s);
+  });
+}
+
+async function exportSchedulePNG() {
+  const btn = document.getElementById('btn-export-png');
+  const originalHtml = btn ? btn.innerHTML : '';
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<?= icon('image', 16) ?> <span>กำลังสร้างภาพ...</span>';
+  }
+
+  try {
+    await loadHtml2Canvas();
+
+    const isClassTab = <?= json_encode($tab === 'class') ?>;
+    const targetFileName = <?= json_encode($exportFileName) ?>;
+    const groupName = <?= json_encode($selectedGroup) ?>;
+    let sourceEl;
+    let cleanup = null;
+
+    if (document.fonts && document.fonts.ready) {
+      await document.fonts.ready;
+    }
+
+    if (isClassTab) {
+      const originalWrap = document.querySelector('.timetable-wrap-user');
+      if (!originalWrap) throw new Error('ไม่พบข้อมูลตารางเรียน');
+
+      // Create a capture wrapper positioned off-viewport without layout detachment
+      const cloneContainer = document.createElement('div');
+      cloneContainer.style.position = 'fixed';
+      cloneContainer.style.left = '0';
+      cloneContainer.style.top = '0';
+      cloneContainer.style.opacity = '0';
+      cloneContainer.style.pointerEvents = 'none';
+      cloneContainer.style.zIndex = '-99999';
+      cloneContainer.style.width = '1320px';
+      cloneContainer.style.background = '#ffffff';
+      cloneContainer.style.padding = '28px';
+      cloneContainer.style.boxSizing = 'border-box';
+      cloneContainer.style.fontFamily = "'Prompt', -apple-system, BlinkMacSystemFont, sans-serif";
+
+      // Style override to eliminate html2canvas -webkit-line-clamp squishing
+      const captureStyle = document.createElement('style');
+      captureStyle.textContent = `
+        .timetable-wrap-user table.week-table {
+          width: 100% !important;
+          table-layout: fixed !important;
+          border-collapse: collapse !important;
+        }
+        .timetable-wrap-user .cell-slot {
+          height: auto !important;
+          min-height: 84px !important;
+          display: flex !important;
+          flex-direction: column !important;
+          justify-content: space-between !important;
+          box-shadow: none !important;
+          transform: none !important;
+          padding: 8px 10px !important;
+        }
+        .timetable-wrap-user .cell-slot .s,
+        .timetable-wrap-user .cell-slot .slot-name {
+          display: block !important;
+          -webkit-line-clamp: unset !important;
+          -webkit-box-orient: unset !important;
+          overflow: visible !important;
+          white-space: normal !important;
+          word-break: break-word !important;
+          font-family: 'Prompt', 'Kanit', sans-serif !important;
+          font-size: 11.5px !important;
+          font-weight: 600 !important;
+          line-height: 1.45 !important;
+          margin: 3px 0 6px 0 !important;
+          color: #1e293b !important;
+        }
+        .timetable-wrap-user .cell-slot .r {
+          display: flex !important;
+          align-items: center !important;
+          justify-content: space-between !important;
+          gap: 4px !important;
+          margin-top: auto !important;
+          padding-top: 5px !important;
+          border-top: 1px dashed #e2e8f0 !important;
+        }
+        .timetable-wrap-user .cell-slot .r .teacher {
+          display: inline-flex !important;
+          align-items: center !important;
+          gap: 3px !important;
+          white-space: normal !important;
+          overflow: visible !important;
+          text-overflow: clip !important;
+          max-width: none !important;
+          font-family: 'Prompt', sans-serif !important;
+          font-size: 10.5px !important;
+          color: #475569 !important;
+          line-height: 1.3 !important;
+        }
+        .timetable-wrap-user .cell-slot .r .room {
+          flex-shrink: 0 !important;
+        }
+      `;
+      cloneContainer.appendChild(captureStyle);
+
+      // Header Banner
+      const header = document.createElement('div');
+      header.style.display = 'flex';
+      header.style.justifyContent = 'space-between';
+      header.style.alignItems = 'center';
+      header.style.paddingBottom = '14px';
+      header.style.marginBottom = '18px';
+      header.style.borderBottom = '2px solid #193651';
+      header.innerHTML = `
+        <div>
+          <div style="font-size: 19px; font-weight: 700; color: #193651; letter-spacing: 0.3px;">
+            แผนกวิชาเทคโนโลยีธุรกิจดิจิทัล — ตารางเรียนระดับชั้น: ${groupName}
+          </div>
+          <div style="font-size: 13px; color: #64748B; margin-top: 4px;">
+            ตารางเรียนประจำสัปดาห์ (มาตรฐาน สอศ.)
+          </div>
+        </div>
+        <div style="font-size: 12px; color: #94A3B8; text-align: right;">
+          ส่งออกเมื่อ: ${new Date().toLocaleDateString('th-TH')}
+        </div>
+      `;
+      cloneContainer.appendChild(header);
+
+      const clonedTable = originalWrap.cloneNode(true);
+      clonedTable.classList.remove('d-none', 'd-md-block');
+      clonedTable.style.display = 'block';
+      clonedTable.style.overflow = 'visible';
+      clonedTable.style.width = '100%';
+
+      // Remove truncations that cause html2canvas text smearing
+      clonedTable.querySelectorAll('.teacher').forEach(el => {
+        el.classList.remove('text-truncate');
+      });
+
+      cloneContainer.appendChild(clonedTable);
+
+      document.body.appendChild(cloneContainer);
+      sourceEl = cloneContainer;
+      cleanup = () => {
+        if (cloneContainer.parentNode) cloneContainer.parentNode.removeChild(cloneContainer);
+      };
+    } else {
+      const activityWrap = document.querySelector('.max-w-720');
+      if (!activityWrap) throw new Error('ไม่พบข้อมูลตารางกิจกรรม');
+
+      const cloneContainer = document.createElement('div');
+      cloneContainer.style.position = 'fixed';
+      cloneContainer.style.left = '0';
+      cloneContainer.style.top = '0';
+      cloneContainer.style.opacity = '0';
+      cloneContainer.style.pointerEvents = 'none';
+      cloneContainer.style.zIndex = '-99999';
+      cloneContainer.style.width = '880px';
+      cloneContainer.style.background = '#ffffff';
+      cloneContainer.style.padding = '28px';
+      cloneContainer.style.boxSizing = 'border-box';
+      cloneContainer.style.fontFamily = "'Prompt', -apple-system, BlinkMacSystemFont, sans-serif";
+
+      const header = document.createElement('div');
+      header.style.display = 'flex';
+      header.style.justifyContent = 'space-between';
+      header.style.alignItems = 'center';
+      header.style.paddingBottom = '12px';
+      header.style.marginBottom = '16px';
+      header.style.borderBottom = '2px solid #193651';
+      header.innerHTML = `
+        <div>
+          <div style="font-size: 18px; font-weight: 700; color: #193651;">
+            แผนกวิชาเทคโนโลยีธุรกิจดิจิทัล — ปฏิทินและกิจกรรมแผนก
+          </div>
+        </div>
+        <div style="font-size: 12px; color: #94A3B8; text-align: right;">
+          สร้างเมื่อ: ${new Date().toLocaleDateString('th-TH')}
+        </div>
+      `;
+      cloneContainer.appendChild(header);
+
+      const clonedActivity = activityWrap.cloneNode(true);
+      clonedActivity.style.maxWidth = '100%';
+      cloneContainer.appendChild(clonedActivity);
+
+      document.body.appendChild(cloneContainer);
+      sourceEl = cloneContainer;
+      cleanup = () => {
+        if (cloneContainer.parentNode) cloneContainer.parentNode.removeChild(cloneContainer);
+      };
+    }
+
+    const canvas = await html2canvas(sourceEl, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#ffffff',
+      logging: false,
+      scrollX: 0,
+      scrollY: 0,
+      windowWidth: 1400
+    });
+
+    if (cleanup) cleanup();
+
+    const link = document.createElement('a');
+    link.download = targetFileName + '.png';
+    link.href = canvas.toDataURL('image/png');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  } catch (err) {
+    console.error('Export PNG failed:', err);
+    alert('เกิดข้อผิดพลาดในการสร้างรูปภาพ: ' + (err.message || 'กรุณาลองใหม่อีกครั้ง'));
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = originalHtml;
+    }
+  }
+}
 </script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js" defer></script>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>

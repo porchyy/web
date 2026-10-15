@@ -147,8 +147,8 @@
   justify-content: center;
   gap: 8px;
   height: 46px;
-  padding: 0 20px;
-  min-width: 170px;
+  padding: 0 16px;
+  min-width: 145px;
   border-radius: 6px;
   font-size: 0.9375rem;
   font-weight: 500;
@@ -191,6 +191,27 @@
   stroke: #193651;
 }
 
+.scc-btn-png {
+  background-color: #ffffff;
+  color: #193651;
+  border: 1px solid #D5DEE8;
+}
+
+.scc-btn-png:hover {
+  background-color: #f8fafc;
+  border-color: #193651;
+  color: #193651;
+}
+
+.scc-btn-png svg {
+  stroke: #193651;
+}
+
+.scc-btn-png:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
 /* Tablet Breakpoint (577px - 991px) */
 @media (max-width: 991px) {
   .scc-header-row {
@@ -216,9 +237,14 @@
   }
   .scc-action-buttons {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(3, 1fr);
     gap: 10px;
     width: 100%;
+  }
+  @media (max-width: 768px) {
+    .scc-action-buttons {
+      grid-template-columns: 1fr;
+    }
   }
   .scc-btn {
     width: 100%;
