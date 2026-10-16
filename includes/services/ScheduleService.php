@@ -673,6 +673,7 @@ class ScheduleService
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             ", [$title, $description, $eventDate, $eventDateEnd, $timeStart, $timeEnd, $location, $actionUrl ?: null]);
             $newActId = (int) db()->lastInsertId();
+            CacheService::forget('activities_grouped');
             return $newActId;
         }
     }

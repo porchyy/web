@@ -97,7 +97,10 @@
       if (clientX >= rect.left && clientX <= rect.right) return i;
     }
     if (clientX < headerCells[0].getBoundingClientRect().left) return 0;
-    if (clientX > headerCells[headerCells.length - 1].getBoundingClientRect().right) {
+    if (
+      clientX >
+      headerCells[headerCells.length - 1].getBoundingClientRect().right
+    ) {
       return headerCells.length - 1;
     }
     return -1;
@@ -113,7 +116,12 @@
       }
       const cardStart = card.getAttribute("data-time-start");
       const cardEnd = card.getAttribute("data-time-end");
-      if (cardStart && cardEnd && cardStart < targetEnd && cardEnd > targetStart) {
+      if (
+        cardStart &&
+        cardEnd &&
+        cardStart < targetEnd &&
+        cardEnd > targetStart
+      ) {
         hasConflict = true;
         const titleEl = card.querySelector(".subject-name");
         conflictName = titleEl ? titleEl.textContent.trim() : "คาบเรียนอื่น";
@@ -146,12 +154,13 @@
 
     if (conflict.hasConflict) {
       previewEl.classList.add("is-conflict");
-      if (badgeEl) badgeEl.textContent = `⚠️ ซ้อนทับกับ ${conflict.conflictName}`;
+      if (badgeEl) badgeEl.textContent = `ซ้อนทับกับ ${conflict.conflictName}`;
     } else if (isSelf) {
       previewEl.classList.add("is-self");
-      if (badgeEl) badgeEl.textContent = `📍 ตำแหน่งเดิม (${span} คาบ)`;
+      if (badgeEl) badgeEl.textContent = `ตำแหน่งเดิม (${span} คาบ)`;
     } else {
-      if (badgeEl) badgeEl.textContent = `${range.start} – ${range.end} (${span} คาบ)`;
+      if (badgeEl)
+        badgeEl.textContent = `${range.start} – ${range.end} (${span} คาบ)`;
     }
   }
 
@@ -188,8 +197,9 @@
       wrapEl.scrollLeft -= Math.max(6, Math.round(factor * 18));
     } else if (clientX > wrapRect.right - EDGE_SCROLL_ZONE_PX) {
       const factor =
-        (clientX - (wrapRect.right - EDGE_SCROLL_ZONE_PX)) / EDGE_SCROLL_ZONE_PX;
-      wrapEl.scrollLeft -= Math.max(6, Math.round(factor * 18));
+        (clientX - (wrapRect.right - EDGE_SCROLL_ZONE_PX)) /
+        EDGE_SCROLL_ZONE_PX;
+      wrapEl.scrollLeft += Math.max(6, Math.round(factor * 18));
     }
   }
 
@@ -201,35 +211,42 @@
     const ghost = document.createElement("div");
     ghost.className = "pointer-drag-ghost";
 
-    const subCode = cardEl.querySelector(".subject-code")?.textContent.trim() || "";
-    const subName = cardEl.querySelector(".subject-name")?.textContent.trim() || "";
+    const subCode =
+      cardEl.querySelector(".subject-code")?.textContent.trim() || "";
+    const subName =
+      cardEl.querySelector(".subject-name")?.textContent.trim() || "";
     const timeStart = cardEl.getAttribute("data-time-start") || "";
     const timeEnd = cardEl.getAttribute("data-time-end") || "";
     const span = cardEl.getAttribute("data-span") || "1";
 
     const wrap = document.createElement("div");
-    wrap.style.cssText = "padding: 6px 10px; font-family: var(--font-body, sans-serif); line-height: 1.3;";
+    wrap.style.cssText =
+      "padding: 6px 10px; font-family: var(--font-body, sans-serif); line-height: 1.3;";
 
     const head = document.createElement("div");
-    head.style.cssText = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;";
+    head.style.cssText =
+      "display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;";
 
     const codeEl = document.createElement("strong");
     codeEl.style.cssText = "font-size: 11.5px; color: var(--c-navy, #17324d);";
     codeEl.textContent = subCode;
 
     const spanEl = document.createElement("span");
-    spanEl.style.cssText = "font-size: 10.5px; font-family: var(--font-mono, monospace); color: var(--c-navy, #17324d); font-weight: 600;";
+    spanEl.style.cssText =
+      "font-size: 10.5px; font-family: var(--font-mono, monospace); color: var(--c-navy, #17324d); font-weight: 600;";
     spanEl.textContent = `(${span} คาบ)`;
 
     head.appendChild(codeEl);
     head.appendChild(spanEl);
 
     const nameEl = document.createElement("div");
-    nameEl.style.cssText = "font-size: 12px; font-weight: 600; color: #1e293b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;";
+    nameEl.style.cssText =
+      "font-size: 12px; font-weight: 600; color: #1e293b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;";
     nameEl.textContent = subName;
 
     const timeEl = document.createElement("div");
-    timeEl.style.cssText = "font-size: 10.5px; color: #64748b; font-family: var(--font-mono, monospace); margin-top: 2px;";
+    timeEl.style.cssText =
+      "font-size: 10.5px; color: #64748b; font-family: var(--font-mono, monospace); margin-top: 2px;";
     timeEl.textContent = `${timeStart} – ${timeEnd}`;
 
     wrap.appendChild(head);

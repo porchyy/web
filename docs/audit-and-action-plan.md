@@ -20,9 +20,9 @@
 1. **Rule 4.3 (ดึง Raw SQL ออกจาก View)**:
    - [admin/index.php](file:///a:/ส่วนเสริมเขียนเอง/web/admin/index.php): ดึงข้อมูลสถิติและกิจกรรมผ่าน [NewsService.php](file:///a:/ส่วนเสริมเขียนเอง/web/includes/services/NewsService.php), [ScheduleService.php](file:///a:/ส่วนเสริมเขียนเอง/web/includes/services/ScheduleService.php), [FacultyService.php](file:///a:/ส่วนเสริมเขียนเอง/web/includes/services/FacultyService.php), และ [AuthService.php](file:///a:/ส่วนเสริมเขียนเอง/web/includes/services/AuthService.php) 100% ปราศจาก Raw SQL ในไฟล์ View
 2. **Rule 4.1 & Rule 4.2 (แยก Inline JS ขนาดยาว และปิดช่องโหว่ `innerHTML`)**:
-   - [assets/js/news-search.js](file:///a:/ส่วนเสริมเขียนเอง/web/assets/js/news-search.js): แยกโค้ด Search/Autocomplete 204 บรรทัดออกมาเป็นโมดูลภายนอก พร้อมสร้าง DOM node ด้วย API ปลอดภัย ป้องกัน XSS
-   - [assets/js/schedule-export.js](file:///a:/ส่วนเสริมเขียนเอง/web/assets/js/schedule-export.js): แยกโค้ด Export PNG/PDF/Print กว่า 200 บรรทัดออกมาเป็นโมดูลภายนอก
-   - [assets/js/admin-activities.js](file:///a:/ส่วนเสริมเขียนเอง/web/assets/js/admin-activities.js): แยกโค้ดจัดการกิจกรรมแอดมิน 80 บรรทัดออกมาเป็นโมดูลภายนอก เลิกใช้ raw `innerHTML` ในการสร้างแถวผลลัพธ์ว่าง
+   - `assets/js/page-news.js`: แยกโค้ด Search/Autocomplete ออกมาเป็นโมดูลภายนอก พร้อมสร้าง DOM node ด้วย API ปลอดภัย ป้องกัน XSS
+   - `assets/js/page-schedule.js`: แยกโค้ด Export PNG/PDF/Print และ Interactive Modal Preview ออกมาเป็นโมดูลภายนอก
+   - `assets/js/admin-activities.js`: แยกโค้ดจัดการกิจกรรมแอดมินออกมาเป็นโมดูลภายนอก ผสานการทำงานร่วมกับ `AdminSearchAutocomplete` อย่างสมบูรณ์
 
 ---
 

@@ -341,7 +341,6 @@ require_once __DIR__ . '/../includes/admin-header.php';
     </div>
   </div>
 </div>
-<script src="<?= url('assets/js/admin-activities.js') ?>" defer></script>
-
 <script src="<?= url('assets/js/admin-search-autocomplete.js') ?>"></script>
+<script src="<?= url('assets/js/admin-activities.js') ?>"></script>
 <?php require_once __DIR__ . '/../includes/admin-footer.php'; ?>

@@ -166,7 +166,11 @@
 
     function updateClearButtonVisibility() {
       if (!clearBtn) return;
-      clearBtn.style.display = input.value.trim() !== '' ? 'inline-flex' : 'none';
+      const isVisible = input.value.trim() !== '';
+      clearBtn.style.display = isVisible ? 'inline-flex' : 'none';
+      if (isVisible) {
+        clearBtn.removeAttribute('hidden');
+      }
     }
 
     function applyFilter(query) {
