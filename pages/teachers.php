@@ -74,6 +74,9 @@ include __DIR__ . '/../includes/header.php';
       </ul>
     <?php else: ?>
       <div class="empty-state">
+        <div class="empty-state-icon" aria-hidden="true">
+          <?= icon('user', 28) ?>
+        </div>
         <p class="empty-state-title">ยังไม่มีข้อมูลคณาจารย์</p>
         <p class="empty-state-desc">ยังไม่มีการเพิ่มรายชื่อคณาจารย์ในระบบ</p>
       </div>
@@ -117,6 +120,9 @@ include __DIR__ . '/../includes/header.php';
       </ul>
     <?php else: ?>
       <div class="empty-state">
+        <div class="empty-state-icon" aria-hidden="true">
+          <?= icon('users', 28) ?>
+        </div>
         <p class="empty-state-title">ยังไม่มีข้อมูลสมาชิกชมรม</p>
         <p class="empty-state-desc">ยังไม่มีการเพิ่มรายชื่อสมาชิกชมรมวิชาชีพในระบบ</p>
       </div>

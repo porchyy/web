@@ -46,7 +46,8 @@
 }
 
 /* Table Responsive Scroll Wrapper with Native Edge Shadow */
-.table-scroll-container {
+.table-scroll-container,
+.table-responsive {
   position: relative;
   width: 100%;
   overflow-x: auto;

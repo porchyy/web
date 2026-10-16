@@ -353,9 +353,12 @@ include __DIR__ . '/../includes/header.php';
            ================================================================== -->
       <div class="max-w-720">
         <?php if (empty($activitiesByMonth)): ?>
-          <div class="text-center py-5 text-muted">
-            <?= icon('calendar', 40) ?>
-            <p class="mt-3">ยังไม่มีกำหนดการกิจกรรมในขณะนี้</p>
+          <div class="empty-state">
+            <div class="empty-state-icon" aria-hidden="true">
+              <?= icon('calendar', 28) ?>
+            </div>
+            <p class="empty-state-title">ยังไม่มีกำหนดการกิจกรรมในขณะนี้</p>
+            <p class="empty-state-desc">ยังไม่มีการเพิ่มกิจกรรมหรือกำหนดการของแผนกวิชาในระบบ</p>
           </div>
         <?php else: ?>
           <?php foreach ($activitiesByMonth as $ym => $items): ?>

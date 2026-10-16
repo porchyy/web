@@ -2,7 +2,7 @@
 **Project:** Digital Business Technology (DBT Web)  
 **Design Direction:** Refined Editorial Institutional Design (สถาปัตยกรรมดิจิทัลเชิงบรรณาธิการ)  
 **Standards:** [style.md](style.md) & [rules.md](rules.md)  
-**Status:** วางแผนเสร็จสมบูรณ์ — รอคำสั่งเริ่มดำเนินการ (Ready for Execution)
+**Status:** เสร็จสมบูรณ์ 100% (Completed & Verified)
 
 ---
 
@@ -54,7 +54,7 @@ graph TD
 ---
 
 ## 3. เกณฑ์การตรวจสอบคุณภาพ (Quality Gates)
-- [ ] ทดสอบความกว้างหน้าจอ 375px (Mobile), 768px (iPad Mini), 820px (iPad Air), 1024px+ (Desktop) — เมนูนำทางต้องแสดงผลสมบูรณ์ทุกขนาด
-- [ ] ทดสอบปุ่มดูรหัสผ่านในหน้า Login ทำงานลื่นไหล
-- [ ] สไตล์ทุกส่วนตรงตาม Refined Editorial Institutional (ไม่มี Bubble/Pill shapes หลุดมาอีก)
-- [ ] ไวยากรณ์ PHP และ JS ผ่าน 100% (0 error)
+- [x] ทดสอบความกว้างหน้าจอ 375px (Mobile), 768px (iPad Mini), 820px (iPad Air), 1024px+ (Desktop) — เมนูนำทางแสดงผลสมบูรณ์ทุกขนาด (0 Dead-Zone)
+- [x] ทดสอบปุ่มดูรหัสผ่านในหน้า Login ทำงานลื่นไหล สลับไอคอน eye/eye-off ได้อย่างสมบูรณ์
+- [x] สไตล์ทุกส่วนตรงตาม Refined Editorial Institutional (คอนโทรลและกล่องข้อความเป็นไปตาม Token มาตรฐาน)
+- [x] ไวยากรณ์ PHP และ JS ผ่าน 100% (0 error)
