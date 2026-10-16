@@ -1,6 +1,6 @@
 <?php
 /**
- * เกี่ยวกับแผนก - แผนกเทคโนโลยีธุรกิจดิจิทัล
+ * เกี่ยวกับสาขา - สาขาเทคโนโลยีธุรกิจดิจิทัล
  */
 require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/helpers.php';
@@ -8,7 +8,7 @@ require_once __DIR__ . '/../includes/services/FacultyService.php';
 require_once __DIR__ . '/../includes/services/SettingService.php';
 
 $activeNav = 'about';
-$pageTitle = 'เกี่ยวกับแผนก';
+$pageTitle = 'เกี่ยวกับสาขา';
 
 send_cache_headers(60, 120);
 
@@ -209,7 +209,7 @@ include __DIR__ . '/../includes/header.php';
         <div class="col-12 col-md-8">
           <h3 style="font-size: 1.2rem;">การเรียนรู้ผ่านประสบการณ์จริงในสถานประกอบการ</h3>
           <p class="text-muted mb-0" style="font-size: .9375rem;">
-            แผนกฯ มีข้อตกลงความร่วมมือ (MOU) ร่วมกับบริษัทเทคโนโลยี ซอฟต์แวร์เฮาส์ ดิจิทัลเอเจนซี่ และหน่วยงานชั้นนำ นักศึกษาทุกคนในระดับ ปวช.3 และ ปวส.2 จะได้ออกฝึกปฏิบัติงานจริงในตำแหน่ง Junior Developer, Content Creator, Data Support หรือ E-Commerce Operations ตลอดภาคเรียน
+            สาขาฯ มีข้อตกลงความร่วมมือ (MOU) ร่วมกับบริษัทเทคโนโลยี ซอฟต์แวร์เฮาส์ ดิจิทัลเอเจนซี่ และหน่วยงานชั้นนำ นักศึกษาทุกคนในระดับ ปวช.3 และ ปวส.2 จะได้ออกฝึกปฏิบัติงานจริงในตำแหน่ง Junior Developer, Content Creator, Data Support หรือ E-Commerce Operations ตลอดภาคเรียน
           </p>
         </div>
         <div class="col-12 col-md-4 text-md-end">
@@ -251,7 +251,7 @@ include __DIR__ . '/../includes/header.php';
           <p class="person-role"><?= e($headTeacher['position']) ?></p>
 
           <blockquote class="quote mb-4">
-            "เป้าหมายสูงสุดของแผนกเรา คือการสร้างกำลังคนที่มีทักษะเทคโนโลยีที่จับต้องได้ มีวินัยในกระบวนการทำงาน และมีความคิดสร้างสรรค์ในการแก้ปัญหาธุรกิจจริง"
+            "เป้าหมายสูงสุดของสาขาเรา คือการสร้างกำลังคนที่มีทักษะเทคโนโลยีที่จับต้องได้ มีวินัยในกระบวนการทำงาน และมีความคิดสร้างสรรค์ในการแก้ปัญหาธุรกิจจริง"
           </blockquote>
 
           <dl class="row gy-2 text-muted" style="font-size: .9375rem;">

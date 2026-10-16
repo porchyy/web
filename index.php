@@ -1,6 +1,6 @@
 <?php
 /**
- * หน้าหลัก - แผนกเทคโนโลยีธุรกิจดิจิทัล
+ * หน้าหลัก - สาขาเทคโนโลยีธุรกิจดิจิทัล
  */
 require_once __DIR__ . '/includes/config.php';
 require_once __DIR__ . '/includes/helpers.php';
@@ -98,7 +98,7 @@ include __DIR__ . '/includes/header.php';
 <!-- ========================================================================
      DATA SUMMARY STRIP
      ======================================================================== -->
-<section class="data-strip" aria-label="ข้อมูลเชิงสถิติของแผนก">
+<section class="data-strip" aria-label="ข้อมูลเชิงสถิติของสาขา">
   <div class="container-xl">
     <ul>
       <?php foreach ($homeStats['items'] as $stat): ?>
@@ -130,7 +130,7 @@ include __DIR__ . '/includes/header.php';
         <a href="<?= url('about') ?>">
           <div>
             <span class="index-title">เกี่ยวกับสาขาวิชา</span>
-            <span class="index-desc">วิสัยทัศน์ สมรรถนะหลักสูตร หัวหน้าแผนก และช่องทางการติดต่อ</span>
+            <span class="index-desc">วิสัยทัศน์ สมรรถนะหลักสูตร หัวหน้าสาขา และช่องทางการติดต่อ</span>
           </div>
           <?= icon('arrow-right', 20) ?>
         </a>

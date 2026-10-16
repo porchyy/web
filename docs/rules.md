@@ -39,7 +39,7 @@ web/
 │   ├── hero.php               # จัดการแบนเนอร์และข้อมูลประชาสัมพันธ์หน้าแรก
 │   ├── news.php               # จัดการข่าวสาร บทความ และหมวดหมู่
 │   ├── classes.php            # จัดการคาบเรียนและตารางเรียน (Visual Timetable)
-│   ├── activities.php         # จัดการปฏิทินกิจกรรมแผนก
+│   ├── activities.php         # จัดการปฏิทินกิจกรรมสาขา
 │   ├── teachers.php           # จัดการทำเนียบอาจารย์ (Interactive Tree Slots)
 │   ├── club.php               # จัดการสมาชิกชมรมวิชาชีพ (Interactive Tree Slots)
 │   ├── settings.php           # จัดการการตั้งค่าระบบและข้อมูลติดต่อ (System & Contact Settings)

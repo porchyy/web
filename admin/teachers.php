@@ -1,6 +1,6 @@
 <?php
 /**
- * Admin - จัดการรายชื่ออาจารย์ในแผนก (Hierarchical Tree Slot UI)
+ * Admin - จัดการรายชื่ออาจารย์ในสาขา (Hierarchical Tree Slot UI)
  */
 $adminNav = 'teachers';
 $pageTitle = 'จัดการรายชื่ออาจารย์';
@@ -87,7 +87,7 @@ require_once __DIR__ . '/../includes/admin-header.php';
 <div class="d-flex justify-content-between align-items-center mb-4">
   <div>
     <p class="eyebrow eyebrow-muted mb-1">จัดการคณาจารย์</p>
-    <h1 style="font-size: 1.75rem; margin: 0;">ผังและรายชื่ออาจารย์ในแผนก</h1>
+    <h1 style="font-size: 1.75rem; margin: 0;">ผังและรายชื่ออาจารย์ในสาขา</h1>
   </div>
   <?php if ($action === 'list'): ?>
     <a href="<?= url('admin/teachers?action=new') ?>" class="btn btn-navy">
@@ -274,7 +274,7 @@ require_once __DIR__ . '/../includes/admin-header.php';
             <?php endif; ?>
             <div class="text-truncate">
               <div class="d-flex align-items-center gap-2 mb-1">
-                <span class="tree-slot-order-badge" style="background: var(--c-navy); color: #fff; border-color: var(--c-navy);">หัวหน้าแผนก</span>
+                <span class="tree-slot-order-badge" style="background: var(--c-navy); color: #fff; border-color: var(--c-navy);">หัวหน้าสาขา</span>
                 <strong class="text-navy" style="font-size: 1.05rem;"><?= e($headTeacher['name']) ?></strong>
               </div>
               <div class="text-muted" style="font-size: 13.5px;"><?= e($headTeacher['position']) ?></div>
@@ -309,7 +309,7 @@ require_once __DIR__ . '/../includes/admin-header.php';
           <p class="mb-2">ยังไม่มีการระบุตำแหน่งหัวหน้าสาขาวิชา (ลากอาจารย์มาวางที่นี่เพื่อแต่งตั้ง)</p>
           <a href="<?= url('admin/teachers?action=new') ?>" class="btn btn-sm btn-navy">
             <?= icon('plus', 14) ?>
-            <span>เพิ่มหรือกำหนดหัวหน้าแผนก</span>
+            <span>เพิ่มหรือกำหนดหัวหน้าสาขา</span>
           </a>
         </div>
       <?php endif; ?>
@@ -392,7 +392,7 @@ require_once __DIR__ . '/../includes/admin-header.php';
         <!-- IN-PLACE ADD SLOT LINK -->
         <a href="<?= url('admin/teachers?action=new') ?>" class="tree-slot-empty" title="เพิ่มอาจารย์ใหม่">
           <?= icon('plus', 16) ?>
-          <span>เพิ่มอาจารย์ในแผนก</span>
+          <span>เพิ่มอาจารย์ในสาขา</span>
         </a>
       </div>
     </div>

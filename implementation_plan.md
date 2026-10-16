@@ -249,7 +249,7 @@ _ข้อสรุป:_ เลือก **Option C** โดยแยก Action 
 
 ---
 
-## 🛠️ 3. Batched Implementation Blueprint (แผนการแก้ไขเป็นชุด)
+## 🛠️ 3. Batched Implementation Blueprint (สาขาารแก้ไขเป็นชุด)
 
 ตามกฎ **"Write first, then test and batch"** การดำเนินการจะแบ่งเป็น 4 ชุดการแก้ไข โดยแต่ละชุดจะมีการกำหนดไฟล์, รายละเอียดการเปลี่ยนแปลง, และเหตุผลรองรับอย่างชัดเจน:
 
@@ -375,7 +375,7 @@ _ข้อสรุป:_ เลือก **Option C** โดยแยก Action 
       ```php
       if (!AuthService::hasRole('admin')) {
           http_response_code(403);
-          echo json_encode(['success' => false, 'error' => 'เฉพาะผู้ดูแลระบบ (Admin) เท่านั้นที่สามารถจัดลำดับหรือแต่งตั้งหัวหน้าแผนกได้'], JSON_UNESCAPED_UNICODE);
+          echo json_encode(['success' => false, 'error' => 'เฉพาะผู้ดูแลระบบ (Admin) เท่านั้นที่สามารถจัดลำดับหรือแต่งตั้งหัวหน้าสาขาได้'], JSON_UNESCAPED_UNICODE);
           exit;
       }
       ```

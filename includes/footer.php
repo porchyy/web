@@ -75,7 +75,7 @@ $activeNav = $activeNav ?? '';
   </a>
   <a href="<?= url('about') ?>" <?= $activeNav === 'about' ? 'aria-current="page"' : '' ?>>
     <?= icon('info', 20) ?>
-    <span>แผนก</span>
+    <span>สาขา</span>
   </a>
   <a href="<?= url('news') ?>" <?= $activeNav === 'news' ? 'aria-current="page"' : '' ?>>
     <?= icon('news', 20) ?>

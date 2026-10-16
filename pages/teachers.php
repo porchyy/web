@@ -33,7 +33,7 @@ include __DIR__ . '/../includes/header.php';
 </div>
 
 <!-- ========================================================================
-     FACULTY DIRECTORY / คณาจารย์ประจำแผนก
+     FACULTY DIRECTORY / คณาจารย์ประจำสาขา
      ======================================================================== -->
 <section class="section">
   <div class="container-xl">

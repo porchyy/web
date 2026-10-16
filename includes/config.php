@@ -1,6 +1,6 @@
 <?php
 /**
- * ตั้งค่าหลักของเว็บไซต์ - แผนกเทคโนโลยีธุรกิจดิจิทัล
+ * ตั้งค่าหลักของเว็บไซต์ - สาขาเทคโนโลยีธุรกิจดิจิทัล
  */
 
 define('ROOT_PATH', dirname(__DIR__));
@@ -70,7 +70,7 @@ function get_initial_setting(string $key, string $default = ''): string
     return (isset($dbSettings[$key]) && $dbSettings[$key] !== '') ? $dbSettings[$key] : env(strtoupper($key), $default);
 }
 
-// ---- ข้อมูลแผนก / สถานศึกษา (DB-First) ----
+// ---- ข้อมูลสาขา / สถานศึกษา (DB-First) ----
 define('SITE_NAME', get_initial_setting('site_name', 'เทคโนโลยีธุรกิจดิจิทัล'));
 define('SITE_NAME_EN', get_initial_setting('site_name_en', 'Digital Business Technology'));
 define('SITE_SHORT', get_initial_setting('site_short', 'DBT'));
@@ -79,7 +79,7 @@ define('INSTITUTE_NAME', get_initial_setting('institute_name', 'วิทยา�
 // ---- ช่องทางการติดต่อ (DB-First) ----
 define('CONTACT_PHONE', get_initial_setting('contact_phone', '02-000-0000'));
 define('CONTACT_EMAIL', get_initial_setting('contact_email', 'dbt@example.ac.th'));
-define('CONTACT_FACEBOOK_NAME', get_initial_setting('contact_facebook_name', 'แผนกเทคโนโลยีธุรกิจดิจิทัล'));
+define('CONTACT_FACEBOOK_NAME', get_initial_setting('contact_facebook_name', 'สาขาเทคโนโลยีธุรกิจดิจิทัล'));
 define('CONTACT_FACEBOOK_URL', get_initial_setting('contact_facebook_url', 'https://www.facebook.com/profile.php?id=61569347616102'));
 define('CONTACT_ADDRESS', get_initial_setting('contact_address', 'อาคาร 3 ชั้น 2 ห้อง 321'));
 define('CONTACT_HOURS', get_initial_setting('contact_hours', 'จันทร์–ศุกร์ 08:00–16:30 น.'));

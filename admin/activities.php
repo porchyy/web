@@ -74,7 +74,7 @@ require_once __DIR__ . '/../includes/admin-header.php';
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
   <div>
     <p class="eyebrow eyebrow-muted mb-1">จัดการกิจกรรม</p>
-    <h1 style="font-size: 1.75rem; margin: 0;">จัดการตารางกิจกรรมแผนก</h1>
+    <h1 style="font-size: 1.75rem; margin: 0;">จัดการตารางกิจกรรมสาขา</h1>
   </div>
   <div>
     <button type="button" class="btn btn-navy" id="btnOpenAddActivityModal" data-today="<?= date('Y-m-d') ?>">

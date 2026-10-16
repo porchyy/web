@@ -56,7 +56,7 @@ $flash = flash();
 
 <header class="site-header">
   <div class="container-xl d-flex align-items-center justify-content-between gap-3">
-    <a href="<?= url('index') ?>" class="brand flex-shrink-0" aria-label="กลับสู่หน้าหลัก แผนกเทคโนโลยีธุรกิจดิจิทัล">
+    <a href="<?= url('index') ?>" class="brand flex-shrink-0" aria-label="กลับสู่หน้าหลัก สาขาเทคโนโลยีธุรกิจดิจิทัล">
       <img src="<?= url('assets/favicon/apple-touch-icon.png') ?>" alt="<?= e(SITE_SHORT) ?>" class="brand-favicon" width="38" height="38">
       <div class="brand-text">
         <span class="brand-name"><?= e(SITE_NAME) ?></span>
@@ -75,7 +75,7 @@ $flash = flash();
         <li>
           <a href="<?= url('about') ?>" <?= $activeNav === 'about' ? 'aria-current="page"' : '' ?>>
             <?= icon('info', 16) ?>
-            <span>เกี่ยวกับแผนก</span>
+            <span>เกี่ยวกับสาขา</span>
           </a>
         </li>
         <li>

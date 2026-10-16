@@ -29,8 +29,8 @@ $queryGroup = trim((string) (filter_input(INPUT_GET, 'group', FILTER_DEFAULT) ??
 $selectedGroup = in_array($queryGroup, $availableGroups, true) ? $queryGroup : $availableGroups[0];
 $cleanGroup = str_replace(['/', '\\', ' '], '-', $selectedGroup);
 
-$exportFileName = ($tab === 'class') ? "ตารางเรียน_กลุ่ม_{$cleanGroup}" : "ตารางกิจกรรมแผนก";
-$pageTitle = ($tab === 'class') ? "ตารางเรียน กลุ่ม {$selectedGroup}" : 'ตารางกิจกรรมแผนก';
+$exportFileName = ($tab === 'class') ? "ตารางเรียน_กลุ่ม_{$cleanGroup}" : "ตารางกิจกรรมสาขา";
+$pageTitle = ($tab === 'class') ? "ตารางเรียน กลุ่ม {$selectedGroup}" : 'ตารางกิจกรรมสาขา';
 
 // Fetch Schedule Grid & Periods (สอศ. Standard)
 $gridData      = ScheduleService::getTimetableGrid($selectedGroup);
@@ -141,7 +141,7 @@ include __DIR__ . '/../includes/header.php';
           </a>
           <a href="<?= url('schedule?tab=activity') ?>" class="scc-tab <?= $tab === 'activity' ? 'is-active' : '' ?>" <?= $tab === 'activity' ? 'aria-current="page"' : '' ?>>
             <?= icon('calendar', 18) ?>
-            <span>ตารางกิจกรรมแผนก</span>
+            <span>ตารางกิจกรรมสาขา</span>
           </a>
         </div>
       </div>

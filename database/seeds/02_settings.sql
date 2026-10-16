@@ -12,7 +12,7 @@ VALUES
   ('curriculum_code', 'DBT-2567-V02'),
   ('contact_phone', '0918390785'),
   ('contact_email', 'danucha@bpcc.ac.th'),
-  ('contact_facebook_name', 'แผนกเทคโนโลยีธุรกิจดิจิทัล'),
+  ('contact_facebook_name', 'สาขาเทคโนโลยีธุรกิจดิจิทัล'),
   ('contact_facebook_url', 'https://www.facebook.com/profile.php?id=61569347616102'),
   ('contact_address', 'อาคารวิทยบริการเฉลิมพระเกียรติ ชั้น 3 ห้อง 301–305'),
   ('contact_hours', 'จันทร์–ศุกร์ 08:00–16:30 น.')

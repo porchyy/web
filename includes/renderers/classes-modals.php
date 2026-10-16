@@ -181,7 +181,7 @@ declare(strict_types=1);
                     </optgroup>
                   <?php endif; ?>
                   <?php if (!empty($otherCourses)): ?>
-                    <optgroup label="รายวิชาอื่น ๆ ในแผนก">
+                    <optgroup label="รายวิชาอื่น ๆ ในสาขา">
                       <?php foreach ($otherCourses as $c): ?>
                         <option value="<?= (int) $c['id'] ?>"
                                 data-code="<?= e($c['subject_code']) ?>"
@@ -237,7 +237,7 @@ declare(strict_types=1);
                   <?php endif; ?>
                   <?php if (!empty($otherCourses)): ?>
                     <div class="course-combobox-group-header section-header text-muted">
-                      รายวิชาอื่น ๆ ในแผนก
+                      รายวิชาอื่น ๆ ในสาขา
                     </div>
                     <?php foreach ($otherCourses as $c): ?>
                       <div class="course-combobox-item"

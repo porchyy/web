@@ -285,14 +285,14 @@
         const header = document.createElement("div");
         const headerTitle = document.createElement("h1");
         headerTitle.className = "page-head-print";
-        headerTitle.textContent = "ตารางกิจกรรมแผนก";
+        headerTitle.textContent = "ตารางกิจกรรมสาขา";
 
         const metaHeader = document.createElement("div");
         metaHeader.className = "print-metadata-header";
 
         const metaDept = document.createElement("span");
         metaDept.textContent =
-          "สาขาวิชาเทคโนโลยีธุรกิจดิจิทัล — ปฏิทินและกิจกรรมแผนก";
+          "สาขาวิชาเทคโนโลยีธุรกิจดิจิทัล — ปฏิทินและกิจกรรมสาขา";
 
         const metaDate = document.createElement("span");
         metaDate.textContent = `สร้างเมื่อ: ${new Date().toLocaleDateString("th-TH")} ${new Date().toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" })} น.`;

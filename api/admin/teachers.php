@@ -44,7 +44,7 @@ $subAction = trim((string) ($_POST['sub_action'] ?? ''));
 // Guard: Admin Role for Structural Operations
 if (!AuthService::hasRole('admin')) {
     http_response_code(403);
-    echo json_encode(['success' => false, 'error' => 'เฉพาะผู้ดูแลระบบ (Admin) เท่านั้นที่สามารถจัดลำดับหรือแต่งตั้งหัวหน้าแผนกได้'], JSON_UNESCAPED_UNICODE);
+    echo json_encode(['success' => false, 'error' => 'เฉพาะผู้ดูแลระบบ (Admin) เท่านั้นที่สามารถจัดลำดับหรือแต่งตั้งหัวหน้าสาขาได้'], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
