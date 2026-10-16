@@ -45,32 +45,39 @@ include __DIR__ . '/../includes/header.php';
       <span class="mono text-muted" style="font-size: 14px;"><?= count($teachers) ?> ท่าน</span>
     </div>
 
-    <!-- Mobile list / Desktop grid -->
-    <ul class="people-list people-grid">
-      <?php foreach ($teachers as $teacher): ?>
-        <li>
-          <?= render_avatar($teacher['name'], $teacher['image_path'] ?? null) ?>
+    <?php if (!empty($teachers)): ?>
+      <!-- Mobile list / Desktop grid -->
+      <ul class="people-list people-grid">
+        <?php foreach ($teachers as $teacher): ?>
+          <li>
+            <?= render_avatar($teacher['name'], $teacher['image_path'] ?? null) ?>
 
-          <div>
-            <?php if (!empty($teacher['is_head'])): ?>
-              <span class="sub d-block text-accent-ink fw-semibold mb-1">★ หัวหน้าแผนกวิชา</span>
-            <?php endif; ?>
-            <h3><?= e($teacher['name']) ?></h3>
-            <p><?= e($teacher['position']) ?></p>
-            <?php if (!empty($teacher['specialization'])): ?>
-              <p class="text-muted" style="font-size: .875rem; margin-top: 2px;">
-                <?= e($teacher['specialization']) ?>
-              </p>
-            <?php endif; ?>
-            <?php if (!empty($teacher['email'])): ?>
-              <div class="mono mt-2" style="font-size: 13.5px;">
-                <a href="mailto:<?= e($teacher['email']) ?>" class="text-navy"><?= e($teacher['email']) ?></a>
-              </div>
-            <?php endif; ?>
-          </div>
-        </li>
-      <?php endforeach; ?>
-    </ul>
+            <div>
+              <?php if (!empty($teacher['is_head'])): ?>
+                <span class="sub d-block text-accent-ink fw-semibold mb-1">★ หัวหน้าแผนกวิชา</span>
+              <?php endif; ?>
+              <h3><?= e($teacher['name']) ?></h3>
+              <p><?= e($teacher['position']) ?></p>
+              <?php if (!empty($teacher['specialization'])): ?>
+                <p class="text-muted" style="font-size: .875rem; margin-top: 2px;">
+                  <?= e($teacher['specialization']) ?>
+                </p>
+              <?php endif; ?>
+              <?php if (!empty($teacher['email'])): ?>
+                <div class="mono mt-2" style="font-size: 13.5px;">
+                  <a href="mailto:<?= e($teacher['email']) ?>" class="text-navy"><?= e($teacher['email']) ?></a>
+                </div>
+              <?php endif; ?>
+            </div>
+          </li>
+        <?php endforeach; ?>
+      </ul>
+    <?php else: ?>
+      <div class="empty-state">
+        <p class="empty-state-title">ยังไม่มีข้อมูลคณาจารย์</p>
+        <p class="empty-state-desc">ยังไม่มีการเพิ่มรายชื่อคณาจารย์ในระบบ</p>
+      </div>
+    <?php endif; ?>
   </div>
 </section>
 
@@ -87,26 +94,33 @@ include __DIR__ . '/../includes/header.php';
       <span class="mono text-muted" style="font-size: 14px;"><?= count($clubMembers) ?> คน</span>
     </div>
 
-    <ul class="people-list people-grid">
-      <?php foreach ($clubMembers as $member): ?>
-        <li>
-          <?= render_avatar($member['name'], $member['image_path'] ?? null) ?>
+    <?php if (!empty($clubMembers)): ?>
+      <ul class="people-list people-grid">
+        <?php foreach ($clubMembers as $member): ?>
+          <li>
+            <?= render_avatar($member['name'], $member['image_path'] ?? null) ?>
 
-          <div>
-            <?php if (!empty($member['is_club_head'])): ?>
-              <span class="sub d-block text-accent-ink fw-semibold mb-1">★ ประธานชมรมวิชาชีพ</span>
-            <?php endif; ?>
-            <h3><?= e($member['name']) ?></h3>
-            <p><?= e($member['club_role']) ?></p>
-            <?php if (!empty($member['student_id'])): ?>
-              <div class="mono text-muted mt-1" style="font-size: 13.5px;">
-                รหัสนักศึกษา: <?= e($member['student_id']) ?>
-              </div>
-            <?php endif; ?>
-          </div>
-        </li>
-      <?php endforeach; ?>
-    </ul>
+            <div>
+              <?php if (!empty($member['is_club_head'])): ?>
+                <span class="sub d-block text-accent-ink fw-semibold mb-1">★ ประธานชมรมวิชาชีพ</span>
+              <?php endif; ?>
+              <h3><?= e($member['name']) ?></h3>
+              <p><?= e($member['club_role']) ?></p>
+              <?php if (!empty($member['student_id'])): ?>
+                <div class="mono text-muted mt-1" style="font-size: 13.5px;">
+                  รหัสนักศึกษา: <?= e($member['student_id']) ?>
+                </div>
+              <?php endif; ?>
+            </div>
+          </li>
+        <?php endforeach; ?>
+      </ul>
+    <?php else: ?>
+      <div class="empty-state">
+        <p class="empty-state-title">ยังไม่มีข้อมูลสมาชิกชมรม</p>
+        <p class="empty-state-desc">ยังไม่มีการเพิ่มรายชื่อสมาชิกชมรมวิชาชีพในระบบ</p>
+      </div>
+    <?php endif; ?>
   </div>
 </section>
 

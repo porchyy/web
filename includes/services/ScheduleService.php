@@ -673,7 +673,6 @@ class ScheduleService
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             ", [$title, $description, $eventDate, $eventDateEnd, $timeStart, $timeEnd, $location, $actionUrl ?: null]);
             $newActId = (int) db()->lastInsertId();
-            CacheService::forget('activities_grouped');
             return $newActId;
         }
     }
@@ -683,5 +682,24 @@ class ScheduleService
         q("DELETE FROM activities WHERE id = ?", [$id]);
         CacheService::forget('activities_grouped');
         return true;
+    }
+
+    public static function countClasses(): int
+    {
+        return (int) q("SELECT COUNT(*) FROM classes")->fetchColumn();
+    }
+
+    public static function countActivities(): int
+    {
+        return (int) q("SELECT COUNT(*) FROM activities")->fetchColumn();
+    }
+
+    public static function getUpcomingActivities(int $limit = 5): array
+    {
+        return q("
+            SELECT * FROM activities
+            ORDER BY event_date ASC
+            LIMIT ?
+        ", [$limit])->fetchAll();
     }
 }

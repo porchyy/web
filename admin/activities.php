@@ -77,7 +77,7 @@ require_once __DIR__ . '/../includes/admin-header.php';
     <h1 style="font-size: 1.75rem; margin: 0;">จัดการตารางกิจกรรมแผนก</h1>
   </div>
   <div>
-    <button type="button" class="btn btn-navy" id="btnOpenAddActivityModal">
+    <button type="button" class="btn btn-navy" id="btnOpenAddActivityModal" data-today="<?= date('Y-m-d') ?>">
       <?= icon('plus', 16) ?>
       <span>เพิ่มกิจกรรมใหม่</span>
     </button>
@@ -341,77 +341,7 @@ require_once __DIR__ . '/../includes/admin-header.php';
     </div>
   </div>
 </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  const modalEl = document.getElementById('activityModal');
-  if (!modalEl) return;
-  const bsModal = new bootstrap.Modal(modalEl);
-
-  const modalTitle = document.getElementById('activityModalLabel');
-  const inputId = document.getElementById('act_modal_id');
-  const inputTitle = document.getElementById('act_title');
-  const inputEventDate = document.getElementById('act_event_date');
-  const inputEventDateEnd = document.getElementById('act_event_date_end');
-  const inputTimeStart = document.getElementById('act_time_start');
-  const inputTimeEnd = document.getElementById('act_time_end');
-  const inputLocation = document.getElementById('act_location');
-  const inputActionUrl = document.getElementById('act_action_url');
-  const inputDesc = document.getElementById('act_description');
-
-  // Open for New
-  const btnAdd = document.getElementById('btnOpenAddActivityModal');
-  if (btnAdd) {
-    btnAdd.addEventListener('click', () => {
-      modalTitle.textContent = 'เพิ่มกิจกรรมใหม่';
-      inputId.value = '';
-      inputTitle.value = '';
-      inputEventDate.value = '<?= date('Y-m-d') ?>';
-      inputEventDateEnd.value = '';
-      inputTimeStart.value = '09:00';
-      inputTimeEnd.value = '16:00';
-      inputLocation.value = '';
-      inputActionUrl.value = '';
-      inputDesc.value = '';
-      bsModal.show();
-    });
-  }
-
-  // Open for Edit
-  document.querySelectorAll('.btn-edit-activity').forEach(btn => {
-    btn.addEventListener('click', () => {
-      modalTitle.textContent = 'แก้ไขกิจกรรม #' + btn.dataset.id;
-      inputId.value = btn.dataset.id || '';
-      inputTitle.value = btn.dataset.title || '';
-      inputEventDate.value = btn.dataset.eventDate || '';
-      inputEventDateEnd.value = btn.dataset.eventDateEnd || '';
-      inputTimeStart.value = btn.dataset.timeStart || '';
-      inputTimeEnd.value = btn.dataset.timeEnd || '';
-      inputLocation.value = btn.dataset.location || '';
-      inputActionUrl.value = btn.dataset.actionUrl || '';
-      inputDesc.value = btn.dataset.description || '';
-      bsModal.show();
-    });
-  });
-
-  // Initialize Unified Autocomplete Search
-  if (typeof AdminSearchAutocomplete !== 'undefined') {
-    AdminSearchAutocomplete.init({
-      inputSelector: '#actSearchInput',
-      clearBtnSelector: '#btnActClearSearch',
-      dropdownSelector: '#actAutocompleteList',
-      rowSelector: '.activity-list-row',
-      emptyRowId: 'actSearchEmptyRow',
-      emptyMessage: 'ไม่พบกิจกรรมที่ตรงกับคำค้นหา',
-      getItemData: (row) => ({
-        title: row.dataset.title || '',
-        meta: row.dataset.meta || '',
-        searchContent: row.textContent.toLowerCase()
-      })
-    });
-  }
-});
-</script>
+<script src="<?= url('assets/js/admin-activities.js') ?>" defer></script>
 
 <script src="<?= url('assets/js/admin-search-autocomplete.js') ?>"></script>
 <?php require_once __DIR__ . '/../includes/admin-footer.php'; ?>

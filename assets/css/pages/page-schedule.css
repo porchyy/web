@@ -8,7 +8,7 @@
 .schedule-control-card {
   background: #ffffff;
   border: 1px solid var(--c-line, #D5DEE8);
-  border-radius: 12px;
+  border-radius: var(--radius-sm, 2px);
   padding: 1.25rem 1.5rem;
   margin-bottom: var(--s-4);
   width: 100%;

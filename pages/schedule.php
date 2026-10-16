@@ -109,7 +109,7 @@ include __DIR__ . '/../includes/header.php';
   </div>
 </div>
 
-<section class="section" style="padding-top: var(--s-3);">
+<section class="section" id="schedule-root" style="padding-top: var(--s-3);" data-export-file-name="<?= e($exportFileName) ?>" data-selected-group="<?= e($selectedGroup) ?>" data-is-class-tab="<?= $tab === 'class' ? '1' : '0' ?>">
   <div class="<?= $tab === 'class' ? 'container-fluid px-3 px-xl-4 px-xxl-5' : 'container-xl' ?>">
 
     <!-- Schedule Control Toolbar (Responsive Full-Width Card) -->

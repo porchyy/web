@@ -26,6 +26,17 @@ class NewsService
         });
     }
 
+    public static function getRecent(int $limit = 5): array
+    {
+        return q("
+            SELECT n.*, c.name as category_name
+            FROM news n
+            JOIN news_categories c ON n.category_id = c.id
+            ORDER BY n.id DESC
+            LIMIT ?
+        ", [$limit])->fetchAll();
+    }
+
     public static function getById(int $id): ?array
     {
         $res = q("
