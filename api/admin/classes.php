@@ -136,7 +136,7 @@ try {
             if (!$slotId) {
                 throw new InvalidArgumentException('ไม่พบรหัสคาบเรียนที่ต้องการค้นหา');
             }
-            $slot = ScheduleService::getSlotById($slotId);
+            $slot = ScheduleService::getClassSlotById($slotId);
             if (!$slot) {
                 http_response_code(404);
                 echo json_encode(['success' => false, 'error' => 'ไม่พบข้อมูลคาบเรียนนี้ในระบบ'], JSON_UNESCAPED_UNICODE);

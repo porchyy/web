@@ -12,28 +12,18 @@ require_once __DIR__ . '/../includes/services/FacultyService.php';
 require_once __DIR__ . '/../includes/services/AuthService.php';
 
 // Metrics
-$cntNews       = (int) q("SELECT COUNT(*) FROM news")->fetchColumn();
-$cntClasses    = (int) q("SELECT COUNT(*) FROM classes")->fetchColumn();
-$cntActivities = (int) q("SELECT COUNT(*) FROM activities")->fetchColumn();
-$cntTeachers   = (int) q("SELECT COUNT(*) FROM teachers")->fetchColumn();
-$cntClub       = (int) q("SELECT COUNT(*) FROM club_members")->fetchColumn();
-$cntUsers      = (int) q("SELECT COUNT(*) FROM users")->fetchColumn();
+$cntNews       = NewsService::countAll();
+$cntClasses    = ScheduleService::countClasses();
+$cntActivities = ScheduleService::countActivities();
+$cntTeachers   = FacultyService::countTeachers();
+$cntClub       = FacultyService::countClubMembers();
+$cntUsers      = AuthService::countUsers();
 
 // Recent news
-$recentNews = q("
-  SELECT n.*, c.name as category_name
-  FROM news n
-  JOIN news_categories c ON n.category_id = c.id
-  ORDER BY n.id DESC
-  LIMIT 5
-")->fetchAll();
+$recentNews = NewsService::getRecent(5);
 
 // Upcoming events
-$upcomingActs = q("
-  SELECT * FROM activities
-  ORDER BY event_date ASC
-  LIMIT 5
-")->fetchAll();
+$upcomingActs = ScheduleService::getUpcomingActivities(5);
 ?>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -73,38 +63,38 @@ $upcomingActs = q("
       </div>
       <div class="row g-2">
         <div class="col-6 col-md-4">
-          <a href="<?= url('admin/hero.php') ?>" class="btn btn-line w-100 justify-content-start text-start" style="font-size: .875rem;">
+          <a href="<?= url('admin/hero') ?>" class="btn btn-line w-100 justify-content-start text-start" style="font-size: .875rem;">
             <?= icon('image', 16) ?> ภาพประชาสัมพันธ์
           </a>
         </div>
         <div class="col-6 col-md-4">
-          <a href="<?= url('admin/news.php') ?>" class="btn btn-line w-100 justify-content-start text-start" style="font-size: .875rem;">
+          <a href="<?= url('admin/news') ?>" class="btn btn-line w-100 justify-content-start text-start" style="font-size: .875rem;">
             <?= icon('news', 16) ?> จัดการข่าวสาร
           </a>
         </div>
         <div class="col-6 col-md-4">
-          <a href="<?= url('admin/classes.php') ?>" class="btn btn-line w-100 justify-content-start text-start" style="font-size: .875rem;">
+          <a href="<?= url('admin/classes') ?>" class="btn btn-line w-100 justify-content-start text-start" style="font-size: .875rem;">
             <?= icon('book', 16) ?> จัดการตารางเรียน
           </a>
         </div>
         <div class="col-6 col-md-4">
-          <a href="<?= url('admin/activities.php') ?>" class="btn btn-line w-100 justify-content-start text-start" style="font-size: .875rem;">
+          <a href="<?= url('admin/activities') ?>" class="btn btn-line w-100 justify-content-start text-start" style="font-size: .875rem;">
             <?= icon('calendar', 16) ?> ตารางกิจกรรม
           </a>
         </div>
         <div class="col-6 col-md-4">
-          <a href="<?= url('admin/teachers.php') ?>" class="btn btn-line w-100 justify-content-start text-start" style="font-size: .875rem;">
+          <a href="<?= url('admin/teachers') ?>" class="btn btn-line w-100 justify-content-start text-start" style="font-size: .875rem;">
             <?= icon('user', 16) ?> จัดการอาจารย์
           </a>
         </div>
         <div class="col-6 col-md-4">
-          <a href="<?= url('admin/club.php') ?>" class="btn btn-line w-100 justify-content-start text-start" style="font-size: .875rem;">
+          <a href="<?= url('admin/club') ?>" class="btn btn-line w-100 justify-content-start text-start" style="font-size: .875rem;">
             <?= icon('flag', 16) ?> จัดการชมรม
           </a>
         </div>
         <?php if (($currentUser['role'] ?? '') === 'admin'): ?>
         <div class="col-6 col-md-4">
-          <a href="<?= url('admin/users.php') ?>" class="btn btn-line w-100 justify-content-start text-start" style="font-size: .875rem;">
+          <a href="<?= url('admin/users') ?>" class="btn btn-line w-100 justify-content-start text-start" style="font-size: .875rem;">
             <?= icon('users', 16) ?> ผู้ใช้งานระบบ
           </a>
         </div>
@@ -115,7 +105,7 @@ $upcomingActs = q("
     <div class="admin-card">
       <div class="admin-card-head d-flex justify-content-between align-items-center">
         <h3>ข่าวสารล่าสุดในระบบ</h3>
-        <a href="<?= url('admin/news.php?action=new') ?>" class="btn btn-sm btn-navy">
+        <a href="<?= url('admin/news?action=new') ?>" class="btn btn-sm btn-navy">
           <?= icon('plus', 14) ?> เพิ่มข่าว
         </a>
       </div>
@@ -144,7 +134,7 @@ $upcomingActs = q("
                   <?= thai_date($newsItem['published_at']) ?>
                 </td>
                 <td class="text-end">
-                  <a href="<?= url('admin/news.php?action=edit&id=' . (int) $newsItem['id']) ?>"
+                  <a href="<?= url('admin/news?action=edit&id=' . (int) $newsItem['id']) ?>"
                      class="btn btn-action-icon btn-line"
                      title="แก้ไข">
                     <?= icon('pencil', 16) ?>
@@ -163,7 +153,7 @@ $upcomingActs = q("
     <div class="admin-card">
       <div class="admin-card-head d-flex justify-content-between align-items-center">
         <h3>กำหนดการกิจกรรม</h3>
-        <a href="<?= url('admin/activities.php') ?>" class="link-more" style="font-size: .875rem;">
+        <a href="<?= url('admin/activities') ?>" class="link-more" style="font-size: .875rem;">
           <span>จัดการ</span> <?= icon('arrow-right', 12) ?>
         </a>
       </div>

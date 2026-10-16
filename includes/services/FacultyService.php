@@ -278,4 +278,14 @@ class FacultyService
         CacheService::forget('faculty_club_president');
         return true;
     }
+
+    public static function countTeachers(): int
+    {
+        return (int) q("SELECT COUNT(*) FROM teachers")->fetchColumn();
+    }
+
+    public static function countClubMembers(): int
+    {
+        return (int) q("SELECT COUNT(*) FROM club_members")->fetchColumn();
+    }
 }

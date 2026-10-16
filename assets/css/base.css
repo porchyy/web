@@ -22,7 +22,7 @@ body {
   overflow-x: hidden;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 900px) {
   body {
     padding-bottom: 0;
   }

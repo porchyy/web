@@ -39,12 +39,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Social Media
         'contact_facebook_name' => trim($_POST['contact_facebook_name'] ?? ''),
         'contact_facebook_url'  => trim($_POST['contact_facebook_url'] ?? ''),
-
-        // Metrics Mode
-        'stat_mode'             => in_array($_POST['stat_mode'] ?? '', ['dynamic', 'manual'], true) ? $_POST['stat_mode'] : 'dynamic',
-        'stat_courses'          => trim($_POST['stat_courses'] ?? '18'),
-        'stat_labs'             => trim($_POST['stat_labs'] ?? '04'),
-        'stat_employment'       => trim($_POST['stat_employment'] ?? '96%'),
     ];
 
     if ($settingsToSave['site_name'] === '') {
@@ -76,11 +70,6 @@ $contactHours        = $settings['contact_hours'] ?? CONTACT_HOURS;
 
 $contactFbName       = $settings['contact_facebook_name'] ?? CONTACT_FACEBOOK_NAME;
 $contactFbUrl        = $settings['contact_facebook_url'] ?? CONTACT_FACEBOOK_URL;
-
-$statMode            = $settings['stat_mode'] ?? 'dynamic';
-$statCourses         = $settings['stat_courses'] ?? '18';
-$statLabs            = $settings['stat_labs'] ?? '04';
-$statEmployment      = $settings['stat_employment'] ?? '96%';
 ?>
 
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">

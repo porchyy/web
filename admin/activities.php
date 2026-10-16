@@ -77,7 +77,7 @@ require_once __DIR__ . '/../includes/admin-header.php';
     <h1 style="font-size: 1.75rem; margin: 0;">จัดการตารางกิจกรรมแผนก</h1>
   </div>
   <div>
-    <button type="button" class="btn btn-navy" id="btnOpenAddActivityModal">
+    <button type="button" class="btn btn-navy" id="btnOpenAddActivityModal" data-today="<?= date('Y-m-d') ?>">
       <?= icon('plus', 16) ?>
       <span>เพิ่มกิจกรรมใหม่</span>
     </button>
@@ -314,88 +314,6 @@ require_once __DIR__ . '/../includes/admin-header.php';
     </div>
   </div>
 </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  const modalEl = document.getElementById('activityModal');
-  if (!modalEl) return;
-  const bsModal = new bootstrap.Modal(modalEl);
-
-  const modalTitle = document.getElementById('activityModalLabel');
-  const inputId = document.getElementById('act_modal_id');
-  const inputTitle = document.getElementById('act_title');
-  const inputEventDate = document.getElementById('act_event_date');
-  const inputEventDateEnd = document.getElementById('act_event_date_end');
-  const inputTimeStart = document.getElementById('act_time_start');
-  const inputTimeEnd = document.getElementById('act_time_end');
-  const inputLocation = document.getElementById('act_location');
-  const inputActionUrl = document.getElementById('act_action_url');
-  const inputDesc = document.getElementById('act_description');
-
-  // Open for New
-  const btnAdd = document.getElementById('btnOpenAddActivityModal');
-  if (btnAdd) {
-    btnAdd.addEventListener('click', () => {
-      modalTitle.textContent = 'เพิ่มกิจกรรมใหม่';
-      inputId.value = '';
-      inputTitle.value = '';
-      inputEventDate.value = '<?= date('Y-m-d') ?>';
-      inputEventDateEnd.value = '';
-      inputTimeStart.value = '09:00';
-      inputTimeEnd.value = '16:00';
-      inputLocation.value = '';
-      inputActionUrl.value = '';
-      inputDesc.value = '';
-      bsModal.show();
-    });
-  }
-
-  // Open for Edit
-  document.querySelectorAll('.btn-edit-activity').forEach(btn => {
-    btn.addEventListener('click', () => {
-      modalTitle.textContent = 'แก้ไขกิจกรรม #' + btn.dataset.id;
-      inputId.value = btn.dataset.id || '';
-      inputTitle.value = btn.dataset.title || '';
-      inputEventDate.value = btn.dataset.eventDate || '';
-      inputEventDateEnd.value = btn.dataset.eventDateEnd || '';
-      inputTimeStart.value = btn.dataset.timeStart || '';
-      inputTimeEnd.value = btn.dataset.timeEnd || '';
-      inputLocation.value = btn.dataset.location || '';
-      inputActionUrl.value = btn.dataset.actionUrl || '';
-      inputDesc.value = btn.dataset.description || '';
-      bsModal.show();
-    });
-  });
-
-  // Real-time Activities Search
-  const actSearch = document.getElementById('actSearchInput');
-  const rows = document.querySelectorAll('.activity-list-row');
-  if (actSearch && rows.length > 0) {
-    actSearch.addEventListener('input', function() {
-      const q = this.value.trim().toLowerCase();
-      let matchCount = 0;
-      rows.forEach(tr => {
-        const text = tr.textContent.toLowerCase();
-        const matches = text.includes(q);
-        tr.style.display = matches ? '' : 'none';
-        if (matches) matchCount++;
-      });
-      let emptyRow = document.getElementById('actSearchEmptyRow');
-      if (matchCount === 0) {
-        if (!emptyRow) {
-          emptyRow = document.createElement('tr');
-          emptyRow.id = 'actSearchEmptyRow';
-          emptyRow.innerHTML = '<td colspan="6" class="text-center py-4 text-muted">ไม่พบกิจกรรมที่ตรงกับคำค้นหา</td>';
-          const tbody = document.querySelector('.admin-table tbody');
-          if (tbody) tbody.appendChild(emptyRow);
-        }
-        emptyRow.style.display = '';
-      } else if (emptyRow) {
-        emptyRow.style.display = 'none';
-      }
-    });
-  }
-});
-</script>
+<script src="<?= url('assets/js/admin-activities.js') ?>" defer></script>
 
 <?php require_once __DIR__ . '/../includes/admin-footer.php'; ?>

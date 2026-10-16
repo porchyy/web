@@ -8,7 +8,7 @@
 .schedule-control-card {
   background: #ffffff;
   border: 1px solid var(--c-line, #D5DEE8);
-  border-radius: 12px;
+  border-radius: var(--radius-sm, 2px);
   padding: 1.25rem 1.5rem;
   margin-bottom: var(--s-4);
   width: 100%;
@@ -58,7 +58,7 @@
   background-repeat: no-repeat;
   background-position: right 14px center;
   border: 1px solid var(--c-line, #D5DEE8);
-  border-radius: 9999px;
+  border-radius: var(--radius-sm, 2px);
   padding: 6px 36px 6px 16px;
   font-size: 0.875rem;
   font-weight: 600;
@@ -87,7 +87,7 @@
   justify-content: center;
   gap: 0.5rem;
   padding: 8px 18px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm, 2px);
   font-size: 0.9375rem;
   font-weight: 500;
   text-decoration: none;
@@ -149,7 +149,7 @@
   height: 46px;
   padding: 0 16px;
   min-width: 145px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm, 2px);
   font-size: 0.9375rem;
   font-weight: 500;
   cursor: pointer;

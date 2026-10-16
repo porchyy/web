@@ -248,7 +248,7 @@
   background: var(--c-accent);
 }
 
-@media (min-width: 768px) {
+@media (min-width: 900px) {
   .nav-bottom {
     display: none;
   }

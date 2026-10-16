@@ -41,7 +41,6 @@ $flash = flash();
   <!-- Custom Design Tokens & Admin CSS -->
   <link rel="stylesheet" href="<?= url('assets/css/site.css') ?>?v=<?= file_exists(ROOT_PATH . '/assets/css/site.css') ? filemtime(ROOT_PATH . '/assets/css/site.css') : '1' ?>">
   <link rel="stylesheet" href="<?= url('assets/css/admin.css') ?>?v=<?= file_exists(ROOT_PATH . '/assets/css/admin.css') ? filemtime(ROOT_PATH . '/assets/css/admin.css') : '1' ?>">
-  <link rel="stylesheet" href="<?= url('assets/css/admin/admin-scheduler.css') ?>?v=<?= file_exists(ROOT_PATH . '/assets/css/admin/admin-scheduler.css') ? filemtime(ROOT_PATH . '/assets/css/admin/admin-scheduler.css') : '1' ?>">
 </head>
 <body style="padding-bottom: 40px; background-color: var(--c-bg-alt);">
 
