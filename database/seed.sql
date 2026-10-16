@@ -5,7 +5,7 @@ USE `dbt_web`;
 
 -- 1. Users
 INSERT INTO `users` (`id`, `username`, `password_hash`, `full_name`, `role`)
-VALUES (1, 'admin', '$2y$10$4Fj6cR3juFRqnPpc7bRe5uDrYrhTDK6NY/VK2ryY928msB.isyIu6', 'ผู้ดูแลระบบแผนกวิชา', 'admin')
+VALUES (1, 'admin', '$2y$10$4Fj6cR3juFRqnPpc7bRe5uDrYrhTDK6NY/VK2ryY928msB.isyIu6', 'ผู้ดูแลระบบสาขาวิชา', 'admin')
 ON DUPLICATE KEY UPDATE `username` = `username`;
 
 -- 2. Settings
@@ -83,23 +83,23 @@ WHERE (SELECT COUNT(*) FROM `activities`) = 2;
 
 -- 6. Faculty
 INSERT INTO `teachers` (`name`, `position`, `specialization`, `email`, `image_path`, `is_head`, `sort_order`)
-SELECT 'ดร.ศิริพร บุญเสริมประสิทธิ์', 'หัวหน้าแผนกวิชาเทคโนโลยีธุรกิจดิจิทัล', 'Enterprise Software, Cloud Computing & Web Architectures', 'siriporn.b@vocational.ac.th', 'uploads/seed/teacher-siriporn.jpg', 1, 1
+SELECT 'ดร.ศิริพร บุญเสริมประสิทธิ์', 'หัวหน้าสาขาวิชาเทคโนโลยีธุรกิจดิจิทัล', 'Enterprise Software, Cloud Computing & Web Architectures', 'siriporn.b@vocational.ac.th', 'uploads/seed/teacher-siriporn.jpg', 1, 1
 WHERE NOT EXISTS (SELECT 1 FROM `teachers` LIMIT 1);
 
 INSERT INTO `teachers` (`name`, `position`, `specialization`, `email`, `image_path`, `is_head`, `sort_order`)
-SELECT 'อาจารย์ธีรภัทร์ รัตนโชติ', 'ครูประจำแผนกวิชา / หัวหน้างานโครงงาน', 'Database Systems, Data Analytics & Network Infrastructure', 'teerapat.r@vocational.ac.th', 'uploads/seed/teacher-teerapat.jpg', 0, 2
+SELECT 'อาจารย์ธีรภัทร์ รัตนโชติ', 'ครูประจำสาขาวิชา / หัวหน้างานโครงงาน', 'Database Systems, Data Analytics & Network Infrastructure', 'teerapat.r@vocational.ac.th', 'uploads/seed/teacher-teerapat.jpg', 0, 2
 WHERE (SELECT COUNT(*) FROM `teachers`) = 1;
 
 INSERT INTO `teachers` (`name`, `position`, `specialization`, `email`, `image_path`, `is_head`, `sort_order`)
-SELECT 'อาจารย์กัญญารัตน์ วัฒนเสถียร', 'ครูประจำแผนกวิชา / หัวหน้างานหลักสูตร', 'Digital Marketing, E-Commerce & Business Intelligence', 'kanyarat.w@vocational.ac.th', 'uploads/seed/teacher-kanyarat.jpg', 0, 3
+SELECT 'อาจารย์กัญญารัตน์ วัฒนเสถียร', 'ครูประจำสาขาวิชา / หัวหน้างานหลักสูตร', 'Digital Marketing, E-Commerce & Business Intelligence', 'kanyarat.w@vocational.ac.th', 'uploads/seed/teacher-kanyarat.jpg', 0, 3
 WHERE (SELECT COUNT(*) FROM `teachers`) = 2;
 
 INSERT INTO `teachers` (`name`, `position`, `specialization`, `email`, `image_path`, `is_head`, `sort_order`)
-SELECT 'อาจารย์วรวิทย์ สุวรรณเวช', 'ครูประจำแผนกวิชา / ครูที่ปรึกษาชมรม', 'Mobile App Development, UI/UX Design & Front-End', 'worawit.s@vocational.ac.th', 'uploads/seed/teacher-worawit.jpg', 0, 4
+SELECT 'อาจารย์วรวิทย์ สุวรรณเวช', 'ครูประจำสาขาวิชา / ครูที่ปรึกษาชมรม', 'Mobile App Development, UI/UX Design & Front-End', 'worawit.s@vocational.ac.th', 'uploads/seed/teacher-worawit.jpg', 0, 4
 WHERE (SELECT COUNT(*) FROM `teachers`) = 3;
 
 INSERT INTO `teachers` (`name`, `position`, `specialization`, `email`, `image_path`, `is_head`, `sort_order`)
-SELECT 'อาจารย์ชนิกานต์ เลิศปรีชา', 'ครูประจำแผนกวิชา / งานกิจกรรมนักศึกษา', 'Digital Business Communication & Professional Media', 'chanikan.l@vocational.ac.th', 'uploads/seed/teacher-chanikan.jpg', 0, 5
+SELECT 'อาจารย์ชนิกานต์ เลิศปรีชา', 'ครูประจำสาขาวิชา / งานกิจกรรมนักศึกษา', 'Digital Business Communication & Professional Media', 'chanikan.l@vocational.ac.th', 'uploads/seed/teacher-chanikan.jpg', 0, 5
 WHERE (SELECT COUNT(*) FROM `teachers`) = 4;
 
 -- 7. Club Members

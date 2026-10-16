@@ -143,7 +143,7 @@ require_once __DIR__ . '/../includes/admin-header.php';
                  name="position"
                  id="input-teacher-position"
                  class="form-control"
-                 placeholder="หัวหน้าแผนกวิชา / ครูชำนาญการ"
+                 placeholder="หัวหน้าสาขาวิชา / ครูชำนาญการ"
                  value="<?= e($_POST['position'] ?? $editItem['position'] ?? '') ?>"
                  required>
         </div>
@@ -228,7 +228,7 @@ require_once __DIR__ . '/../includes/admin-header.php';
                    id="input-teacher-is-head"
                    <?= !empty($_POST['is_head'] ?? $editItem['is_head'] ?? 0) ? 'checked' : '' ?>>
             <label class="form-check-label fw-bold text-navy" for="input-teacher-is-head">
-              เป็นหัวหน้าแผนกวิชา
+              เป็นหัวหน้าสาขาวิชา
             </label>
           </div>
         </div>
@@ -250,11 +250,11 @@ require_once __DIR__ . '/../includes/admin-header.php';
        ==================================================================== -->
   <div class="d-flex flex-column gap-4">
 
-    <!-- หัวหน้าแผนกวิชา -->
+    <!-- หัวหน้าสาขาวิชา -->
     <div class="tree-tier">
       <div class="tree-tier-header">
         <div>
-          <strong class="text-navy" style="font-size: 1.05rem;">หัวหน้าแผนกวิชา</strong>
+          <strong class="text-navy" style="font-size: 1.05rem;">หัวหน้าสาขาวิชา</strong>
         </div>
         <span class="text-muted" style="font-size: 12px;">ลากอาจารย์มาวางที่นี่เพื่อแต่งตั้งหรือสลับตำแหน่งหัวหน้า</span>
       </div>
@@ -306,7 +306,7 @@ require_once __DIR__ . '/../includes/admin-header.php';
         <div class="text-center py-4 border dashed text-muted is-head-target"
              data-head-dropzone
              style="border-radius: var(--radius); max-width: 620px; margin: 0 auto; background: var(--c-surface);">
-          <p class="mb-2">ยังไม่มีการระบุตำแหน่งหัวหน้าแผนกวิชา (ลากอาจารย์มาวางที่นี่เพื่อแต่งตั้ง)</p>
+          <p class="mb-2">ยังไม่มีการระบุตำแหน่งหัวหน้าสาขาวิชา (ลากอาจารย์มาวางที่นี่เพื่อแต่งตั้ง)</p>
           <a href="<?= url('admin/teachers?action=new') ?>" class="btn btn-sm btn-navy">
             <?= icon('plus', 14) ?>
             <span>เพิ่มหรือกำหนดหัวหน้าแผนก</span>

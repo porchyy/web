@@ -21,11 +21,11 @@ include __DIR__ . '/../includes/header.php';
 <div class="page-head">
   <div class="container-xl">
     <p class="eyebrow">
-      <span>เกี่ยวกับแผนกวิชา</span>
+      <span>เกี่ยวกับสาขาวิชา</span>
     </p>
-    <h1>เกี่ยวกับแผนกวิชา</h1>
+    <h1>เกี่ยวกับสาขาวิชา</h1>
     <p class="lead-text">
-      แผนกวิชาเทคโนโลยีธุรกิจดิจิทัล มุ่งเน้นการสร้างนักปฏิบัติการด้านดิจิทัลที่มีทักษะการพัฒนาระบบเทคโนโลยีสารสนเทศ ควบคู่กับการเข้าใจกระบวนการทางธุรกิจสมัยใหม่ เพื่อตอบโจทย์ตลาดแรงงานในยุคเศรษฐกิจดิจิทัล
+      สาขาวิชาเทคโนโลยีธุรกิจดิจิทัล มุ่งเน้นการสร้างนักปฏิบัติการด้านดิจิทัลที่มีทักษะการพัฒนาระบบเทคโนโลยีสารสนเทศ ควบคู่กับการเข้าใจกระบวนการทางธุรกิจสมัยใหม่ เพื่อตอบโจทย์ตลาดแรงงานในยุคเศรษฐกิจดิจิทัล
     </p>
   </div>
 </div>
@@ -228,8 +228,8 @@ include __DIR__ . '/../includes/header.php';
   <div class="container-xl">
     <div class="section-head">
       <div>
-        <p class="eyebrow">ผู้บริหารแผนกวิชา</p>
-        <h2>หัวหน้าแผนกวิชา</h2>
+        <p class="eyebrow">ผู้บริหารสาขาวิชา</p>
+        <h2>หัวหน้าสาขาวิชา</h2>
       </div>
     </div>
 
@@ -246,7 +246,7 @@ include __DIR__ . '/../includes/header.php';
         </div>
 
         <div>
-          <span class="badge-active mb-2 d-inline-block">หัวหน้าแผนกวิชา</span>
+          <span class="badge-active mb-2 d-inline-block">หัวหน้าสาขาวิชา</span>
           <h3 class="person-name"><?= e($headTeacher['name']) ?></h3>
           <p class="person-role"><?= e($headTeacher['position']) ?></p>
 
@@ -280,7 +280,7 @@ include __DIR__ . '/../includes/header.php';
     <div class="section-head">
       <div>
         <p class="eyebrow eyebrow-muted">ติดต่อเรา</p>
-        <h2>ช่องทางการติดต่อแผนกวิชา</h2>
+        <h2>ช่องทางการติดต่อสาขาวิชา</h2>
       </div>
     </div>
 

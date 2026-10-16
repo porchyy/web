@@ -57,7 +57,7 @@ class SettingService
                 'mode' => 'dynamic',
                 'items' => [
                     ['num' => (string) $countProf, 'unit' => 'รายวิชา', 'label' => 'หลักสูตรวิชาชีพเฉพาะทาง'],
-                    ['num' => (string) $countTeachers, 'unit' => 'ท่าน', 'label' => 'คณาจารย์ประจำแผนกวิชา'],
+                    ['num' => (string) $countTeachers, 'unit' => 'ท่าน', 'label' => 'คณาจารย์ประจำสาขาวิชา'],
                     ['num' => $employmentRate, 'unit' => '', 'label' => 'อัตราการได้งานทำหลังจบ'],
                 ]
             ];

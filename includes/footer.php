@@ -15,7 +15,7 @@ $activeNav = $activeNav ?? '';
   <div class="container-xl">
     <div class="row gy-4 gx-lg-5">
       <div class="col-12 col-md-5">
-        <p class="eyebrow eyebrow-light">ข้อมูลแผนกวิชา</p>
+        <p class="eyebrow eyebrow-light">ข้อมูลสาขาวิชา</p>
         <h2 class="footer-title"><?= e(SITE_NAME) ?></h2>
         <p class="footer-sub"><?= e(SITE_NAME_EN) ?> · <?= e(INSTITUTE_NAME) ?></p>
         <p class="mt-3 text-white-50" style="font-size: .875rem; max-width: 38ch; line-height: 1.6;">

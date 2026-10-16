@@ -6,6 +6,6 @@ VALUES (
   1,
   'admin',
   '$2y$10$4Fj6cR3juFRqnPpc7bRe5uDrYrhTDK6NY/VK2ryY928msB.isyIu6',
-  'ผู้ดูแลระบบแผนกวิชา',
+  'ผู้ดูแลระบบสาขาวิชา',
   'admin'
 ) ON DUPLICATE KEY UPDATE `username` = `username`;

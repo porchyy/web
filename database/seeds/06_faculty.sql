@@ -5,7 +5,7 @@
 INSERT INTO `teachers` (`name`, `position`, `specialization`, `email`, `image_path`, `is_head`, `sort_order`)
 SELECT
   'ดร.ศิริพร บุญเสริมประสิทธิ์',
-  'หัวหน้าแผนกวิชาเทคโนโลยีธุรกิจดิจิทัล',
+  'หัวหน้าสาขาวิชาเทคโนโลยีธุรกิจดิจิทัล',
   'Enterprise Software, Cloud Computing & Web Architectures',
   'siriporn.b@vocational.ac.th',
   'uploads/seed/teacher-siriporn.jpg',
@@ -16,7 +16,7 @@ WHERE NOT EXISTS (SELECT 1 FROM `teachers` LIMIT 1);
 INSERT INTO `teachers` (`name`, `position`, `specialization`, `email`, `image_path`, `is_head`, `sort_order`)
 SELECT
   'อาจารย์ธีรภัทร์ รัตนโชติ',
-  'ครูประจำแผนกวิชา / หัวหน้างานโครงงาน',
+  'ครูประจำสาขาวิชา / หัวหน้างานโครงงาน',
   'Database Systems, Data Analytics & Network Infrastructure',
   'teerapat.r@vocational.ac.th',
   'uploads/seed/teacher-teerapat.jpg',
@@ -27,7 +27,7 @@ WHERE (SELECT COUNT(*) FROM `teachers`) = 1;
 INSERT INTO `teachers` (`name`, `position`, `specialization`, `email`, `image_path`, `is_head`, `sort_order`)
 SELECT
   'อาจารย์กัญญารัตน์ วัฒนเสถียร',
-  'ครูประจำแผนกวิชา / หัวหน้างานหลักสูตร',
+  'ครูประจำสาขาวิชา / หัวหน้างานหลักสูตร',
   'Digital Marketing, E-Commerce & Business Intelligence',
   'kanyarat.w@vocational.ac.th',
   'uploads/seed/teacher-kanyarat.jpg',
@@ -38,7 +38,7 @@ WHERE (SELECT COUNT(*) FROM `teachers`) = 2;
 INSERT INTO `teachers` (`name`, `position`, `specialization`, `email`, `image_path`, `is_head`, `sort_order`)
 SELECT
   'อาจารย์วรวิทย์ สุวรรณเวช',
-  'ครูประจำแผนกวิชา / ครูที่ปรึกษาชมรม',
+  'ครูประจำสาขาวิชา / ครูที่ปรึกษาชมรม',
   'Mobile App Development, UI/UX Design & Front-End',
   'worawit.s@vocational.ac.th',
   'uploads/seed/teacher-worawit.jpg',
@@ -49,7 +49,7 @@ WHERE (SELECT COUNT(*) FROM `teachers`) = 3;
 INSERT INTO `teachers` (`name`, `position`, `specialization`, `email`, `image_path`, `is_head`, `sort_order`)
 SELECT
   'อาจารย์ชนิกานต์ เลิศปรีชา',
-  'ครูประจำแผนกวิชา / งานกิจกรรมนักศึกษา',
+  'ครูประจำสาขาวิชา / งานกิจกรรมนักศึกษา',
   'Digital Business Communication & Professional Media',
   'chanikan.l@vocational.ac.th',
   'uploads/seed/teacher-chanikan.jpg',

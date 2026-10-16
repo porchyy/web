@@ -294,7 +294,7 @@ require_once __DIR__ . '/../includes/admin-header.php';
                 <div class="meta-line">
                   <span class="mono"><?= thai_date(date('Y-m-d')) ?></span>
                   <span class="dot"></span>
-                  <span>แผนกวิชาเทคโนโลยีธุรกิจดิจิทัล</span>
+                  <span>สาขาวิชาเทคโนโลยีธุรกิจดิจิทัล</span>
                 </div>
               </header>
 

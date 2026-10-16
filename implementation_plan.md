@@ -9,7 +9,9 @@
 ## ⚡ 0. Working Golden Rule & AI Model Switching Protocol
 
 > [!IMPORTANT]
+>
 > ### 👑 THE WORKING GOLDEN RULE
+>
 > 1. **Zero Hallucination / Never Guess Code:** อ่านไฟล์จริง (`view_file`) ครบทุกบรรทัดก่อนแตะต้องโค้ดเสมอ ห้ามคาดเดาลายเซ็นฟังก์ชันหรือชื่อคอลัมน์
 > 2. **Write First, Test and Batch:** ห้ามสลับไปแก้โค้ดแบบ ad-hoc โดยไม่มีแผน ทุกการแก้ไขต้องทำเป็นชุด (Batch) พร้อมคำสั่งตรวจสอบย้อนกลับ
 > 3. **No Silent Failures (Clean Code Rule #8):** ห้ามกลืน Exception ทิ้ง (No empty catch / No silent boolean fallback) ต้องบันทึก log หรือส่ง structured error response เสมอ
@@ -17,20 +19,22 @@
 > 5. **Backward Compatibility & No Breaking API Contracts:** ห้ามเปลี่ยน Key ใน JSON Response หรือทำให้ Frontend components เดิมพัง
 
 ### 🛑 AI Model Switching Protocol (เมื่อจำเป็นต้องเปลี่ยนโมเดล)
+
 หากงานใดเกินขีดความสามารถของโมเดลปัจจุบัน หรือต้องการความสามารถเฉพาะทางตามตารางด้านล่าง **ให้หยุดการทำงานทันที (STOP) แล้วแจ้งผู้ใช้เป็นตัวอักษรหนา (BOLD LETTERS) ระบุชื่อโมเดลที่ต้องใช้ให้ชัดเจน**:
 
-| ลักษณะงานที่พบ | เงื่อนไขที่ต้องหยุดแจ้ง | ข้อความแจ้งเตือนที่ต้องส่ง | โมเดลเป้าหมายที่แนะนำ |
-| :--- | :--- | :--- | :--- |
-| **High Complexity / Large Architectural Refactoring** | ต้องผ่าตัดโค้ดโครงสร้างใหญ่เกิน 500 บรรทัด (เช่น `admin-scheduler.js` 1,590 บรรทัด หรือ `ScheduleService.php`) ที่ต้องการ reasoning ลึกซึ้งขั้นสูง | **STOP: กรุณาเปลี่ยนโมเดลเป็น GEMINI 3.1 PRO (HIGH REASONING)** | **Gemini 3.1 Pro (High)** |
-| **Deep Security Audit / Reverse Exploitation Analysis** | วิเคราะห์ช่องโหว่ซับซ้อนระดับ POP Gadget Chains หรือ Polyglot Payload Verification | **STOP: กรุณาเปลี่ยนโมเดลเป็น CLAUDE 3.7 SONNET (THINKING)** | **Claude 3.7 Sonnet (Thinking)** |
-| **Visual Design / Banner / Brand Creative Assets** | ต้องการสร้างภาพกราฟิก ออกแบบแบนเนอร์ใหม่ หรือภาพ Mockup ประชาสัมพันธ์ | **STOP: กรุณาเปลี่ยนโมเดลเป็น IMAGEN 3 / GEMINI MULTIMODAL** | **Gemini Multi-Modal / Imagen** |
-| **Routine Batched Code Editing & Verification** | งานเขียนโค้ดตาม Batch ปกติ, Syntax check, regex, unit test execution | ดำเนินการต่อได้ด้วยโมเดลปัจจุบัน (**Gemini 3.8 Flash**) | **Gemini 3.8 Flash** |
+| ลักษณะงานที่พบ                                          | เงื่อนไขที่ต้องหยุดแจ้ง                                                                                                                            | ข้อความแจ้งเตือนที่ต้องส่ง                                      | โมเดลเป้าหมายที่แนะนำ            |
+| :------------------------------------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------------- | :-------------------------------------------------------------- | :------------------------------- |
+| **High Complexity / Large Architectural Refactoring**   | ต้องผ่าตัดโค้ดโครงสร้างใหญ่เกิน 500 บรรทัด (เช่น `admin-scheduler.js` 1,590 บรรทัด หรือ `ScheduleService.php`) ที่ต้องการ reasoning ลึกซึ้งขั้นสูง | **STOP: กรุณาเปลี่ยนโมเดลเป็น GEMINI 3.1 PRO (HIGH REASONING)** | **Gemini 3.1 Pro (High)**        |
+| **Deep Security Audit / Reverse Exploitation Analysis** | วิเคราะห์ช่องโหว่ซับซ้อนระดับ POP Gadget Chains หรือ Polyglot Payload Verification                                                                 | **STOP: กรุณาเปลี่ยนโมเดลเป็น CLAUDE 3.7 SONNET (THINKING)**    | **Claude 3.7 Sonnet (Thinking)** |
+| **Visual Design / Banner / Brand Creative Assets**      | ต้องการสร้างภาพกราฟิก ออกแบบแบนเนอร์ใหม่ หรือภาพ Mockup ประชาสัมพันธ์                                                                              | **STOP: กรุณาเปลี่ยนโมเดลเป็น IMAGEN 3 / GEMINI MULTIMODAL**    | **Gemini Multi-Modal / Imagen**  |
+| **Routine Batched Code Editing & Verification**         | งานเขียนโค้ดตาม Batch ปกติ, Syntax check, regex, unit test execution                                                                               | ดำเนินการต่อได้ด้วยโมเดลปัจจุบัน (**Gemini 3.8 Flash**)         | **Gemini 3.8 Flash**             |
 
 ---
 
 ## 🧭 1. Strategic Thinking & Systems Analysis
 
 ### 1.1 Strategic Thinking Guide (Intent, Landscape, Choice)
+
 1. **Intent (เป้าหมายสูงสุด):** ยกระดับระบบ DBT Web ให้เป็น Enterprise-grade Academic Portal ที่ปราศจากช่องโหว่ความปลอดภัย (Zero Vulnerabilities), ปราศจาก Side-effects ใน Read Operations, ข้อมูลแคชมีความถูกต้องแบบ Real-time (Zero Stale Data), และมีโครงสร้างโค้ดที่เป็นไปตามหลัก Clean Code
 2. **Landscape (บริบทและข้อจำกัด):**
    - รันบน PHP 8.2 + MariaDB (XAMPP Environment), Apache Web Server (`.htaccess` URL rewriting)
@@ -41,20 +45,21 @@
    - มี native `clean_html()` ด้วย `DOMDocument` ป้องกัน Stored XSS
    - มีโครงสร้าง Service Layer แยกออกจาก Presentation ชัดเจน
 4. **Options (ทางเลือกเชิงยุทธศาสตร์):**
-   - *Option A:* ซ่อมเฉพาะจุด Bug ที่ตรวจพบแบบ Quick Patch (เร็วแต่ทิ้งหนี้ทางเทคนิค)
-   - *Option B (Chosen):* รวมผล Review ทั้งหมดเข้ากับแผน Fix Plan แบบเบ็ดเสร็จ (Holistic Refactoring) แก้ไขทั้ง Security, Logic Bug, Performance, Dead Code และ God Components ไปพร้อมกัน
+   - _Option A:_ ซ่อมเฉพาะจุด Bug ที่ตรวจพบแบบ Quick Patch (เร็วแต่ทิ้งหนี้ทางเทคนิค)
+   - _Option B (Chosen):_ รวมผล Review ทั้งหมดเข้ากับแผน Fix Plan แบบเบ็ดเสร็จ (Holistic Refactoring) แก้ไขทั้ง Security, Logic Bug, Performance, Dead Code และ God Components ไปพร้อมกัน
 5. **Choice & Cadence:** จัดระเบียบการแก้ไขออกเป็น 4 Batches ที่เชื่อมโยงกันอย่างเป็นระบบ และมี Feedback loop ด้วย Automated Syntax & Regression Testing
 
 ---
 
 ### 1.2 Cynefin Framework (Classification of Issues)
+
 การจำแนกประเภทปัญหาตามระดับความซับซ้อนเพื่อเลือกวิธีรับมือที่ถูกต้อง:
 
-| Domain | ลักษณะปัญหาในโปรเจกต์ | ตัวอย่างประเด็น | รูปแบบการจัดการ (Approach) |
-| :--- | :--- | :--- | :--- |
-| **Clear (Simple)** | ปัญหาที่สาเหตุและวิธีแก้ชัดเจนตรงไปตรงมา มี Best Practice รองรับ | - พารามิเตอร์ `flash()` สลับตำแหน่งใน `settings.php`<br>- Dead code `includes/auth.php`<br>- ลืมล้างแคชใน `saveActivity` & `deleteClassSlot`<br>- Path Traversal ใน `delete_upload` | **Sense – Categorise – Respond:** แก้ไขทันทีตามมาตรฐานความปลอดภัยและภาษา PHP |
-| **Complicated** | ปัญหาที่ต้องการการวิเคราะห์เชิงลึกและการคำนวณผลกระทบ | - Insecure Deserialization (`serialize` vs `json`)<br>- Input validation คาบเวลาเรียน & Whitelist คอลัมน์ SQL<br>- Role-based Authorization Matrix ใน Micro-Endpoints<br>- Rate limiting / Throttling ในหน้า Login | **Sense – Analyze – Respond:** ใช้ Decision Matrix และเขียน Helper/Service ย่อยรองรับ |
-| **Complex** | ปัญหาที่มีตัวแปรปฏิสัมพันธ์กันหลายส่วน (Interconnected) | - Side-effects ใน `ensureSpecialSlots()` ที่ทำให้เกิด Zombie Slots ชนกับ DnD Scheduler<br>- การผ่าตัดแยกรหัส God Script (`admin-scheduler.js`, `ScheduleService.php`) | **Probe – Sense – Respond:** แยกส่วน Controller ออกจาก mutative logic และทดสอบกับ UI Grid จริง |
+| Domain             | ลักษณะปัญหาในโปรเจกต์                                            | ตัวอย่างประเด็น                                                                                                                                                                                                    | รูปแบบการจัดการ (Approach)                                                                     |
+| :----------------- | :--------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------- |
+| **Clear (Simple)** | ปัญหาที่สาเหตุและวิธีแก้ชัดเจนตรงไปตรงมา มี Best Practice รองรับ | - พารามิเตอร์ `flash()` สลับตำแหน่งใน `settings.php`<br>- Dead code `includes/auth.php`<br>- ลืมล้างแคชใน `saveActivity` & `deleteClassSlot`<br>- Path Traversal ใน `delete_upload`                                | **Sense – Categorise – Respond:** แก้ไขทันทีตามมาตรฐานความปลอดภัยและภาษา PHP                   |
+| **Complicated**    | ปัญหาที่ต้องการการวิเคราะห์เชิงลึกและการคำนวณผลกระทบ             | - Insecure Deserialization (`serialize` vs `json`)<br>- Input validation คาบเวลาเรียน & Whitelist คอลัมน์ SQL<br>- Role-based Authorization Matrix ใน Micro-Endpoints<br>- Rate limiting / Throttling ในหน้า Login | **Sense – Analyze – Respond:** ใช้ Decision Matrix และเขียน Helper/Service ย่อยรองรับ          |
+| **Complex**        | ปัญหาที่มีตัวแปรปฏิสัมพันธ์กันหลายส่วน (Interconnected)          | - Side-effects ใน `ensureSpecialSlots()` ที่ทำให้เกิด Zombie Slots ชนกับ DnD Scheduler<br>- การผ่าตัดแยกรหัส God Script (`admin-scheduler.js`, `ScheduleService.php`)                                              | **Probe – Sense – Respond:** แยกส่วน Controller ออกจาก mutative logic และทดสอบกับ UI Grid จริง |
 
 ---
 
@@ -90,6 +95,7 @@
 ```
 
 **Connection Circles (วงจรป้อนกลับในระบบ):**
+
 1. **The Zombie Slot Reinforcing Loop:**  
    `แอดมินลบคาบกิจกรรมพิเศษ` ➔ `นักศึกษา/แอดมินเปิดหน้าตารางเรียน` ➔ `getTimetableGrid() เรียก ensureSpecialSlots()` ➔ `ระบบ auto-INSERT คาบกิจกรรมเดิมกลับเข้ามาใหม่` ➔ `แอดมินเข้าใจว่าระบบพัง/ลบไม่ไป` ➔ `เกิด Database Query 15-20 ครั้งโดยไม่จำเป็นในทุก GET request`
 2. **The Cache Invalidation Balancing Failure:**  
@@ -98,6 +104,7 @@
 ---
 
 ### 1.4 Conflict Resolution Diagram (Evaporating Cloud)
+
 การแก้ไขความขัดแย้งเชิงความต้องการในการออกแบบระบบ:
 
 ```
@@ -119,23 +126,25 @@
 ### 1.5 Decision Matrix (การเลือกแนวทางแก้ไขสำคัญ)
 
 #### Matrix 1: รูปแบบการจัดเก็บข้อมูลแคชใน `CacheService`
-| ทางเลือก | Security (ความปลอดภัย) | Performance (ความเร็ว) | Simplicity (ความเรียบง่าย) | Compatibility | คะแนนรวม (เต็ม 20) |
-| :--- | :---: | :---: | :---: | :---: | :---: |
-| **A. `serialize()` / `unserialize()` (ปัจจุบัน)** | 1 | 5 | 5 | 5 | 16 |
-| **B. `json_encode()` / `json_decode()` (แนะนำ)** | **5** | **4** | **5** | **5** | **19 (ชนะ)** |
-| **C. PHP Array File Export (`var_export`)** | 3 | 5 | 3 | 4 | 15 |
-| **D. APCu / Redis Extension** | 5 | 5 | 2 | 2 (ต้องลง Ext เพิ่ม) | 14 |
 
-*ข้อสรุป:* เลือก **Option B (`json_encode` / `json_decode`)** เพราะปิดความเสี่ยง PHP Object Injection ได้ 100% โดยที่ข้อมูลแคชทั้งหมดของระบบเป็น Scalar Data / Associative Array อยู่แล้ว
+| ทางเลือก                                          | Security (ความปลอดภัย) | Performance (ความเร็ว) | Simplicity (ความเรียบง่าย) |    Compatibility     | คะแนนรวม (เต็ม 20) |
+| :------------------------------------------------ | :--------------------: | :--------------------: | :------------------------: | :------------------: | :----------------: |
+| **A. `serialize()` / `unserialize()` (ปัจจุบัน)** |           1            |           5            |             5              |          5           |         16         |
+| **B. `json_encode()` / `json_decode()` (แนะนำ)**  |         **5**          |         **4**          |           **5**            |        **5**         |    **19 (ชนะ)**    |
+| **C. PHP Array File Export (`var_export`)**       |           3            |           5            |             3              |          4           |         15         |
+| **D. APCu / Redis Extension**                     |           5            |           5            |             2              | 2 (ต้องลง Ext เพิ่ม) |         14         |
+
+_ข้อสรุป:_ เลือก **Option B (`json_encode` / `json_decode`)** เพราะปิดความเสี่ยง PHP Object Injection ได้ 100% โดยที่ข้อมูลแคชทั้งหมดของระบบเป็น Scalar Data / Associative Array อยู่แล้ว
 
 #### Matrix 2: สิทธิ์การเข้าถึง Micro-Endpoints (Authorization Strategy)
-| ทางเลือก | ความปลอดภัย | ผลกระทบต่อโค้ดเดิม | ความยืดหยุ่น | คะแนนรวม |
-| :--- | :---: | :---: | :---: | :---: |
-| **A. ใช้ `isLoggedIn()` ต่อไป (ปัจจุบัน)** | 2 | 5 | 2 | 9 |
-| **B. บังคับ `requireRole('admin')` ทุกไฟล์** | 4 | 4 | 3 | 11 |
-| **C. Action-based RBAC Matrix (แนะนำ)** | **5** | **4** | **5** | **14 (ชนะ)** |
 
-*ข้อสรุป:* เลือก **Option C** โดยแยก Action ที่เป็นระดับโครงสร้าง (Reorder, Swap Head, Delete, Course Master) ให้เฉพาะ `admin` เท่านั้น ส่วน `editor` ทำได้เฉพาะการกรอก/แก้ไขเนื้อหา
+| ทางเลือก                                     | ความปลอดภัย | ผลกระทบต่อโค้ดเดิม | ความยืดหยุ่น |   คะแนนรวม   |
+| :------------------------------------------- | :---------: | :----------------: | :----------: | :----------: |
+| **A. ใช้ `isLoggedIn()` ต่อไป (ปัจจุบัน)**   |      2      |         5          |      2       |      9       |
+| **B. บังคับ `requireRole('admin')` ทุกไฟล์** |      4      |         4          |      3       |      11      |
+| **C. Action-based RBAC Matrix (แนะนำ)**      |    **5**    |       **4**        |    **5**     | **14 (ชนะ)** |
+
+_ข้อสรุป:_ เลือก **Option C** โดยแยก Action ที่เป็นระดับโครงสร้าง (Reorder, Swap Head, Delete, Course Master) ให้เฉพาะ `admin` เท่านั้น ส่วน `editor` ทำได้เฉพาะการกรอก/แก้ไขเนื้อหา
 
 ---
 
@@ -169,16 +178,17 @@
 
 ### 1.7 Second-Order Thinking (ผลกระทบชั้นที่สองและสาม)
 
-| การเปลี่ยนแปลง (1st Order Effect) | ผลกระทบชั้นที่สอง (2nd Order Consequence) | ผลกระทบชั้นที่สาม (3rd Order Consequence) & การป้องกัน |
-| :--- | :--- | :--- |
+| การเปลี่ยนแปลง (1st Order Effect)                      | ผลกระทบชั้นที่สอง (2nd Order Consequence)                                | ผลกระทบชั้นที่สาม (3rd Order Consequence) & การป้องกัน                                                                                                |
+| :----------------------------------------------------- | :----------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **ตัด `ensureSpecialSlots` ออกจาก `getTimetableGrid`** | กลุ่มเรียนใหม่ที่เพิ่งสร้างในระบบจะไม่มีแถวเข้าแถว/พักกลางวันแสดงในตาราง | **มาตรการ:** สร้างปุ่ม "เพิ่มคาบกิจกรรมมาตรฐาน (เสาธง/พักกลางวัน)" ในหน้า Admin และเพิ่มคำสั่งนี้ใน Database Seed เพื่อให้แอดมินกดสร้างได้ในคลิกเดียว |
-| **เปลี่ยน Cache เป็น `json_decode(..., true)`** | ข้อมูลบางชนิดที่เคยเป็น Object จะกลายเป็น Array ทั้งหมด | **ตรวจสอบ:** ตรวจเช็คทุก Consumer ของ `CacheService` พบว่าทุกตัวรับค่าเป็น Array อยู่แล้ว จึงไม่มีผลข้างเคียง |
-| **เพิ่ม Rate Limiter บนหน้า Login** | ผู้ใช้ที่พิมพ์รหัสผ่านผิดบ่อยอาจถูกบล็อกชั่วคราว | **มาตรการ:** แสดงเวลานับถอยหลังที่ชัดเจน (Countdown Badge) และจำกัดเวลาบล็อกเพียง 5 นาที เพื่อไม่ให้กระทบการทำงานปกติ |
-| **บล็อกไดเรกทอรีใน `.htaccess`** | ไฟล์ Static ใน `scratch/` หรือ `database/` จะเข้าถึงทาง Browser ไม่ได้ | **ผลลัพธ์:** ปลอดภัย 100% ตามหลัก Security by Default เพราะไฟล์เหล่านี้เป็น Internal System Assets เท่านั้น |
+| **เปลี่ยน Cache เป็น `json_decode(..., true)`**        | ข้อมูลบางชนิดที่เคยเป็น Object จะกลายเป็น Array ทั้งหมด                  | **ตรวจสอบ:** ตรวจเช็คทุก Consumer ของ `CacheService` พบว่าทุกตัวรับค่าเป็น Array อยู่แล้ว จึงไม่มีผลข้างเคียง                                         |
+| **เพิ่ม Rate Limiter บนหน้า Login**                    | ผู้ใช้ที่พิมพ์รหัสผ่านผิดบ่อยอาจถูกบล็อกชั่วคราว                         | **มาตรการ:** แสดงเวลานับถอยหลังที่ชัดเจน (Countdown Badge) และจำกัดเวลาบล็อกเพียง 5 นาที เพื่อไม่ให้กระทบการทำงานปกติ                                 |
+| **บล็อกไดเรกทอรีใน `.htaccess`**                       | ไฟล์ Static ใน `scratch/` หรือ `database/` จะเข้าถึงทาง Browser ไม่ได้   | **ผลลัพธ์:** ปลอดภัย 100% ตามหลัก Security by Default เพราะไฟล์เหล่านี้เป็น Internal System Assets เท่านั้น                                           |
 
 ---
 
 ### 1.8 Confidence Determines Speed vs. Quality
+
 - **ประเด็น Security & Logic Bugs:** ความเชื่อมั่นในปัญหา = **สูงมาก (High Confidence)**, ความเชื่อมั่นในวิธีแก้ = **สูงมาก (High Confidence)** ➔ **Focus on Quality & Thoroughness** (เขียนโค้ดอย่างประณีต ครอบคลุม Edge Cases และมี Regression Test)
 - **ประเด็น God Components Splitting:** ความเชื่อมั่น = **สูง (High)** ➔ ค่อยๆ แตกไฟล์ JS/CSS โดยคง Selector และ API Contract เดิมไว้ 100% เพื่อไม่ให้เกิด UI Regression
 
@@ -187,6 +197,7 @@
 ## 📋 2. Comprehensive Findings Catalog (สรุป 23 ประเด็นที่ต้องแก้ไข)
 
 ### 🔴 หมวดที่ 1: ความปลอดภัย & ช่องโหว่ (Security & Vulnerabilities)
+
 1. **[SEC-01] Insecure Deserialization in `CacheService.php`:** มีการใช้ `unserialize()` อ่านไฟล์แคช เสี่ยง PHP Object Injection ➔ เปลี่ยนเป็น `json_encode()` / `json_decode(..., true)`
 2. **[SEC-02] Path Traversal in `helpers.php:delete_upload()`:** ตรวจสอบเพียง `str_starts_with` เสี่ยงต่อ `uploads/../../` ➔ ใช้ `realpath()` ตรวจสอบว่าต้องอยู่ใต้ `UPLOAD_DIR` เท่านั้น
 3. **[SEC-03] Internal Directory Exposure in `.htaccess`:** โฟลเดอร์ `scratch/cache/`, `database/`, `.env` สามารถเข้าถึงได้ผ่าน URL ➔ เพิ่มกฎ Rewrite/Deny ใน `.htaccess`
@@ -198,6 +209,7 @@
 9. **[SEC-09] Role Authorization Missing in Micro-Endpoints:** `teachers.php`, `club.php`, `classes.php` ตรวจเฉพาะ `isLoggedIn()` ➔ บังคับ `requireRole('admin')` สำหรับ CUD/Reorder/Swap actions
 
 ### 🟡 หมวดที่ 2: ข้อผิดพลาดทางตรรกะ & ประสิทธิภาพ (Logic Bugs & Performance)
+
 10. **[BUG-01] Side-effects in Read Query (`ensureSpecialSlots`):** `ScheduleService::getTimetableGrid()` รัน INSERT ใน Read Query ทำให้สล็อตที่ลบฟื้นคืนชีพ ➔ ตัดออกจาก Read Query และทำเป็น Explicit Action
 11. **[BUG-02] Parameter Swapping Bug in `admin/settings.php`:** เรียก `flash('error', ...)` และ `flash('success', ...)` สลับตำแหน่ง ➔ สลับพารามิเตอร์ให้ถูกต้อง
 12. **[BUG-03] Missing Cache Invalidation on Activity Update:** `ScheduleService::saveActivity()` ไม่ได้สั่ง `CacheService::forget('activities_grouped')` เมื่อ `$id` มีค่า ➔ ย้าย `forget()` ออกมาทำงานทุกกรณี
@@ -206,17 +218,21 @@
 15. **[BUG-06] Missing Input Validation in Periods Modal (`save_periods`):** ไม่ตรวจความถูกต้องของเวลาเริ่มต้น-สิ้นสุด ➔ เพิ่ม Regex `^\d{2}:\d{2}$` และตรวจสอบ `start < end`
 
 ### 🔵 หมวดที่ 3: โค้ดที่ไม่ได้ใช้งาน & ขยะตกค้าง (Dead & Redundant Code)
+
 16. **[DEAD-01] Redundant Compatibility File `includes/auth.php`:** ไฟล์ 6 บรรทัดที่ไม่มีการเรียกใช้แล้ว ➔ ทำความสะอาดหรือลบออก
 17. **[DEAD-02] Unused Schema Column `badge_text` in `activities`:** มีใน Schema แต่โค้ดคำนวณผ่าน Helper อัตโนมัติ ➔ ระบุ Document และทำความสะอาดโค้ดที่ไม่เกี่ยวข้อง
 18. **[DEAD-03] Helper Delegation Duplication (`send_cache_headers`):** เรียกซ้ำซ้อนกับ `CacheService::sendPublicHeaders` ➔ ปรับให้เป็น Single Source of Truth
 19. **[DEAD-04] Magic Numbers in Upload Validation:** ขนาดไฟล์ 5MB ถูกฮาร์ดโค้ดซ้ำซ้อน ➔ บังคับใช้ `MAX_UPLOAD_BYTES`
+
 ### 🟢 หมวดที่ 4: สถาปัตยกรรม & Clean Code (Refactoring & Code Quality)
+
 20. **[CLEAN-01] God Script `assets/js/admin-scheduler.js` (1,590 บรรทัด):** รวม 8 หน้าที่ไว้ในไฟล์เดียว ➔ แยก Concerns ออกเป็นโมดูลย่อยที่ชัดเจน
 21. **[CLEAN-02] Inline Scripts in `admin/news.php` (585 บรรทัด):** มี inline JS 80+ บรรทัด ➔ แยกออกไปยัง `assets/js/admin-news.js`
 22. **[CLEAN-03] Deep Nesting in `ScheduleService::getTimetableGrid()`:** ลูปและเงื่อนไขซ้อนกันเกิน 3-4 ชั้น ➔ Extract Helper Functions สำหรับการคำนวณ Colspan และ Period Matching
 23. **[CLEAN-04] Strict Type Declarations:** ขาด `declare(strict_types=1);` ในไฟล์ Service และ API ➔ เพิ่มให้ครบทุกไฟล์หลัก
 
 ### 🔴 หมวดที่ 5: สถาปัตยกรรมจัดการข้อผิดพลาด (Unified Error Handling Architecture)
+
 24. **[ERR-01] No Silent Fallback / Exception Swallowing in `FacultyService`:**
     - ใน `setHeadTeacher()` และ `setClubPresident()` มีการ `catch (Exception $e) { $db->rollBack(); return false; }` ซึ่งกลืนข้อผิดพลาดทิ้ง ทำให้ API และแอดมินไม่รู้สาเหตุแท้จริง ➔ ให้สั่ง Rollback แล้ว `throw $e;` ออกมา เพื่อให้ Controller ส่งข้อความ error ที่ชัดเจน
 25. **[ERR-02] No Raw HTML in Database Bootstrap Failures (`db.php`):**
@@ -304,6 +320,7 @@
 ### 📦 BATCH 1: Core Security & Vulnerability Hardening
 
 #### 1. [MODIFY] `includes/services/CacheService.php`
+
 - **การเปลี่ยนแปลง:**
   - เปลี่ยนการจัดเก็บใน `set()` จาก `serialize($payload)` เป็น `json_encode($payload, JSON_UNESCAPED_UNICODE)`
   - เปลี่ยนการอ่านใน `get()` จาก `unserialize($content)` เป็น `json_decode($content, true)`
@@ -311,6 +328,7 @@
 - **เหตุผล:** ขจัดความเสี่ยง PHP Object Injection / Insecure Deserialization ป้องกันการทำ Remote Code Execution ได้อย่างถาวร
 
 #### 2. [MODIFY] `includes/helpers.php`
+
 - **การเปลี่ยนแปลง:**
   - ปรับปรุง `delete_upload(?string $path)` ให้ใช้ `realpath()` และตรวจสอบว่าเส้นทางไฟล์ปลายทางต้องอยู่ภายใต้ `realpath(UPLOAD_DIR)` เท่านั้น
   - ปรับปรุง `delete_record_with_asset()` ให้เพิ่ม Whitelist ตรวจสอบ `$column` (`$allowedCols = ['image_path']`)
@@ -318,6 +336,7 @@
 - **เหตุผล:** ป้องกันช่องโหว่ Path Traversal ในการลบไฟล์ระบบ และป้องกันการฉีดชื่อคอลัมน์แปลกปลอมใน SQL
 
 #### 3. [MODIFY] `.htaccess`
+
 - **การเปลี่ยนแปลง:** เพิ่มกฎปฏิเสธการเข้าถึงไดเรกทอรีและไฟล์สำคัญ:
   ```apache
   # Deny direct access to internal sensitive directories & files
@@ -327,14 +346,17 @@
 - **เหตุผล:** ป้องกันผู้ไม่หวังดีดาวน์โหลดไฟล์โครงสร้างฐานข้อมูล (`schema.sql`), ไฟล์แคชระบบ (`.cache`), หรือไฟล์คอนฟิกโดยตรง
 
 #### 4. [MODIFY] `assets/js/admin-hero.js`
+
 - **การเปลี่ยนแปลง:** ในฟังก์ชันอัปเดต Preview Modal บรรทัด 141-146 เปลี่ยนจากการกำหนด `.innerHTML` เป็น `.textContent`
 - **เหตุผล:** ป้องกัน DOM-based XSS เมื่อผู้ดูแลระบบพิมพ์ข้อความที่มี HTML Tag หรือ Script เข้ามาในฟอร์ม
 
 #### 5. [MODIFY] `assets/js/admin-quill.js`
+
 - **การเปลี่ยนแปลง:** ในส่วนแปลง Markdown Link ตรวจสอบว่า URL ต้องขึ้นต้นด้วย `http://`, `https://`, `mailto:`, หรือ `/` เท่านั้น หากเป็น `javascript:` ให้แทนที่ด้วย `#`
 - **เหตุผล:** ป้องกัน Protocol-based XSS (`javascript:...`) ในเนื้อหาข่าวสาร
 
 #### 6. [MODIFY] `pages/login.php` & `includes/services/AuthService.php`
+
 - **การเปลี่ยนแปลง:**
   - ใน `pages/login.php`: เพิ่มการนับ Failed Attempts ลงใน `$_SESSION['login_attempts']` และ `$_SESSION['lockout_time']` หากผิดเกิน 5 ครั้ง ให้ระงับการล็อกอิน 5 นาที
   - ใน `AuthService::deleteUser()`: ตรวจสอบจำนวนผู้ดูแลระบบที่มี `role = 'admin'` หากเหลือเพียงคนเดียวและเป้าหมายที่ต้องการลบเป็น `admin` ให้โยน `RuntimeException` ปฏิเสธการลบ
@@ -345,6 +367,7 @@
 ### 📦 BATCH 2: Role-based Authorization Matrix (RBAC Enforcement)
 
 #### 1. [MODIFY] `api/admin/teachers.php`
+
 - **การเปลี่ยนแปลง:**
   - นำ `AuthService::requireLogin()` เดิมมาขยายผล:
     - ตรวจสอบ `$currentUser = AuthService::currentUser();`
@@ -356,13 +379,15 @@
           exit;
       }
       ```
-- **เหตุผล:** ป้องกันผู้ใช้สิทธิ์ `editor` แอบส่งคำสั่ง AJAX มาสลับตำแหน่งหรือแต่งตั้งหัวหน้าแผนกวิชา
+- **เหตุผล:** ป้องกันผู้ใช้สิทธิ์ `editor` แอบส่งคำสั่ง AJAX มาสลับตำแหน่งหรือแต่งตั้งหัวหน้าสาขาวิชา
 
 #### 2. [MODIFY] `api/admin/club.php`
+
 - **การเปลี่ยนแปลง:** เพิ่มการตรวจสอบ `AuthService::hasRole('admin')` ในกรณีคำสั่ง `swap_head` และ `reorder` เช่นเดียวกับครู
 - **เหตุผล:** ป้องกันการแทรกแซงโครงสร้างตำแหน่งกรรมการชมรมวิชาชีพจากผู้ใช้ทั่วไป
 
 #### 3. [MODIFY] `api/admin/classes.php`
+
 - **การเปลี่ยนแปลง:** ใน Actions: `ajax_update_special_period`, `delete_course`, `save_course` ให้ตรวจสอบสิทธิ์ `admin` เนื่องจากเป็นข้อมูลหลักสูตรและโครงสร้างเวลาส่วนกลาง
 - **เหตุผล:** จำกัดสิทธิ์การแก้ไขโครงสร้างคาบเวลาและหลักสูตรให้เฉพาะแอดมินระดับสูง
 
@@ -371,6 +396,7 @@
 ### 📦 BATCH 3: Logic Bugs, Cache Integrity & Performance Fixes
 
 #### 1. [MODIFY] `includes/services/ScheduleService.php`
+
 - **การเปลี่ยนแปลง:**
   - ลบคำสั่ง `self::ensureSpecialSlots($group);` ออกจากฟังก์ชัน `getTimetableGrid()` (บรรทัด 230)
   - เพิ่มเมธอดใหม่ `public static function restoreDefaultSpecialSlots(string $group): void` เพื่อให้เรียกใช้ได้เมื่อแอดมินตั้งใจกดกู้คืนคาบกิจกรรม
@@ -382,17 +408,20 @@
   - แก้ไขปัญหาแคชกิจกรรมและแคชตารางเรียนไม่อัปเดตเมื่อมีการแก้ไขหรือลบ
 
 #### 2. [MODIFY] `admin/settings.php`
+
 - **การเปลี่ยนแปลง:**
   - บรรทัด 15: แก้ไขจาก `flash('error', 'คุณไม่มีสิทธิ์เข้าถึงหน้านี้');` เป็น `flash('คุณไม่มีสิทธิ์เข้าถึงหน้านี้', 'error');`
   - บรรทัด 58: แก้ไขจาก `flash('success', 'บันทึกการตั้งค่าระบบเรียบร้อยแล้ว');` เป็น `flash('บันทึกการตั้งค่าระบบเรียบร้อยแล้ว', 'success');`
 - **เหตุผล:** แก้ไข Parameter Swapping Bug ที่ทำให้ข้อความแจ้งเตือนแสดงผลผิดเพี้ยนเป็นคำว่า "error" หรือ "success"
 
 #### 3. [MODIFY] `includes/services/NewsService.php`
+
 - **การเปลี่ยนแปลง:** ปรับปรุงฟังก์ชัน `createCategory(string $name)`:
   - หากแปลงเป็น slug ภาษาอังกฤษไม่ได้ (ชื่อเป็นภาษาไทยล้วน) ให้สร้าง Slug ที่มีความหมาย เช่น `cat-th-` ตามด้วย hash สั้น หรือใช้ UTF-8 transliteration แทนที่จะเป็น timestamp สุ่ม
 - **เหตุผล:** ป้องกันปัญหา URL หมวดหมู่ขาดความเป็น Semantic / Human-readable
 
 #### 4. [MODIFY] `admin/classes.php` & `includes/renderers/classes-modals.php`
+
 - **การเปลี่ยนแปลง:** ในกรณี `sub_action === 'save_periods'` ให้ตรวจสอบข้อมูลอาร์เรย์ `p_start`, `p_end`, `p_type`:
   - ต้องตรงรูปแบบเวลา `H:i` หรือ `H:i:s`
   - `strtotime($p_start) < strtotime($p_end)`
@@ -404,14 +433,17 @@
 ### 📦 BATCH 4: Clean Code, Component Decoupling & Dead Code Cleanup
 
 #### 1. [EXTRACT & MODIFY] `admin/news.php` ➔ [NEW] `assets/js/admin-news.js`
+
 - **การเปลี่ยนแปลง:** ย้าย Inline JavaScript (Quill Setup, Category Modal AJAX, Delete Confirm) ความยาว 80+ บรรทัด จากท้ายไฟล์ `admin/news.php` ไปไว้ใน `assets/js/admin-news.js` และโหลดผ่าน `<script src="...">`
 - **เหตุผล:** ลดขนาดไฟล์ `admin/news.php` ให้ต่ำกว่า 500 บรรทัด แก้ปัญหา God Component และแยก Presentation ออกจาก Client Script ชัดเจน
 
 #### 2. [REFACTOR] `ScheduleService::getTimetableGrid()`
+
 - **การเปลี่ยนแปลง:** แยก Logic ย่อยที่ซับซ้อนในลูปสร้าง Grid (การตรวจสอบ Colspan, การหา Slot ซ้อนทับ) ออกเป็น Private Helper Method เช่น `private static function resolveSlotSpan(...)`
 - **เหตุผล:** ลด Nesting Depth จาก 4 ชั้นให้เหลือไม่เกิน 2 ชั้น ตามหลัก **Clean Code Rule #1 (Guard Clauses) & #7 (Nesting Limits)**
 
 #### 3. [CLEANUP] Dead Code & Modern Standards
+
 - **การเปลี่ยนแปลง:**
   - ใส่ Comment `@deprecated` หรือลบไฟล์ `includes/auth.php` ที่ไม่มีใครเรียกใช้แล้ว
   - เพิ่ม `declare(strict_types=1);` ในไฟล์ Services (`SettingService.php`, `NewsService.php`, `FacultyService.php`)
@@ -423,23 +455,27 @@
 ### 📦 BATCH 5: SQL, Database Resilience & Query Performance Optimization
 
 #### 1. [MODIFY] `includes/db.php`
+
 - **การเปลี่ยนแปลง:**
   - ในฟังก์ชัน `db()` ส่วนจัดการ `catch (PDOException $subEx)`:
     - ตรวจสอบประเภท Request หากปลายทางเป็น API (`/api/`) หรือไคลเอนต์ระบุ `Accept: application/json` หรือ `HTTP_X_REQUESTED_WITH` ให้ส่ง Header `Content-Type: application/json; charset=utf-8` พร้อมสถานะ HTTP 500 และตอบกลับด้วย JSON `{"success": false, "error": "Database connection error"}` แทนการตัดจบด้วย raw HTML `<p>...</p>`
 - **เหตุผล:** ป้องกันการพังทลายของ AJAX Client Parsers (SyntaxError: Unexpected token '<') เมื่อฐานข้อมูลมีปัญหา ทำให้ Frontend แสดงผลข้อผิดพลาดได้อย่างนุ่มนวล (Graceful Degradation)
 
 #### 2. [MODIFY] `includes/services/FacultyService.php`
+
 - **การเปลี่ยนแปลง:**
   - ในเมธอด `setHeadTeacher(int $newHeadId)` และ `setClubPresident(int $newHeadId)`:
     - เปลี่ยนจาก `catch (Exception $e) { $db->rollBack(); return false; }` เป็นการสั่ง Rollback บันทึก `error_log()` แล้ว `throw $e;` ออกมา เพื่อให้ Micro-Endpoints สามารถส่ง Semantic Error Message ระบุต้นตอที่แท้จริงได้
 - **เหตุผล:** ปฏิบัติตามหลัก **Clean Code Rule #8 (No Silent Failures)** ยุติการกลืน Exception ทิ้งอย่างเงียบๆ
 
 #### 3. [MODIFY] `includes/services/ScheduleService.php`
+
 - **การเปลี่ยนแปลง:**
   - ใน `getActivitiesGroupedByMonth()`: หุ้มคำสั่ง Query ด้วย `CacheService::remember('activities_grouped', 300, ...)`
 - **เหตุผล:** ลดภาระ Full Table Scan ในตาราง `activities` สำหรับทุกหน้าที่มีการแสดงรายการกิจกรรม และสอดรับกับ `CacheService::forget('activities_grouped')` ที่มีอยู่แล้วใน `saveActivity()` และ `deleteActivity()`
 
 #### 4. [AUDIT & OPTIMIZE] Database Index & Schema Check
+
 - **การเปลี่ยนแปลง:**
   - ตรวจสอบ Index ครอบคลุม:
     - `activities`: `INDEX idx_act_date_time (event_date ASC, time_start ASC)`
@@ -452,6 +488,7 @@
 ### 📦 BATCH 6: Architectural Modularization of God Component (`assets/js/admin-scheduler.js` - 1,590 บรรทัด)
 
 #### 🎯 แผนผังการแยกโมดูล (Target Modular Architecture - COMPLETED):
+
 1. **`assets/js/modules/scheduler-ui.js` (93 บรรทัด):**
    - Toast notifications & responsive day tabs (< 1024px) ด้วย safe DOM construction
 2. **`assets/js/modules/scheduler-api.js` (89 บรรทัด):**
@@ -494,33 +531,47 @@
 ## 🛡️ 5. Operational Safety, Migrations & Resiliency Additions
 
 ### 5.1 Action & Migration: ปุ่มกู้คืนคาบกิจกรรมมาตรฐาน (Explicit Seed / Restore)
+
 - **ปัญหาเดิม:** การตัด `ensureSpecialSlots()` ออกจาก `getTimetableGrid()` อาจทำให้ตารางเรียนของกลุ่มเรียนใหม่ไม่มีคาบหน้าเสาธงหรือพักกลางวันตั้งต้น
 - **ส่วนเสริมในแผน:**
   1. ใน [includes/services/ScheduleService.php](file:///c:/xampp/htdocs/web/includes/services/ScheduleService.php): เพิ่มเมธอด `public static function restoreDefaultSpecialSlots(string $group): int`
   2. ใน [admin/classes.php](file:///c:/xampp/htdocs/web/admin/classes.php): เพิ่มตัวรับคำสั่ง `sub_action === 'restore_default_special_slots'`
   3. ใน [includes/renderers/scheduler-table.php](file:///c:/xampp/htdocs/web/includes/renderers/scheduler-table.php) / Toolbars: เพิ่มปุ่มกดด่วนสำหรับแอดมิน:
      ```html
-     <button type="submit" name="sub_action" value="restore_default_special_slots" class="btn btn-sm btn-line text-navy" onclick="return confirm('ยืนยันสร้างคาบเข้าแถวหน้าเสาธง (08:00-08:30) และพักกลางวัน (12:30-13:30) สำหรับกลุ่มเรียนนี้?')">
+     <button
+       type="submit"
+       name="sub_action"
+       value="restore_default_special_slots"
+       class="btn btn-sm btn-line text-navy"
+       onclick="return confirm('ยืนยันสร้างคาบเข้าแถวหน้าเสาธง (08:00-08:30) และพักกลางวัน (12:30-13:30) สำหรับกลุ่มเรียนนี้?')"
+     >
        <?= icon('clock', 15) ?> กู้คืนคาบกิจกรรมมาตรฐาน
      </button>
      ```
   4. ทำงานแบบ idempotent: เช็คก่อนสร้าง หากมีคาบอยู่แล้วหรือไม่ว่าง จะไม่ทับซ้อน
 
 ### 5.2 CSRF & Session Heartbeat สำหรับหน้า Scheduler ที่เปิดค้างนาน
+
 - **ปัญหาเดิม:** แอดมินอาจเปิดหน้าจัดตารางสอนค้างไว้ 20-30 นาที จน Session ขาด ส่งผลให้การลากวาง (Drag & Drop) ล้มเหลวแบบเงียบ
 - **ส่วนเสริมในแผน:**
   1. ใน [assets/js/admin-scheduler.js](file:///c:/xampp/htdocs/web/assets/js/admin-scheduler.js): เพิ่ม Global AJAX Error Interceptor:
      ```javascript
      // ดักจับ HTTP 419 (CSRF Token Expired) หรือ 401 (Unauthorized)
      if (res.status === 419 || res.status === 401) {
-       showToast('เซสชันการทำงานหมดอายุ กรุณารีเฟรชหน้าเว็บเพื่อเข้าสู่ระบบใหม่', 'error');
-       setTimeout(() => { window.location.reload(); }, 2500);
+       showToast(
+         "เซสชันการทำงานหมดอายุ กรุณารีเฟรชหน้าเว็บเพื่อเข้าสู่ระบบใหม่",
+         "error",
+       );
+       setTimeout(() => {
+         window.location.reload();
+       }, 2500);
        return;
      }
      ```
   2. เพิ่ม Heartbeat ping เล็กๆ ทุก 10 นาทีเพื่อต่ออายุเซสชันขณะที่แอดมินยังคง active อยู่บนหน้าจัดตาราง
 
 ### 5.3 Rollback & Safety Net Protocol (ก่อนลงมือแก้ไข)
+
 - **ส่วนเสริมในแผน:**
   1. **Git Snapshot Branch:** บันทึกสถานะปัจจุบันไว้เป็น Safety Net ก่อนแตะต้องไฟล์:
      ```powershell
@@ -534,7 +585,9 @@
 ## 🧪 6. Verification & Testing Protocol
 
 ### 6.1 Automated Syntax & Regression Verification
+
 ทุกไฟล์ที่ได้รับการแก้ไขจะต้องผ่านการตรวจสอบ Syntax ด้วย PHP CLI และรัน Test Suite:
+
 ```powershell
 # 1. ตรวจสอบ PHP Syntax ทุกไฟล์ในโปรเจกต์
 Get-ChildItem -Recurse -Filter *.php | Where-Object { $_.FullName -notmatch "\.git|vendor" } | ForEach-Object { & "C:\xampp\php\php.exe" -l $_.FullName }
@@ -544,7 +597,9 @@ Get-ChildItem -Recurse -Filter *.php | Where-Object { $_.FullName -notmatch "\.g
 ```
 
 ### 6.2 ขยายชุดทดสอบใน `scratch/test_all.php` ให้ครอบคลุมประเด็น Security & Logic
+
 เพิ่ม Test Cases เฉพาะทางลงในชุดทดสอบ `scratch/test_all.php`:
+
 1. **Path Traversal Protection Test:**
    ```php
    // ทดสอบว่า delete_upload ไม่ยอมลบไฟล์นอก UPLOAD_DIR
@@ -583,12 +638,13 @@ Get-ChildItem -Recurse -Filter *.php | Where-Object { $_.FullName -notmatch "\.g
    ```
 
 ### 6.3 Manual Verification Checklist
+
 1. **[x] Cache Security & Integrity:** ตรวจดูว่าไฟล์ใน `scratch/cache/` ถูกบันทึกเป็น JSON ที่อ่านได้ ปราศจาก PHP serialized strings
 2. **[x] Path Traversal Prevention:** ทดสอบฟังก์ชัน `delete_upload()` ด้วยพารามิเตอร์จำลอง `uploads/../test.txt` ตรวจดูว่าระบบไม่ยอมให้ลบไฟล์นอก `uploads/`
 3. **[x] Directory Protection:** ทดสอบเปิดเบราว์เซอร์ไปที่ `http://localhost/web/scratch/cache/` และ `http://localhost/web/database/schema.sql` ต้องขึ้น **403 Forbidden**
-4. **[x] Flash Message:** เข้าไปกดบันทึกการตั้งค่าใน `admin/settings.php` แล้วตรวจสอบว่าข้อความแจ้งเตือนแสดงผลว่า *"บันทึกการตั้งค่าระบบเรียบร้อยแล้ว"* อย่างถูกต้อง (ไม่ใช่คำว่า "success")
+4. **[x] Flash Message:** เข้าไปกดบันทึกการตั้งค่าใน `admin/settings.php` แล้วตรวจสอบว่าข้อความแจ้งเตือนแสดงผลว่า _"บันทึกการตั้งค่าระบบเรียบร้อยแล้ว"_ อย่างถูกต้อง (ไม่ใช่คำว่า "success")
 5. **[x] Schedule Read Query Side-Effect:** เปิดดูหน้า `pages/schedule.php` หลายๆ ครั้ง แล้วตรวจดูในตาราง `class_schedule` ว่าไม่มีแถวคาบเสาธงหรือพักกลางวันงอกเพิ่มขึ้นมาเอง
-6. **[x] Restore Default Slots Button:** กดปุ่ม *"กู้คืนคาบกิจกรรมมาตรฐาน"* ในหน้าจัดตารางสอน แล้วตรวจดูว่าคาบกิจกรรมถูกสร้างขึ้นมาอย่างถูกต้องโดยไม่ทับคาบเดิม
+6. **[x] Restore Default Slots Button:** กดปุ่ม _"กู้คืนคาบกิจกรรมมาตรฐาน"_ ในหน้าจัดตารางสอน แล้วตรวจดูว่าคาบกิจกรรมถูกสร้างขึ้นมาอย่างถูกต้องโดยไม่ทับคาบเดิม
 7. **[x] Brute-Force Throttling:** ทดสอบล็อกอินผิด 5 ครั้งในหน้า `login.php` แล้วตรวจดูว่าระบบแจ้งเตือนล็อกระงับสิทธิ์ชั่วคราว
 8. **[x] Admin Lockout:** ทดสอบสร้าง Admin 2 คน แล้วลบ 1 คน (ต้องลบได้) จากนั้นลองลบ Admin คนสุดท้ายที่เหลืออยู่ (ระบบต้องบล็อกและแสดงข้อผิดพลาด)
 9. **[x] Micro-Endpoints RBAC:** ล็อกอินด้วยผู้ใช้บทบาท `editor` แล้วทดสอบยิง AJAX Reorder อาจารย์หรือสมาชิกชมรม ระบบต้องตอบกลับ **403 Forbidden**
@@ -602,12 +658,11 @@ Get-ChildItem -Recurse -Filter *.php | Where-Object { $_.FullName -notmatch "\.g
 > **Regression Suite:** `& "C:\xampp\php\php.exe" -d zend.assertions=1 scratch/test_all.php` (All 20+ files, Syntax, Security, Unit, SQL, Modular Scripts & Live HTTP E2E Passed)  
 > **Browser Smoke Test:** Passed with 0 console errors, active modal combobox filtering & null-grid safety (`scheduler_modular_test_1792009467811.webp`).
 
-| Batch | Scope | Files Modified / Created | Status |
-| :--- | :--- | :--- | :--- |
-| **Batch 1** | Core Security & Hardening | `includes/services/CacheService.php`, `includes/helpers.php`, `.htaccess`, `assets/js/admin-hero.js`, `assets/js/admin-quill.js`, `pages/login.php`, `includes/services/AuthService.php` | ✅ COMPLETED |
-| **Batch 2** | RBAC Enforcement & Semantic Errors | `api/admin/teachers.php`, `api/admin/club.php`, `api/admin/classes.php` | ✅ COMPLETED |
-| **Batch 3** | Pure Read Query & Bug Fixes | `includes/services/ScheduleService.php`, `admin/classes.php`, `admin/settings.php`, `includes/services/NewsService.php` | ✅ COMPLETED |
-| **Batch 4** | Clean Code & Decoupling | `includes/auth.php`, `admin/news.php`, `assets/js/admin-news.js` | ✅ COMPLETED |
-| **Batch 5** | SQL, Database Resilience & Performance | `includes/db.php`, `includes/services/FacultyService.php`, `includes/services/ScheduleService.php`, `includes/services/NewsService.php` | ✅ COMPLETED |
-| **Batch 6** | God Component Modularization (`admin-scheduler.js` - 1,590 บรรทัด) | `assets/js/modules/scheduler-{ui,api,dnd,resize,periods,modals,combobox}.js`, `assets/js/admin-scheduler.js`, `admin/classes.php` | ✅ COMPLETED |
-
+| Batch       | Scope                                                              | Files Modified / Created                                                                                                                                                                 | Status       |
+| :---------- | :----------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :----------- |
+| **Batch 1** | Core Security & Hardening                                          | `includes/services/CacheService.php`, `includes/helpers.php`, `.htaccess`, `assets/js/admin-hero.js`, `assets/js/admin-quill.js`, `pages/login.php`, `includes/services/AuthService.php` | ✅ COMPLETED |
+| **Batch 2** | RBAC Enforcement & Semantic Errors                                 | `api/admin/teachers.php`, `api/admin/club.php`, `api/admin/classes.php`                                                                                                                  | ✅ COMPLETED |
+| **Batch 3** | Pure Read Query & Bug Fixes                                        | `includes/services/ScheduleService.php`, `admin/classes.php`, `admin/settings.php`, `includes/services/NewsService.php`                                                                  | ✅ COMPLETED |
+| **Batch 4** | Clean Code & Decoupling                                            | `includes/auth.php`, `admin/news.php`, `assets/js/admin-news.js`                                                                                                                         | ✅ COMPLETED |
+| **Batch 5** | SQL, Database Resilience & Performance                             | `includes/db.php`, `includes/services/FacultyService.php`, `includes/services/ScheduleService.php`, `includes/services/NewsService.php`                                                  | ✅ COMPLETED |
+| **Batch 6** | God Component Modularization (`admin-scheduler.js` - 1,590 บรรทัด) | `assets/js/modules/scheduler-{ui,api,dnd,resize,periods,modals,combobox}.js`, `assets/js/admin-scheduler.js`, `admin/classes.php`                                                        | ✅ COMPLETED |

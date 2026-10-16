@@ -121,7 +121,7 @@ include __DIR__ . '/includes/header.php';
     <div class="section-head">
       <div>
         <p class="eyebrow eyebrow-muted">หมวดหมู่เนื้อหา</p>
-        <h2>สารบัญแผนกวิชา</h2>
+        <h2>สารบัญสาขาวิชา</h2>
       </div>
     </div>
 
@@ -129,7 +129,7 @@ include __DIR__ . '/includes/header.php';
       <li>
         <a href="<?= url('about') ?>">
           <div>
-            <span class="index-title">เกี่ยวกับแผนกวิชา</span>
+            <span class="index-title">เกี่ยวกับสาขาวิชา</span>
             <span class="index-desc">วิสัยทัศน์ สมรรถนะหลักสูตร หัวหน้าแผนก และช่องทางการติดต่อ</span>
           </div>
           <?= icon('arrow-right', 20) ?>

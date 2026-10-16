@@ -175,7 +175,7 @@ include __DIR__ . '/../includes/header.php';
 
       <!-- Print-Only Header Metadata -->
       <div class="print-metadata-header d-none">
-        <span>แผนกวิชาเทคโนโลยีธุรกิจดิจิทัล — ตารางเรียนระดับชั้น: <?= e($selectedGroup) ?></span>
+        <span>สาขาวิชาเทคโนโลยีธุรกิจดิจิทัล — ตารางเรียนระดับชั้น: <?= e($selectedGroup) ?></span>
         <span>พิมพ์เมื่อ: <?= date('d/m/Y H:i') ?> น.</span>
       </div>
 
@@ -358,7 +358,7 @@ include __DIR__ . '/../includes/header.php';
               <?= icon('calendar', 28) ?>
             </div>
             <p class="empty-state-title">ยังไม่มีกำหนดการกิจกรรมในขณะนี้</p>
-            <p class="empty-state-desc">ยังไม่มีการเพิ่มกิจกรรมหรือกำหนดการของแผนกวิชาในระบบ</p>
+            <p class="empty-state-desc">ยังไม่มีการเพิ่มกิจกรรมหรือกำหนดการของสาขาวิชาในระบบ</p>
           </div>
         <?php else: ?>
           <?php foreach ($activitiesByMonth as $ym => $items): ?>

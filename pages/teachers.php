@@ -27,7 +27,7 @@ include __DIR__ . '/../includes/header.php';
     </p>
     <h1>อาจารย์และชมรมวิชาชีพ</h1>
     <p class="lead-text">
-      ทำเนียบคณาจารย์ผู้ทรงคุณวุฒิประจำแผนกวิชา และคณะกรรมการชมรมวิชาชีพเทคโนโลยีธุรกิจดิจิทัล
+      ทำเนียบคณาจารย์ผู้ทรงคุณวุฒิประจำสาขาวิชา และคณะกรรมการชมรมวิชาชีพเทคโนโลยีธุรกิจดิจิทัล
     </p>
   </div>
 </div>
@@ -40,7 +40,7 @@ include __DIR__ . '/../includes/header.php';
     <div class="section-head">
       <div>
         <p class="eyebrow eyebrow-muted">คณาจารย์ผู้สอน</p>
-        <h2>คณาจารย์ประจำแผนกวิชา</h2>
+        <h2>คณาจารย์ประจำสาขาวิชา</h2>
       </div>
       <span class="mono text-muted" style="font-size: 14px;"><?= count($teachers) ?> ท่าน</span>
     </div>
@@ -54,7 +54,7 @@ include __DIR__ . '/../includes/header.php';
 
             <div>
               <?php if (!empty($teacher['is_head'])): ?>
-                <span class="sub d-block text-accent-ink fw-semibold mb-1">★ หัวหน้าแผนกวิชา</span>
+                <span class="sub d-block text-accent-ink fw-semibold mb-1">★ หัวหน้าสาขาวิชา</span>
               <?php endif; ?>
               <h3><?= e($teacher['name']) ?></h3>
               <p><?= e($teacher['position']) ?></p>

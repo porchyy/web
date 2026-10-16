@@ -20,13 +20,13 @@ $flash = flash();
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="แผนกวิชาเทคโนโลยีธุรกิจดิจิทัล - Digital Business Technology สถานศึกษายุคใหม่ เรียนรู้การพัฒนาเทคโนโลยีและธุรกิจดิจิทัลร่วมสมัย">
+  <meta name="description" content="สาขาวิชาเทคโนโลยีธุรกิจดิจิทัล - Digital Business Technology สถานศึกษายุคใหม่ เรียนรู้การพัฒนาเทคโนโลยีและธุรกิจดิจิทัลร่วมสมัย">
   
   <!-- Open Graph / Social Sharing -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="<?= e(SITE_NAME) ?>">
   <meta property="og:title" content="<?= $titleText ?>">
-  <meta property="og:description" content="แผนกวิชาเทคโนโลยีธุรกิจดิจิทัล - Digital Business Technology สถานศึกษายุคใหม่ เรียนรู้การพัฒนาเทคโนโลยีและธุรกิจดิจิทัลร่วมสมัย">
+  <meta property="og:description" content="สาขาวิชาเทคโนโลยีธุรกิจดิจิทัล - Digital Business Technology สถานศึกษายุคใหม่ เรียนรู้การพัฒนาเทคโนโลยีและธุรกิจดิจิทัลร่วมสมัย">
   <meta property="og:image" content="<?= url('uploads/seed/hero-lab.jpg') ?>">
 
   <title><?= $titleText ?></title>

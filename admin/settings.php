@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ];
 
     if ($settingsToSave['site_name'] === '') {
-        $errors[] = 'กรุณาระบุชื่อแผนกวิชา (ภาษาไทย)';
+        $errors[] = 'กรุณาระบุชื่อสาขาวิชา (ภาษาไทย)';
     }
 
     if (empty($errors)) {
@@ -122,24 +122,24 @@ $contactFbUrl        = $settings['contact_facebook_url'] ?? CONTACT_FACEBOOK_URL
     <div class="tab-pane fade show active" id="general" role="tabpanel" aria-labelledby="general-tab">
       <div class="admin-card">
         <div class="admin-card-head">
-          <h2>ข้อมูลแผนกวิชาและสถานศึกษา</h2>
+          <h2>ข้อมูลสาขาวิชาและสถานศึกษา</h2>
         </div>
 
         <div class="row g-3">
           <div class="col-12 col-md-6">
-            <label class="form-label" for="site_name">ชื่อแผนกวิชา (ภาษาไทย) <span class="req">*</span></label>
+            <label class="form-label" for="site_name">ชื่อสาขาวิชา (ภาษาไทย) <span class="req">*</span></label>
             <input type="text" id="site_name" name="site_name" class="form-control" value="<?= e($siteName) ?>" required>
             <div class="form-text">แสดงผลเป็นชื่อหลักบนหัวเว็บและเอกสารราชการ</div>
           </div>
 
           <div class="col-12 col-md-6">
-            <label class="form-label" for="site_name_en">ชื่อแผนกวิชา (ภาษาอังกฤษ)</label>
+            <label class="form-label" for="site_name_en">ชื่อสาขาวิชา (ภาษาอังกฤษ)</label>
             <input type="text" id="site_name_en" name="site_name_en" class="form-control" value="<?= e($siteNameEn) ?>">
             <div class="form-text">เช่น Digital Business Technology</div>
           </div>
 
           <div class="col-12 col-md-6">
-            <label class="form-label" for="site_short">ชื่อย่อแผนกวิชา</label>
+            <label class="form-label" for="site_short">ชื่อย่อสาขาวิชา</label>
             <input type="text" id="site_short" name="site_short" class="form-control mono" value="<?= e($siteShort) ?>">
             <div class="form-text">เช่น DBT</div>
           </div>

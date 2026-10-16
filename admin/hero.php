@@ -186,12 +186,12 @@ require_once __DIR__ . '/../includes/admin-header.php';
 
         <!-- EDITORIAL RICH TEXT BOX WITH QUILL -->
         <div class="mb-3">
-          <label for="hero_intro" class="form-label">คำอธิบายแนะนำแผนกวิชา <span class="req">*</span></label>
+          <label for="hero_intro" class="form-label">คำอธิบายแนะนำสาขาวิชา <span class="req">*</span></label>
           <div id="quill-hero-editor"
                class="quill-editorial-editor"
                data-target-input="hero_intro"
                data-preview-target="modalHeroIntro"
-               data-placeholder="พิมพ์คำอธิบายแนะนำแผนกวิชาที่นี่..."></div>
+               data-placeholder="พิมพ์คำอธิบายแนะนำสาขาวิชาที่นี่..."></div>
           <textarea name="hero_intro"
                     id="hero_intro"
                     class="d-none"

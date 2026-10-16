@@ -2,15 +2,16 @@
 
 ## Problem Statement
 
-นักเรียน นักศึกษา อาจารย์ ผู้ปกครอง และผู้สนใจภายนอก ต้องการเข้าถึงข้อมูลที่สำคัญของแผนกวิชาเทคโนโลยีธุรกิจดิจิทัล (เช่น ข้อมูลหลักสูตร ข่าวสาร ประกาศ ตารางเรียน ตารางกิจกรรม และข้อมูลคณาจารย์) ผ่านอุปกรณ์สมาร์ตโฟนเป็นหลัก แต่เว็บไซต์ของหน่วยงานทางการศึกษาส่วนใหญ่มักออกแบบมาจากมุมมองของหน้าจอ Desktop แล้วย่อขนาดลงมา ส่งผลให้ตัวหนังสือเล็กเกินไป ตารางเรียนกว้างล้นจอจนต้องเลื่อนซ้ายขวา และโครงสร้างเมนูเข้าถึงยากด้วยมือเดียว 
+นักเรียน นักศึกษา อาจารย์ ผู้ปกครอง และผู้สนใจภายนอก ต้องการเข้าถึงข้อมูลที่สำคัญของสาขาวิชาเทคโนโลยีธุรกิจดิจิทัล (เช่น ข้อมูลหลักสูตร ข่าวสาร ประกาศ ตารางเรียน ตารางกิจกรรม และข้อมูลคณาจารย์) ผ่านอุปกรณ์สมาร์ตโฟนเป็นหลัก แต่เว็บไซต์ของหน่วยงานทางการศึกษาส่วนใหญ่มักออกแบบมาจากมุมมองของหน้าจอ Desktop แล้วย่อขนาดลงมา ส่งผลให้ตัวหนังสือเล็กเกินไป ตารางเรียนกว้างล้นจอจนต้องเลื่อนซ้ายขวา และโครงสร้างเมนูเข้าถึงยากด้วยมือเดียว
 
 นอกจากนี้ เว็บไซต์ด้านเทคโนโลยีในปัจจุบันมักตกอยู่ในกับดักการใช้ภาพลักษณ์แบบ AI-generated หรือเทมเพลตสำเร็จรูป (เช่น โทนสี Cyberpunk, แสงนีออน, วัตถุสามมิติลอย, ภาพกราฟิกหุ่นยนต์/สมองดิจิทัล) ซึ่งดูแปลกแยก ไม่มีความเป็นมนุษย์ และไม่สะท้อนเอกลักษณ์ของการศึกษาและการทำงานในโลกธุรกิจจริง ขณะเดียวกัน ผู้ดูแลระบบของแผนกก็ต้องการระบบจัดการหลังบ้านที่ใช้งานง่าย สะดวกบนหน้าจอมือถือ ไม่ติดขัดกับป๊อปอัปแจ้งเตือนดั้งเดิมของเบราว์เซอร์ และปรับปรุงข้อมูลประจำวันได้อย่างรวดเร็ว
 
 ## Solution
 
-ออกแบบและพัฒนาระบบเว็บไซต์และระบบบริหารจัดการข้อมูลของแผนกวิชาเทคโนโลยีธุรกิจดิจิทัลด้วยแนวคิด **Mobile-First 100% (เริ่มต้นที่หน้าจอ 390px)** ภายใต้ปรัชญา **“Human-designed Digital Technology” (Refined Editorial Institutional Design)** ที่ผสาน Modern Technology, Contemporary Education, Editorial Graphic Design และ Clean Interface เข้าด้วยกันอย่างลงตัว
+ออกแบบและพัฒนาระบบเว็บไซต์และระบบบริหารจัดการข้อมูลของสาขาวิชาเทคโนโลยีธุรกิจดิจิทัลด้วยแนวคิด **Mobile-First 100% (เริ่มต้นที่หน้าจอ 390px)** ภายใต้ปรัชญา **“Human-designed Digital Technology” (Refined Editorial Institutional Design)** ที่ผสาน Modern Technology, Contemporary Education, Editorial Graphic Design และ Clean Interface เข้าด้วยกันอย่างลงตัว
 
 ตัวระบบสร้างภาพลักษณ์ความเป็นเทคโนโลยีผ่าน **โครงสร้างของงาน** (ระบบกริด, เส้นคั่นบาง 1px, การจัดวางกลุ่มข้อมูลแบบมีลำดับขั้น, ตัวเลขและ Technical Label สไตล์ Monospace) โดยไม่พึ่งพา Effect ฉูดฉาด ใช้สัดส่วนสีอ่อนเป็นหลัก (ขาว 65%, ฟ้าอ่อน 20%, กรมท่า Deep Navy 10%, ส้ม Accent 5%) ขับเคลื่อนด้วยสถาปัตยกรรมระดับองค์กร:
+
 - **Backend**: PHP 8 ร่วมกับ PDO MySQL Singleton แบบ Prepared Statements 100% พร้อม Domain Service Layer ในการควบคุม Business Logic
 - **Security & Caching**: การเข้ารหัสรหัสผ่านขั้นสูงสุดด้วย Argon2id, ระบบ Whitelist HTML Sanitization ด้วย DOMDocument, และระบบ Short-lived Caching (60s–120s TTL) พร้อม Instant Invalidation
 - **Frontend Architecture**: Bootstrap 5.3 (Reboot & Grid) ผสาน Modular CSS Design Tokens Architecture (`tokens.css`, `base.css`, `components/`, `pages/`, `admin/`) และ Vanilla JS Micro-Modules ล้วน ปราศจากการพึ่งพา External Library ส่วนเกิน
@@ -64,6 +65,7 @@
 ## Implementation Decisions
 
 ### 1. Tech Stack, Architecture & Service Layer
+
 - **Backend**: PHP 8.1+ running natively on standard local environments (XAMPP / Laragon / Linux Apache) with zero required build tools or Node.js in production.
 - **Database**: MySQL / MariaDB with `utf8mb4` encoding and `utf8mb4_unicode_ci` collation. Database connectivity is encapsulated in a PDO Singleton in `includes/db.php`.
 - **Domain Service Layer**: 100% of business logic and database queries are encapsulated in `includes/services/` (Zero SQL in views or controllers):
@@ -76,6 +78,7 @@
 - **Client Scripting**: Vanilla JavaScript micro-modules in `assets/js/` (`modal.js`, `app.js`, `admin-scheduler.js`, `admin-tree-slots.js`, `admin-quill.js`, `admin-hero.js`, `admin-image-upload.js`). Zero heavy frontend frameworks.
 
 ### 2. Design Tokens & Visual Aesthetics (Preserved Standards)
+
 - **Design Philosophy**: Refined Editorial Institutional Design & Human-designed Digital Technology (per [docs/style.md](file:///c:/xampp/htdocs/web/docs/style.md)).
 - **Color Palette & Ratios**:
   - Light Backgrounds (`#FFFFFF`, `#F4F8FA`): ~65%
@@ -95,6 +98,7 @@
   - Technical monogram initials as the default fallback for staff/students without photos.
 
 ### 3. Project Structure & Clean URL Routing
+
 - **Zero Clutter Root Directory**:
   - `index.php`: Essential Entry point (01 / HOME).
   - `error.php`: Centralized error handler for 403, 404, 419, 500 status codes.
@@ -124,6 +128,7 @@
   - Auto-detected `BASE_URL` in `includes/config.php` supporting root domains and subfolder environments.
 
 ### 4. Modular CSS Architecture
+
 - Modular breakdown orchestrated via native CSS `@import`:
   - `assets/css/tokens.css`: Core design tokens (colors, typography, radii, spaces).
   - `assets/css/base.css`: CSS reboot, typography baseline, layout foundations.
@@ -133,6 +138,7 @@
   - `assets/css/site.css` and `assets/css/admin.css`: Clean orchestrators with 100% token consistency.
 
 ### 5. Security & Session Hardening
+
 - **Argon2id Password Hashing**: System standard `PASSWORD_ARGON2ID` with transparent `password_needs_rehash()` check during authentication.
 - **Whitelist HTML Sanitization**: Rich text from news editors is processed via `clean_html()` using native PHP `DOMDocument` against an approved tag/attribute whitelist, neutralizing Stored XSS. URL schemes are restricted to `http`, `https`, `mailto`, and `tel` via `safe_url()`.
 - **Output Escaping**: All dynamic variables rendered in views pass through `e()` (`htmlspecialchars`).
@@ -140,12 +146,14 @@
 - **File Upload Safeguards**: MIME type verification, 5MB file size limit, randomized naming, and direct script execution prevention in `uploads/`.
 
 ### 6. Caching & Performance Architecture
+
 - **Short-Lived Caching (60s–120s TTL)**: Public read-heavy queries (schedule grids, news listings, faculty rosters, site settings) are cached by `CacheService`.
 - **Instant Cache Busting**: Any CUD operation in the admin panel triggers immediate invalidation of relevant cache keys (`CacheService::forget()`).
 - **HTTP Caching Headers**: Public responses include `Cache-Control: public, max-age=60, s-maxage=120, stale-while-revalidate=30`. Admin responses enforce `Cache-Control: no-store, private`.
 - **Client DOM Efficiency**: Batch DOM mutations using `DocumentFragment` and debounced event listeners to prevent layout thrashing.
 
 ### 7. Configuration Management
+
 - Strict decoupling: `.env` is strictly reserved for sensitive environment credentials (`DB_*`, `APP_*`).
 - Presentation, contact info, and site titles are stored in the MySQL `settings` table and editable in `admin/settings.php` via `SettingService`.
 
@@ -192,6 +200,7 @@
 ## Architectural Decision Records (ADRs)
 
 All core architectural decisions are formally documented in the `docs/adr/` directory:
+
 - [0001: สถาปัตยกรรม Editorial Technology บน PHP & Bootstrap 5](file:///c:/xampp/htdocs/web/docs/adr/0001-editorial-technology-design-system.md)
 - [0002: การแบ่งสัดส่วนข้อมูลอาจารย์และชมรมวิชาชีพในหน้า 07](file:///c:/xampp/htdocs/web/docs/adr/0002-dual-domain-faculty-and-club.md)
 - [0003: สถาปัตยกรรม Domain Service Layer และระบบแคชประสิทธิภาพสูง (60s–120s TTL)](file:///c:/xampp/htdocs/web/docs/adr/0003-domain-service-layer-and-caching.md)
