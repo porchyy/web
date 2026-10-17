@@ -247,7 +247,8 @@ require_once __DIR__ . '/../includes/admin-header.php';
               <td class="text-center">
                 <?php if ($hasFile && !$isPdf): ?>
                   <a href="javascript:void(0)"
-                     onclick="openPreviewLightbox('<?= e($fileUrl) ?>', '<?= e(addslashes($ttl)) ?>')"
+                     onclick="openPreviewLightbox('<?= e($fileUrl) ?>', this.getAttribute('data-title'))"
+                     data-title="<?= e($ttl) ?>"
                      title="คลิกเพื่อดูรูปขยาย">
                     <img src="<?= e($fileUrl) ?>"
                          alt="<?= e($ttl) ?>"
