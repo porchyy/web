@@ -195,6 +195,26 @@ require_once __DIR__ . '/../includes/admin-header.php';
                 'file_url'   => $fileUrl,
                 'is_pdf'     => $isPdf,
               ]), ENT_QUOTES, 'UTF-8');
+
+              // Distinguish grade level badge colors for quick scanning
+              $grpLower = mb_strtolower($grpName);
+              if (str_contains($grpLower, 'ปวช')) {
+                  $badgeBg = '#e0f2fe';
+                  $badgeColor = '#0369a1';
+                  $badgeBorder = '#bae6fd';
+              } elseif (str_contains($grpLower, 'ปวส')) {
+                  $badgeBg = '#ede9fe';
+                  $badgeColor = '#6d28d9';
+                  $badgeBorder = '#ddd6fe';
+              } elseif (str_contains($grpLower, 'อาจารย์') || str_contains($grpLower, 'ครู') || str_contains($grpLower, 'คณาจารย์')) {
+                  $badgeBg = '#fef3c7';
+                  $badgeColor = '#92400e';
+                  $badgeBorder = '#fde68a';
+              } else {
+                  $badgeBg = '#f1f5f9';
+                  $badgeColor = '#334155';
+                  $badgeBorder = '#cbd5e1';
+              }
             ?>
             <tr class="schedule-row"
                 data-group="<?= e(mb_strtolower($grpName)) ?>"
@@ -202,7 +222,9 @@ require_once __DIR__ . '/../includes/admin-header.php';
               
               <!-- ระดับชั้น -->
               <td>
-                <span class="badge-count fw-bold" style="font-size: 13px;"><?= e($grpName ?: '-') ?></span>
+                <span class="badge-count fw-bold" style="background: <?= $badgeBg ?>; color: <?= $badgeColor ?>; border: 1px solid <?= $badgeBorder ?>; font-size: 12.5px; padding: 4px 9px;">
+                  <?= e($grpName ?: '-') ?>
+                </span>
               </td>
 
               <!-- รูปตัวอย่าง (คลิกเปิด Lightbox ได้) -->
@@ -214,16 +236,16 @@ require_once __DIR__ . '/../includes/admin-header.php';
                     <img src="<?= e($fileUrl) ?>"
                          alt="<?= e($ttl) ?>"
                          class="table-thumb"
-                         style="cursor: zoom-in; object-fit: cover; transition: transform 0.15s ease;"
+                         style="cursor: zoom-in; object-fit: cover; border: 1px solid #cbd5e1; background: #ffffff; transition: transform 0.15s ease;"
                          onmouseover="this.style.transform='scale(1.1)'"
                          onmouseout="this.style.transform='scale(1)'">
                   </a>
                 <?php elseif ($hasFile && $isPdf): ?>
-                  <a href="<?= e($fileUrl) ?>" target="_blank" class="table-thumb d-inline-flex align-items-center justify-content-center text-danger" title="เปิดไฟล์ PDF">
+                  <a href="<?= e($fileUrl) ?>" target="_blank" class="table-thumb d-inline-flex align-items-center justify-content-center text-danger" title="เปิดไฟล์ PDF" style="background: #fef2f2; border: 1px solid #fecaca;">
                     <?= icon('file-pdf', 24) ?>
                   </a>
                 <?php else: ?>
-                  <div class="table-thumb d-inline-flex align-items-center justify-content-center text-muted" style="font-size: 11px;">
+                  <div class="table-thumb d-inline-flex align-items-center justify-content-center text-muted" style="font-size: 11px; border: 1px solid #e2e8f0; background: #f8fafc;">
                     ไม่มีรูป
                   </div>
                 <?php endif; ?>
@@ -235,7 +257,7 @@ require_once __DIR__ . '/../includes/admin-header.php';
                 <span class="text-muted d-block small mt-1">
                   <?= $isPdf ? 'ไฟล์เอกสารตารางเรียน PDF' : 'ไฟล์รูปภาพตารางเรียน' ?>
                   <?php if ($filePath): ?>
-                    &middot; <span class="mono text-truncate" style="max-width: 320px; display: inline-block; vertical-align: bottom; font-size: 11.5px;"><?= e(basename($filePath)) ?></span>
+                    &middot; <span class="mono text-truncate" style="max-width: 320px; display: inline-block; vertical-align: bottom; font-size: 11.5px; color: #64748b;"><?= e(basename($filePath)) ?></span>
                   <?php endif; ?>
                 </span>
               </td>
@@ -243,15 +265,15 @@ require_once __DIR__ . '/../includes/admin-header.php';
               <!-- ชนิดไฟล์ -->
               <td>
                 <?php if ($isPdf): ?>
-                  <span class="tag" style="background: #fef2f2; color: #b91c1c; border-color: #fca5a5; font-size: 12px;">PDF</span>
+                  <span class="tag" style="background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;">PDF</span>
                 <?php else: ?>
-                  <span class="tag" style="font-size: 12px;">รูปภาพ</span>
+                  <span class="tag" style="background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;">รูปภาพ</span>
                 <?php endif; ?>
               </td>
 
               <!-- วันที่อัปเดต -->
               <td style="font-size: 13px;">
-                <span class="text-navy"><?= thai_date($item['updated_at'] ?? 'now') ?></span>
+                <span class="text-navy fw-medium"><?= thai_date($item['updated_at'] ?? 'now') ?></span>
               </td>
 
               <!-- จัดการ -->
@@ -411,20 +433,26 @@ require_once __DIR__ . '/../includes/admin-header.php';
      ========================================================================= -->
 <div class="modal fade" id="previewImageModal" tabindex="-1" aria-labelledby="previewImageModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-xl modal-dialog-centered">
-    <div class="modal-content border-0 shadow-lg" style="background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(8px);">
-      <div class="modal-header border-0 py-3 px-4 d-flex justify-content-between align-items-center">
-        <h5 class="modal-title text-white fw-bold mb-0" id="previewImageModalLabel">
-          <?= icon('image', 18) ?> <span id="previewLightboxTitle">ดูตัวอย่างตารางเรียน</span>
+    <div class="modal-content border shadow-lg overflow-hidden" style="border-radius: var(--radius-lg, 12px);">
+      <div class="modal-header py-3 px-4 d-flex justify-content-between align-items-center" style="background-color: #17324d !important; border-bottom: 2px solid var(--c-accent, #e5993e);">
+        <h5 class="modal-title fw-bold mb-0 d-flex align-items-center gap-2" id="previewImageModalLabel" style="color: #ffffff !important; font-size: 1.1rem;">
+          <span style="color: #ffffff !important; display: inline-flex;"><?= icon('image', 20) ?></span>
+          <span id="previewLightboxTitle" style="color: #ffffff !important; font-weight: 700;">ดูตัวอย่างตารางเรียน</span>
         </h5>
         <div class="d-flex align-items-center gap-2">
-          <a href="#" id="previewLightboxExternal" target="_blank" class="btn btn-sm btn-line text-white border-secondary" title="เปิดดูในแท็บใหม่">
-            <?= icon('external', 14) ?> <span>เปิดแท็บใหม่</span>
+          <a href="#" id="previewLightboxExternal" target="_blank" class="btn btn-sm d-inline-flex align-items-center gap-1" title="เปิดดูในแท็บใหม่" style="color: #ffffff !important; background: rgba(255, 255, 255, 0.15) !important; border: 1px solid rgba(255, 255, 255, 0.4) !important; min-height: 34px; padding: 4px 12px; font-size: 13px; text-decoration: none;">
+            <span style="color: #ffffff !important; display: inline-flex;"><?= icon('external', 14) ?></span>
+            <span style="color: #ffffff !important;">เปิดแท็บใหม่</span>
           </a>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="ปิด"></button>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="ปิด" style="opacity: 0.9;"></button>
         </div>
       </div>
-      <div class="modal-body p-2 p-md-3 text-center d-flex align-items-center justify-content-center" style="min-height: 480px; max-height: 82vh; overflow: auto;">
-        <img id="previewLightboxImg" src="" alt="ภาพตารางเรียน" class="img-fluid rounded" style="max-height: 78vh; object-fit: contain; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+      <div class="modal-body p-3 p-md-4 text-center d-flex align-items-center justify-content-center" style="min-height: 480px; max-height: 82vh; overflow: auto; background-color: #f1f5f9 !important;">
+        <img id="previewLightboxImg" src="" alt="ภาพตารางเรียน" class="img-fluid rounded border shadow-sm" style="max-height: 78vh; object-fit: contain; background: #ffffff; padding: 4px;">
+      </div>
+      <div class="modal-footer py-2 px-4 bg-white border-top d-flex justify-content-between align-items-center">
+        <span class="text-muted small">คลิก "เปิดแท็บใหม่" หากต้องการพิมพ์หรือดาวน์โหลดไฟล์ขนาดเต็ม</span>
+        <button type="button" class="btn btn-sm btn-navy px-3" data-bs-dismiss="modal" style="min-height: 34px;">ปิดหน้าต่าง</button>
       </div>
     </div>
   </div>
