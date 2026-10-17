@@ -154,7 +154,7 @@ require_once __DIR__ . '/../includes/admin-header.php';
               ?>
               <tr>
                 <td>
-                  <span class="badge bg-navy text-white px-2 py-1 fs-6"><?= e($grpName ?: '-') ?></span>
+                  <span class="badge bg-dark text-white px-2.5 py-1.5 fs-6 fw-bold" style="background-color: #000000 !important; color: #ffffff !important; border-radius: 4px;"><?= e($grpName ?: '-') ?></span>
                 </td>
                 <td>
                   <?php if (!$isPdf && !empty($filePath)): ?>

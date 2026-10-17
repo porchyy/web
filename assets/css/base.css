@@ -300,3 +300,14 @@ main:focus {
     scroll-behavior: auto !important;
   }
 }
+
+/* Utility Helpers */
+.bg-navy {
+  background-color: var(--c-navy, #17324d) !important;
+  color: #ffffff !important;
+}
+
+.text-navy {
+  color: var(--c-navy, #17324d) !important;
+}
+
