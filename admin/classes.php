@@ -109,39 +109,75 @@ require_once __DIR__ . '/../includes/admin-header.php';
   </div>
 <?php endif; ?>
 
-<!-- List of Uploaded Schedules in Table View (Single Unified View) -->
-<div class="admin-card">
-  <div class="admin-card-head d-flex justify-content-between align-items-center">
-    <div>
-      <h3 class="mb-0">ตารางแสดงรายการไฟล์ตารางเรียน</h3>
-      <span class="text-muted small">จัดการและแก้ไขไฟล์ตารางเรียนประจำแต่ละระดับชั้น</span>
+<!-- Schedule Items Standard Admin Table (Unified Design with News & Activities) -->
+<div class="admin-card mb-4">
+  <div class="admin-card-head d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <div class="d-flex align-items-center gap-2">
+      <h3 class="mb-0">รายการไฟล์ตารางเรียนทั้งหมด</h3>
+      <span class="badge-count" id="classesCountBadge"><?= count($scheduleAssets) ?> รายการ</span>
     </div>
-    <span class="badge-count"><?= count($scheduleAssets) ?> รายการ</span>
+    
+    <!-- Unified Search Bar -->
+    <div class="admin-search-wrap">
+      <div class="admin-search-group">
+        <span class="admin-search-prefix" aria-hidden="true"><?= icon('search', 14) ?></span>
+        <input type="text"
+               id="classesSearchInput"
+               class="admin-search-input"
+               placeholder="ค้นหาระดับชั้น หรือชื่อหัวข้อ..."
+               autocomplete="off"
+               aria-label="ค้นหาตารางเรียน">
+        <button type="button"
+                id="btnClassesClearSearch"
+                class="admin-search-clear"
+                title="ล้างคำค้นหา"
+                aria-label="ล้างคำค้นหา"
+                style="display: none;">
+          <?= icon('close', 13) ?>
+        </button>
+      </div>
+    </div>
   </div>
 
-  <?php if (empty($scheduleAssets)): ?>
-    <div class="empty-state p-5 text-center text-muted">
-      <?= icon('file', 40) ?>
-      <h4 class="mt-3">ยังไม่มีไฟล์ตารางเรียน</h4>
-      <p>กดปุ่ม "เพิ่มตารางเรียน" ด้านบนเพื่อเริ่มอัปโหลดรูปภาพตารางเรียน</p>
-      <button type="button" class="btn btn-navy btn-sm mt-2" data-bs-toggle="modal" data-bs-target="#addScheduleModal">
-        <?= icon('plus', 14) ?> เพิ่มตารางเรียนใหม่
-      </button>
-    </div>
-  <?php else: ?>
-    <div class="table-responsive">
-      <table class="admin-table">
-        <thead>
-          <tr>
-            <th style="width: 130px;">ระดับชั้น</th>
-            <th style="width: 100px;">รูปตัวอย่าง</th>
-            <th>ชื่อหัวข้อตารางเรียน</th>
-            <th style="width: 110px;">ชนิดไฟล์</th>
-            <th style="width: 140px;">วันที่อัปเดต</th>
-            <th class="text-end" style="width: 120px;">จัดการ</th>
+  <!-- Filter Pills / Tabs -->
+  <div class="px-3 pt-3 pb-3 border-bottom bg-light d-flex flex-wrap align-items-center gap-2">
+    <span class="text-muted small fw-semibold me-1">กรองระดับชั้น:</span>
+    <button type="button" class="btn btn-sm btn-navy btn-filter-pill is-active py-1 px-3" data-filter="all" style="min-height: 32px; font-size: 13px;">
+      ทั้งหมด (<?= count($scheduleAssets) ?>)
+    </button>
+    <button type="button" class="btn btn-sm btn-line btn-filter-pill py-1 px-3" data-filter="ปวช" style="min-height: 32px; font-size: 13px;">
+      ระดับ ปวช.
+    </button>
+    <button type="button" class="btn btn-sm btn-line btn-filter-pill py-1 px-3" data-filter="ปวส" style="min-height: 32px; font-size: 13px;">
+      ระดับ ปวส.
+    </button>
+    <button type="button" class="btn btn-sm btn-line btn-filter-pill py-1 px-3" data-filter="อาจารย์" style="min-height: 32px; font-size: 13px;">
+      คณาจารย์
+    </button>
+  </div>
+
+  <div class="table-responsive">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th style="width: 120px;">ระดับชั้น</th>
+          <th style="width: 76px;" class="text-center">รูปตัวอย่าง</th>
+          <th>ชื่อหัวข้อตารางเรียน</th>
+          <th style="width: 110px;">ชนิดไฟล์</th>
+          <th style="width: 140px;">วันที่อัปเดต</th>
+          <th class="text-end" style="width: 140px;">จัดการ</th>
+        </tr>
+      </thead>
+      <tbody id="scheduleTableBody">
+        <?php if (empty($scheduleAssets)): ?>
+          <tr id="emptyRow">
+            <td colspan="6" class="text-center py-5 text-muted">
+              <?= icon('file', 36) ?>
+              <div class="mt-2 fw-semibold">ยังไม่มีไฟล์ตารางเรียนในระบบ</div>
+              <div class="small">คลิกปุ่ม "+ เพิ่มตารางเรียน" ด้านบนเพื่อเริ่มอัปโหลด</div>
+            </td>
           </tr>
-        </thead>
-        <tbody>
+        <?php else: ?>
           <?php foreach ($scheduleAssets as $item): ?>
             <?php
               $itemId   = (string) ($item['id'] ?? '');
@@ -150,63 +186,99 @@ require_once __DIR__ . '/../includes/admin-header.php';
               $filePath = (string) ($item['image_path'] ?? '');
               $isPdf    = str_ends_with(strtolower($filePath), '.pdf');
               $fileUrl  = url($filePath);
+              $hasFile  = !empty($filePath) && is_file(ROOT_PATH . '/' . $filePath);
+              $itemJson = htmlspecialchars(json_encode([
+                'id'         => $itemId,
+                'group_name' => $grpName,
+                'title'      => $ttl,
+                'image_path' => $filePath,
+                'file_url'   => $fileUrl,
+                'is_pdf'     => $isPdf,
+              ]), ENT_QUOTES, 'UTF-8');
             ?>
-            <tr>
+            <tr class="schedule-row"
+                data-group="<?= e(mb_strtolower($grpName)) ?>"
+                data-title="<?= e(mb_strtolower($ttl)) ?>">
+              
+              <!-- ระดับชั้น -->
               <td>
                 <span class="badge-count fw-bold" style="font-size: 13px;"><?= e($grpName ?: '-') ?></span>
               </td>
-              <td>
-                <?php if (!$isPdf && !empty($filePath)): ?>
-                  <a href="<?= e($fileUrl) ?>" target="_blank" title="คลิกเพื่อดูรูปภาพขนาดเต็ม" class="d-inline-block text-decoration-none">
-                    <img src="<?= e($fileUrl) ?>" alt="<?= e($ttl) ?>" class="rounded border" style="width: 75px; height: 50px; object-fit: cover; display: block; transition: transform 0.15s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+
+              <!-- รูปตัวอย่าง (คลิกเปิด Lightbox ได้) -->
+              <td class="text-center">
+                <?php if ($hasFile && !$isPdf): ?>
+                  <a href="javascript:void(0)"
+                     onclick="openPreviewLightbox('<?= e($fileUrl) ?>', '<?= e(addslashes($ttl)) ?>')"
+                     title="คลิกเพื่อดูรูปขยาย">
+                    <img src="<?= e($fileUrl) ?>"
+                         alt="<?= e($ttl) ?>"
+                         class="table-thumb"
+                         style="cursor: zoom-in; object-fit: cover; transition: transform 0.15s ease;"
+                         onmouseover="this.style.transform='scale(1.1)'"
+                         onmouseout="this.style.transform='scale(1)'">
                   </a>
-                <?php elseif ($isPdf): ?>
-                  <a href="<?= e($fileUrl) ?>" target="_blank" class="d-inline-flex flex-column align-items-center justify-content-center rounded border bg-light text-decoration-none p-1" style="width: 75px; height: 50px;" title="เปิดเอกสาร PDF">
-                    <?= icon('file-pdf', 18) ?>
-                    <span class="text-danger fw-bold" style="font-size: 9px;">PDF</span>
+                <?php elseif ($hasFile && $isPdf): ?>
+                  <a href="<?= e($fileUrl) ?>" target="_blank" class="table-thumb d-inline-flex align-items-center justify-content-center text-danger" title="เปิดไฟล์ PDF">
+                    <?= icon('file-pdf', 24) ?>
                   </a>
                 <?php else: ?>
-                  <span class="text-muted small">-</span>
+                  <div class="table-thumb d-inline-flex align-items-center justify-content-center text-muted" style="font-size: 11px;">
+                    ไม่มีรูป
+                  </div>
                 <?php endif; ?>
               </td>
+
+              <!-- ชื่อหัวข้อตารางเรียน -->
               <td>
                 <span class="fw-bold d-block text-navy" style="font-size: 14.5px;"><?= e($ttl ?: '-') ?></span>
-                <span class="text-muted d-block" style="font-size: 12.5px;"><?= $isPdf ? 'ไฟล์เอกสาร PDF' : 'ไฟล์รูปภาพตารางเรียน' ?></span>
+                <span class="text-muted d-block small mt-1">
+                  <?= $isPdf ? 'ไฟล์เอกสารตารางเรียน PDF' : 'ไฟล์รูปภาพตารางเรียน' ?>
+                  <?php if ($filePath): ?>
+                    &middot; <span class="mono text-truncate" style="max-width: 320px; display: inline-block; vertical-align: bottom; font-size: 11.5px;"><?= e(basename($filePath)) ?></span>
+                  <?php endif; ?>
+                </span>
               </td>
+
+              <!-- ชนิดไฟล์ -->
               <td>
-                <span class="tag" style="font-size: 12px;"><?= $isPdf ? 'PDF' : 'รูปภาพ' ?></span>
+                <?php if ($isPdf): ?>
+                  <span class="tag" style="background: #fef2f2; color: #b91c1c; border-color: #fca5a5; font-size: 12px;">PDF</span>
+                <?php else: ?>
+                  <span class="tag" style="font-size: 12px;">รูปภาพ</span>
+                <?php endif; ?>
               </td>
-              <td style="font-family: var(--font-body); font-size: 13px;">
+
+              <!-- วันที่อัปเดต -->
+              <td style="font-size: 13px;">
                 <span class="text-navy"><?= thai_date($item['updated_at'] ?? 'now') ?></span>
               </td>
+
+              <!-- จัดการ -->
               <td class="text-end">
-                <div class="d-inline-flex gap-1">
-                  <!-- ปุ่มดูไฟล์ -->
-                  <a href="<?= e($fileUrl) ?>" target="_blank" class="btn btn-action-icon btn-line" title="ดูไฟล์">
+                <div class="d-inline-flex align-items-center gap-1">
+                  <!-- ดูไฟล์ -->
+                  <a href="<?= e($fileUrl) ?>"
+                     target="_blank"
+                     class="btn btn-action-icon btn-line"
+                     title="ดูไฟล์จริง / เปิดแท็บใหม่">
                     <?= icon('external', 16) ?>
                   </a>
 
-                  <!-- ปุ่มแก้ไข / เปลี่ยนรูปภาพ -->
+                  <!-- แก้ไข / เปลี่ยนรูปภาพ -->
                   <button type="button"
                           class="btn btn-action-icon btn-line"
-                          onclick="openEditScheduleModal(<?= htmlspecialchars(json_encode([
-                            'id'         => $itemId,
-                            'group_name' => $grpName,
-                            'title'      => $ttl,
-                            'image_path' => $filePath,
-                            'file_url'   => $fileUrl,
-                            'is_pdf'     => $isPdf,
-                          ]), ENT_QUOTES, 'UTF-8') ?>)"
-                          title="แก้ไข / เปลี่ยนรูป">
+                          onclick="openEditScheduleModal(<?= $itemJson ?>)"
+                          title="แก้ไขข้อมูล / เปลี่ยนรูปภาพ">
                     <?= icon('pencil', 16) ?>
                   </button>
 
-                  <!-- ปุ่มลบ -->
+                  <!-- ลบ -->
                   <form method="POST" action="<?= url('admin/classes') ?>" onsubmit="return confirm('ยืนยันลบไฟล์ตารางเรียนนี้?');" class="d-inline m-0">
                     <?= csrf_field() ?>
                     <input type="hidden" name="sub_action" value="delete_asset">
                     <input type="hidden" name="id" value="<?= e($itemId) ?>">
-                    <button type="submit" class="btn btn-action-icon btn-danger-line" title="ลบ">
+                    <button type="submit" class="btn btn-action-icon btn-danger-line" title="ลบตารางเรียน">
                       <?= icon('trash', 16) ?>
                     </button>
                   </form>
@@ -214,10 +286,15 @@ require_once __DIR__ . '/../includes/admin-header.php';
               </td>
             </tr>
           <?php endforeach; ?>
-        </tbody>
-      </table>
-    </div>
-  <?php endif; ?>
+        <?php endif; ?>
+        <tr id="noResultsRow" style="display: none;">
+          <td colspan="6" class="text-center py-4 text-muted">
+            ไม่พบตารางเรียนที่ตรงกับคำค้นหาหรือตัวกรอง
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>
 
 <!-- =========================================================================
@@ -329,6 +406,30 @@ require_once __DIR__ . '/../includes/admin-header.php';
   </div>
 </div>
 
+<!-- =========================================================================
+     Modal 3: ดูรูปภาพตารางเรียนขนาดเต็ม (Image Lightbox Modal)
+     ========================================================================= -->
+<div class="modal fade" id="previewImageModal" tabindex="-1" aria-labelledby="previewImageModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg" style="background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(8px);">
+      <div class="modal-header border-0 py-3 px-4 d-flex justify-content-between align-items-center">
+        <h5 class="modal-title text-white fw-bold mb-0" id="previewImageModalLabel">
+          <?= icon('image', 18) ?> <span id="previewLightboxTitle">ดูตัวอย่างตารางเรียน</span>
+        </h5>
+        <div class="d-flex align-items-center gap-2">
+          <a href="#" id="previewLightboxExternal" target="_blank" class="btn btn-sm btn-line text-white border-secondary" title="เปิดดูในแท็บใหม่">
+            <?= icon('external', 14) ?> <span>เปิดแท็บใหม่</span>
+          </a>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="ปิด"></button>
+        </div>
+      </div>
+      <div class="modal-body p-2 p-md-3 text-center d-flex align-items-center justify-content-center" style="min-height: 480px; max-height: 82vh; overflow: auto;">
+        <img id="previewLightboxImg" src="" alt="ภาพตารางเรียน" class="img-fluid rounded" style="max-height: 78vh; object-fit: contain; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+      </div>
+    </div>
+  </div>
+</div>
+
 <datalist id="groupSuggestions">
   <?php foreach ($allGroups as $grp): ?>
     <option value="<?= e($grp) ?>"></option>
@@ -336,6 +437,100 @@ require_once __DIR__ . '/../includes/admin-header.php';
 </datalist>
 
 <script>
+// Filter & Live Search Functionality
+let activeFilter = 'all';
+const searchInput = document.getElementById('classesSearchInput');
+const clearSearchBtn = document.getElementById('btnClassesClearSearch');
+const filterButtons = document.querySelectorAll('.btn-filter-pill');
+const tableRows = document.querySelectorAll('.schedule-row');
+const noResultsRow = document.getElementById('noResultsRow');
+const countBadge = document.getElementById('classesCountBadge');
+
+function applyFilterAndSearch() {
+  const query = (searchInput ? searchInput.value.trim().toLowerCase() : '');
+  if (clearSearchBtn) {
+    clearSearchBtn.style.display = query !== '' ? 'inline-flex' : 'none';
+  }
+
+  let visibleCount = 0;
+
+  tableRows.forEach(row => {
+    const grp = row.getAttribute('data-group') || '';
+    const ttl = row.getAttribute('data-title') || '';
+    
+    // Check filter pill
+    let matchesFilter = false;
+    if (activeFilter === 'all') {
+      matchesFilter = true;
+    } else if (activeFilter === 'ปวช' && grp.includes('ปวช')) {
+      matchesFilter = true;
+    } else if (activeFilter === 'ปวส' && grp.includes('ปวส')) {
+      matchesFilter = true;
+    } else if (activeFilter === 'อาจารย์' && (grp.includes('อาจารย์') || grp.includes('ครู') || grp.includes('คณาจารย์') || ttl.includes('อาจารย์') || ttl.includes('ครู'))) {
+      matchesFilter = true;
+    }
+
+    // Check search query
+    let matchesSearch = true;
+    if (query !== '') {
+      matchesSearch = grp.includes(query) || ttl.includes(query);
+    }
+
+    if (matchesFilter && matchesSearch) {
+      row.style.display = '';
+      visibleCount++;
+    } else {
+      row.style.display = 'none';
+    }
+  });
+
+  if (noResultsRow) {
+    noResultsRow.style.display = (visibleCount === 0 && tableRows.length > 0) ? '' : 'none';
+  }
+  if (countBadge) {
+    countBadge.textContent = visibleCount + ' รายการ';
+  }
+}
+
+if (searchInput) {
+  searchInput.addEventListener('input', applyFilterAndSearch);
+}
+if (clearSearchBtn) {
+  clearSearchBtn.addEventListener('click', function() {
+    searchInput.value = '';
+    applyFilterAndSearch();
+    searchInput.focus();
+  });
+}
+
+filterButtons.forEach(btn => {
+  btn.addEventListener('click', function() {
+    filterButtons.forEach(b => {
+      b.classList.remove('btn-navy', 'is-active');
+      b.classList.add('btn-line');
+    });
+    this.classList.remove('btn-line');
+    this.classList.add('btn-navy', 'is-active');
+    activeFilter = this.getAttribute('data-filter') || 'all';
+    applyFilterAndSearch();
+  });
+});
+
+function openPreviewLightbox(imgUrl, title) {
+  const modalEl = document.getElementById('previewImageModal');
+  const imgEl = document.getElementById('previewLightboxImg');
+  const titleEl = document.getElementById('previewLightboxTitle');
+  const extEl = document.getElementById('previewLightboxExternal');
+  
+  if (imgEl) imgEl.src = imgUrl;
+  if (titleEl) titleEl.textContent = title || 'ดูตัวอย่างตารางเรียน';
+  if (extEl) extEl.href = imgUrl;
+
+  if (window.bootstrap && bootstrap.Modal) {
+    bootstrap.Modal.getOrCreateInstance(modalEl).show();
+  }
+}
+
 function openEditScheduleModal(item) {
   document.getElementById('editScheduleId').value = item.id || '';
   document.getElementById('editScheduleGroup').value = item.group_name || '';
@@ -397,3 +592,4 @@ function previewAddFile(input) {
 </script>
 
 <?php require_once __DIR__ . '/../includes/admin-footer.php'; ?>
+
