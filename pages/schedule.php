@@ -1,13 +1,12 @@
 <?php
 /**
- * SCHEDULE - ตารางเรียนและตารางกิจกรรม
+ * SCHEDULE - ตารางเรียนตามระดับชั้น และตารางกิจกรรมสาขาวิชา
  */
 require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/helpers.php';
 require_once __DIR__ . '/../includes/services/ScheduleService.php';
 
 $activeNav = 'schedule';
-
 send_cache_headers(60, 120);
 
 $tab = filter_input(INPUT_GET, 'tab', FILTER_DEFAULT) ?: 'class';
@@ -15,83 +14,30 @@ if (!in_array($tab, ['class', 'activity'], true)) {
     $tab = 'class';
 }
 
-// Current day & time for live highlighting
-$currentDayNum = (int) date('N'); // 1=Mon .. 7=Sun
-$currentTime   = date('H:i:s');
-$defaultDay    = ($currentDayNum >= 1 && $currentDayNum <= 5) ? $currentDayNum : 1;
+// โหลดรายการไฟล์ตารางเรียนทั้งหมด
+$allImageAssets = ScheduleService::getScheduleImages();
+$defaultLevels  = ['ปวช.1', 'ปวช.2', 'ปวช.3', 'ปวส.1', 'ปวส.2'];
 
-// Available class groups
-$availableGroups = ScheduleService::getAvailableGroups();
-if (empty($availableGroups)) {
-    $availableGroups = ['ปวช.2/1'];
-}
-$queryGroup = trim((string) (filter_input(INPUT_GET, 'group', FILTER_DEFAULT) ?? ''));
-$selectedGroup = in_array($queryGroup, $availableGroups, true) ? $queryGroup : $availableGroups[0];
-$cleanGroup = str_replace(['/', '\\', ' '], '-', $selectedGroup);
-
-$exportFileName = ($tab === 'class') ? "ตารางเรียน_กลุ่ม_{$cleanGroup}" : "ตารางกิจกรรมสาขา";
-$pageTitle = ($tab === 'class') ? "ตารางเรียน กลุ่ม {$selectedGroup}" : 'ตารางกิจกรรมสาขา';
-
-// Fetch Schedule Grid & Periods (สอศ. Standard)
-$gridData      = ScheduleService::getTimetableGrid($selectedGroup);
-$periods       = $gridData['periods'];
-$grid          = $gridData['grid'];
-$scheduleByDay = ScheduleService::getScheduleByDay($selectedGroup);
-
-// Determine current class slot ID and next upcoming class slot ID
-$currentSlotId = null;
-$nextSlotId    = null;
-
-if ($currentDayNum >= 1 && $currentDayNum <= 5) {
-    // Weekday: Look for current class and next upcoming class today
-    $upcomingToday = [];
-    foreach ($scheduleByDay[$currentDayNum] ?? [] as $slot) {
-        $sStart = $slot['time_start'];
-        $sEnd   = $slot['time_end'];
-        $code   = strtoupper(trim($slot['subject_code']));
-        $name   = trim($slot['subject_name']);
-        $isSpecial = ($code === 'FLAG' || $code === 'LUNCH' || str_contains($name, 'เสาธง') || str_contains($name, 'พัก'));
-
-        if ($currentTime >= $sStart && $currentTime <= $sEnd) {
-            $currentSlotId = (int) $slot['id'];
-        } elseif ($currentTime < $sStart && !$isSpecial) {
-            $upcomingToday[] = $slot;
-        }
-    }
-    if (!empty($upcomingToday)) {
-        usort($upcomingToday, fn($a, $b) => strcmp($a['time_start'], $b['time_start']));
-        $nextSlotId = (int) $upcomingToday[0]['id'];
-    } else {
-        // If classes for today ended, find the first class of the next school day
-        for ($nextD = $currentDayNum + 1; $nextD <= 5; $nextD++) {
-            $nextDaySlots = array_filter($scheduleByDay[$nextD] ?? [], function($s) {
-                $code = strtoupper(trim($s['subject_code']));
-                $name = trim($s['subject_name']);
-                return !($code === 'FLAG' || $code === 'LUNCH' || str_contains($name, 'เสาธง') || str_contains($name, 'พัก'));
-            });
-            if (!empty($nextDaySlots)) {
-                usort($nextDaySlots, fn($a, $b) => strcmp($a['time_start'], $b['time_start']));
-                $firstNext = reset($nextDaySlots);
-                $nextSlotId = (int) $firstNext['id'];
-                break;
-            }
-        }
-    }
-} else {
-    // Weekend: Next class is the first normal class on Monday
-    $mondaySlots = array_filter($scheduleByDay[1] ?? [], function($s) {
-        $code = strtoupper(trim($s['subject_code']));
-        $name = trim($s['subject_name']);
-        return !($code === 'FLAG' || $code === 'LUNCH' || str_contains($name, 'เสาธง') || str_contains($name, 'พัก'));
-    });
-    if (!empty($mondaySlots)) {
-        usort($mondaySlots, fn($a, $b) => strcmp($a['time_start'], $b['time_start']));
-        $firstMon = reset($mondaySlots);
-        $nextSlotId = (int) $firstMon['id'];
+// รวบรวมระดับชั้นทั้งหมดจากรายการที่อัปโหลดไว้
+$customGroups = [];
+foreach ($allImageAssets as $item) {
+    $grp = trim((string) ($item['group_name'] ?? ''));
+    if ($grp !== '' && !in_array($grp, $defaultLevels, true)) {
+        $customGroups[] = $grp;
     }
 }
+$availableLevels = array_merge($defaultLevels, array_unique($customGroups));
 
-// Fetch Activities
+// ระดับชั้นที่เลือก (ค่าเริ่มต้นคือ 'all' เพื่อให้ดูได้ทุกระดับชั้นพร้อมกัน)
+$queryGroup    = trim((string) (filter_input(INPUT_GET, 'group', FILTER_DEFAULT) ?? 'all'));
+$selectedGroup = ($queryGroup === '' || $queryGroup === 'all') ? 'all' : $queryGroup;
+
+$pageTitle = ($tab === 'class') ? 'ตารางเรียนตามระดับชั้น' : 'ตารางกิจกรรมสาขาวิชา';
+
+// จัดเตรียมข้อมูลระดับชั้นที่จะแสดงผล
+$displayLevels = ($selectedGroup === 'all') ? $availableLevels : [$selectedGroup];
+
+// กิจกรรม
 $activitiesByMonth = ScheduleService::getActivitiesGroupedByMonth();
 
 include __DIR__ . '/../includes/header.php';
@@ -104,247 +50,161 @@ include __DIR__ . '/../includes/header.php';
     </p>
     <h1>ตารางเรียนและตารางกิจกรรม</h1>
     <p class="lead-text mb-0">
-      ตรวจสอบเวลาเรียนรายวิชาตามมาตรฐานหลักสูตร สอศ. และติดตามกำหนดการกิจกรรม เสวนา อบรมเชิงปฏิบัติการประจำภาคเรียน
+      ตรวจสอบตารางเรียนประจำภาคเรียนแยกตามระดับชั้น (ปวช.1 – ปวส.2) และติดตามกำหนดการกิจกรรมประจำภาคเรียน
     </p>
   </div>
 </div>
 
-<section class="section" id="schedule-root" style="padding-top: var(--s-3);" data-export-file-name="<?= e($exportFileName) ?>" data-selected-group="<?= e($selectedGroup) ?>" data-is-class-tab="<?= $tab === 'class' ? '1' : '0' ?>">
-  <div class="<?= $tab === 'class' ? 'container-fluid px-3 px-xl-4 px-xxl-5' : 'container-xl' ?>">
+<section class="section" style="padding-top: var(--s-3);">
+  <div class="container-xl">
 
-    <!-- Schedule Control Toolbar (Responsive Full-Width Card) -->
-    <div class="schedule-control-card">
-      <!-- Upper Section: Group Dropdown & Tabs Switcher (Horizontal on Desktop) -->
-      <div class="scc-header-row">
-        <div class="scc-group-row">
-          <form method="get" action="<?= url('schedule') ?>" class="d-flex align-items-center gap-2 m-0 flex-wrap" id="form-schedule-group">
-            <input type="hidden" name="tab" value="class">
-            <label for="select-schedule-group" class="scc-label">
-              <?= icon('users', 16) ?> ระดับชั้น / กลุ่มเรียน
-            </label>
-            <div class="scc-select-wrap">
-              <select id="select-schedule-group" name="group" class="scc-select" onchange="this.form.submit()">
-                <?php foreach ($availableGroups as $grp): ?>
-                  <option value="<?= e($grp) ?>" <?= $selectedGroup === $grp ? 'selected' : '' ?>>
-                    <?= e($grp) ?>
-                  </option>
-                <?php endforeach; ?>
-              </select>
-            </div>
-          </form>
-        </div>
-
+    <!-- Schedule Control Toolbar -->
+    <div class="schedule-control-card mb-4">
+      <div class="scc-header-row justify-content-between align-items-center flex-wrap gap-3">
+        <!-- Main Tabs Switcher -->
         <div class="scc-tabs-row" role="tablist" aria-label="สลับประเภทตาราง">
-          <a href="<?= url('schedule?tab=class' . ($selectedGroup ? '&group=' . urlencode($selectedGroup) : '')) ?>" class="scc-tab <?= $tab === 'class' ? 'is-active' : '' ?>" <?= $tab === 'class' ? 'aria-current="page"' : '' ?>>
+          <a href="<?= url('schedule?tab=class' . ($selectedGroup !== 'all' ? '&group=' . urlencode($selectedGroup) : '')) ?>" class="scc-tab <?= $tab === 'class' ? 'is-active' : '' ?>">
             <?= icon('book', 18) ?>
-            <span>ตารางเรียนรายสัปดาห์</span>
+            <span>ตารางเรียนตามระดับชั้น</span>
           </a>
-          <a href="<?= url('schedule?tab=activity') ?>" class="scc-tab <?= $tab === 'activity' ? 'is-active' : '' ?>" <?= $tab === 'activity' ? 'aria-current="page"' : '' ?>>
+          <a href="<?= url('schedule?tab=activity') ?>" class="scc-tab <?= $tab === 'activity' ? 'is-active' : '' ?>">
             <?= icon('calendar', 18) ?>
             <span>ตารางกิจกรรมสาขา</span>
           </a>
         </div>
-      </div>
 
-      <!-- Lower Section: View Label & Action Buttons (Side-by-side on Desktop) -->
-      <div class="scc-bottom-row">
-        <div class="scc-action-buttons ms-auto"
-             data-tab="<?= e($tab) ?>"
-             data-filename="<?= e($exportFileName) ?>"
-             data-group="<?= e($selectedGroup) ?>">
-          <button type="button" class="scc-btn scc-btn-print" id="btn-export-print" onclick="exportSchedulePrint()" title="พิมพ์ตาราง">
-            <?= icon('printer', 16) ?>
-            <span>พิมพ์ตารางเรียน</span>
-          </button>
-          <button type="button" class="scc-btn scc-btn-pdf" id="btn-export-pdf" onclick="exportSchedulePDF()" title="บันทึกเป็น PDF พร้อมตั้งชื่อไฟล์">
-            <?= icon('file-pdf', 16) ?>
-            <span>บันทึกเป็น PDF</span>
-          </button>
-          <button type="button" class="scc-btn scc-btn-png" id="btn-export-png" onclick="exportSchedulePNG()" title="บันทึกเป็นรูปภาพ PNG">
-            <?= icon('image', 16) ?>
-            <span>บันทึกเป็นรูปภาพ (PNG)</span>
-          </button>
-        </div>
+        <!-- Grade Level Selector Pills (กรองดูตามระดับชั้น หรือดูทั้งหมด) -->
+        <?php if ($tab === 'class'): ?>
+          <div class="d-flex align-items-center gap-2 flex-wrap">
+            <span class="text-muted small fw-semibold">ระดับชั้น:</span>
+            <div class="btn-group btn-group-sm flex-wrap" role="group" aria-label="เลือกระดับชั้น">
+              <a href="<?= url('schedule?tab=class&group=all') ?>" class="btn <?= $selectedGroup === 'all' ? 'btn-navy fw-semibold' : 'btn-line' ?>">
+                ทั้งหมด
+              </a>
+              <?php foreach ($availableLevels as $lvl): ?>
+                <a href="<?= url('schedule?tab=class&group=' . urlencode($lvl)) ?>" class="btn <?= $selectedGroup === $lvl ? 'btn-navy fw-semibold' : 'btn-line' ?>">
+                  <?= e($lvl) ?>
+                </a>
+              <?php endforeach; ?>
+            </div>
+          </div>
+        <?php endif; ?>
       </div>
     </div>
 
     <?php if ($tab === 'class'): ?>
       <!-- ==================================================================
-           CLASS TIMETABLE VIEW (มาตรฐาน สอศ.)
+           SCHEDULE IMAGES VIEW (ตารางเรียนแบบรูปภาพคมชัด)
            ================================================================== -->
+      <div class="row g-4">
+        <?php foreach ($displayLevels as $lvl): ?>
+          <?php
+            // ค้นหาไฟล์ตารางของระดับชั้นนี้
+            $matchingItem = null;
+            foreach ($allImageAssets as $item) {
+              $grp = trim((string) ($item['group_name'] ?? ''));
+              if ($grp === $lvl) {
+                $matchingItem = $item;
+                break;
+              }
+            }
+            if (!$matchingItem) {
+              foreach ($allImageAssets as $item) {
+                $grp = trim((string) ($item['group_name'] ?? ''));
+                if (str_starts_with($grp, $lvl) || str_contains($grp, $lvl)) {
+                  $matchingItem = $item;
+                  break;
+                }
+              }
+            }
 
-      <!-- Print-Only Header Metadata -->
-      <div class="print-metadata-header d-none">
-        <span>สาขาวิชาเทคโนโลยีธุรกิจดิจิทัล — ตารางเรียนระดับชั้น: <?= e($selectedGroup) ?></span>
-        <span>พิมพ์เมื่อ: <?= date('d/m/Y H:i') ?> น.</span>
-      </div>
+            $hasFile   = false;
+            $fileUrl   = '';
+            $isPdf     = false;
+            $title     = 'ตารางเรียน ระดับชั้น ' . $lvl;
+            $updatedAt = '';
 
-      <!-- Mobile View (360-430px): Day Selector + Vertical Timeline Slots -->
-      <div class="d-md-none">
-        <div class="day-tabs mb-3" role="tablist" aria-label="เลือกวันสำหรับตารางเรียน">
-          <?php for ($d = 1; $d <= 5; $d++): ?>
-            <button type="button"
-                    class="day-tab <?= $d === $defaultDay ? 'is-active' : '' ?> <?= $d === $currentDayNum ? 'is-today' : '' ?>"
-                    role="tab"
-                    data-day="<?= $d ?>"
-                    aria-selected="<?= $d === $defaultDay ? 'true' : 'false' ?>">
-              <span><?= TH_DAYS_SHORT[$d] ?></span>
-              <span class="d"><?= TH_DAYS[$d] ?></span>
-            </button>
-          <?php endfor; ?>
-        </div>
-
-        <?php for ($d = 1; $d <= 5; $d++): ?>
-          <div class="slot-group <?= $d === $currentDayNum ? 'is-today' : '' ?>" data-day="<?= $d ?>" <?= $d !== $defaultDay ? 'hidden' : '' ?>>
-            <div class="d-flex justify-content-between align-items-center mb-3 p-2 <?= $d === $currentDayNum ? 'bg-today-highlight' : '' ?>" style="border-radius: var(--radius);">
-              <h3 class="mb-0" style="font-size: 1.125rem;">ตารางเรียนวัน<?= TH_DAYS[$d] ?></h3>
-            </div>
-
-            <?php if (empty($scheduleByDay[$d])): ?>
-              <div class="p-4 bg-white border text-center text-muted" style="border-radius: var(--radius);">
-                ไม่มีคาบเรียนในวัน<?= TH_DAYS[$d] ?>
-              </div>
-            <?php else: ?>
-              <div class="d-flex flex-column gap-3">
-                <?php foreach ($scheduleByDay[$d] as $slot): ?>
-                  <?php
-                  $slotId = (int) $slot['id'];
-                  $isCurrent = ($d === $currentDayNum && $slotId === $currentSlotId);
-                  $isNext    = ($d === $currentDayNum && $slotId === $nextSlotId);
-                  $cardClass = $isCurrent ? 'is-current-class' : ($isNext ? 'is-next-class' : '');
-                  ?>
-                  <div class="slot-card-mobile p-3 bg-white border js-slot-card <?= $cardClass ?>"
-                       role="button"
-                       tabindex="0"
-                       data-code="<?= e($slot['subject_code']) ?>"
-                       data-name="<?= e($slot['subject_name']) ?>"
-                       data-type="<?= e($slot['course_type'] ?? 'regular') ?>"
-                       data-credit="<?= (int) ($slot['credit'] ?? 3) ?>"
-                       data-teacher="<?= e($slot['teacher_name'] ?: '-') ?>"
-                       data-room="<?= e($slot['room'] ?: '-') ?>"
-                       data-time="<?= hm($slot['time_start']) ?> – <?= hm($slot['time_end']) ?>"
-                       data-day="วัน<?= TH_DAYS[$d] ?>"
-                       data-group="<?= e($selectedGroup) ?>"
-                       title="คลิกเพื่อดูรายละเอียดรายวิชา">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                      <div class="d-flex align-items-center gap-1">
-                        <span class="mono fw-bold slot-code"><?= e($slot['subject_code']) ?></span>
-                        <span class="badge badge-sm <?= ($slot['course_type'] ?? 'regular') === 'professional' ? 'bg-warning text-dark' : 'bg-light text-muted border' ?>" style="font-size: 10px; padding: 2px 5px;">
-                          <?= ($slot['course_type'] ?? 'regular') === 'professional' ? 'วิชาชีพ' : 'วิชาสามัญ' ?>
-                        </span>
-                      </div>
-                    </div>
-                    <div class="fw-bold mb-2 slot-name"><?= e($slot['subject_name']) ?></div>
-                    <div class="d-flex justify-content-between align-items-center text-muted slot-meta">
-                      <span><?= icon('user', 12) ?> <?= e($slot['teacher_name'] ?: '-') ?></span>
-                      <span class="mono"><?= icon('map-pin', 12) ?> <?= e($slot['room'] ?: '-') ?></span>
-                    </div>
-                  </div>
-                <?php endforeach; ?>
-              </div>
-            <?php endif; ?>
-          </div>
-        <?php endfor; ?>
-      </div>
-
-      <!-- Desktop View (>=768px): Official สอศ. Table (Days as rows, Periods as columns, colspan deduplication) -->
-      <div class="d-none d-md-block timetable-wrap-user">
-        <table class="week-table">
-          <thead>
-            <tr>
-              <th class="col-day">
-                <div class="period-head-inner">
-                  <span>วัน / คาบ</span>
+            if ($matchingItem) {
+              $filePath = $matchingItem['image_path'] ?? '';
+              if ($filePath && is_file(ROOT_PATH . '/' . $filePath)) {
+                $hasFile   = true;
+                $fileUrl   = url($filePath);
+                $isPdf     = str_ends_with(strtolower($filePath), '.pdf');
+                $title     = $matchingItem['title'] ?? $title;
+                $updatedAt = $matchingItem['updated_at'] ?? '';
+              }
+            }
+          ?>
+          <div class="col-12 <?= $selectedGroup === 'all' ? 'col-lg-6' : 'col-12' ?>">
+            <div class="card h-100 border shadow-sm overflow-hidden bg-white d-flex flex-column justify-content-between" style="border-radius: var(--radius, 8px);">
+              
+              <!-- Card Header -->
+              <div class="card-header bg-white py-3 px-3 d-flex justify-content-between align-items-center border-bottom flex-wrap gap-2">
+                <div class="d-flex align-items-center gap-2">
+                  <span class="badge bg-navy text-white px-2 py-1 fs-6"><?= e($lvl) ?></span>
+                  <strong class="text-navy" style="font-size: 1.05rem;"><?= e($title) ?></strong>
                 </div>
-              </th>
-              <?php foreach ($periods as $p): ?>
-                <th>
-                  <div class="period-head-inner">
-                    <div class="period-name"><?= e($p['name'] ?: 'คาบ ' . $p['num']) ?></div>
-                    <div class="period-time mono"><?= e($p['label']) ?></div>
+                <?php if ($updatedAt): ?>
+                  <span class="text-muted small" style="font-size: 12px;">
+                    <?= icon('clock', 12) ?> อัปเดตเมื่อ <?= thai_date($updatedAt) ?>
+                  </span>
+                <?php endif; ?>
+              </div>
+
+              <!-- Card Body: Image / Document Presentation -->
+              <div class="card-body p-3 d-flex align-items-center justify-content-center bg-light" style="min-height: 280px;">
+                <?php if ($hasFile && !$isPdf): ?>
+                  <div class="schedule-img-container text-center position-relative w-100">
+                    <img src="<?= e($fileUrl) ?>"
+                         alt="<?= e($title) ?>"
+                         class="img-fluid rounded border shadow-sm js-schedule-zoomable"
+                         style="max-height: 520px; width: 100%; object-fit: contain; cursor: pointer; background: #fff;"
+                         onclick="openScheduleModal('<?= e($fileUrl) ?>', '<?= e($title) ?>')"
+                         title="คลิกเพื่อขยายดูรูปขนาดเต็ม">
+                    <div class="schedule-img-hint mt-2 text-muted small">
+                      <?= icon('search', 13) ?> คลิกที่รูปภาพเพื่อเปิดดูขนาดเต็ม
+                    </div>
                   </div>
-                </th>
-              <?php endforeach; ?>
-            </tr>
-          </thead>
-          <tbody>
-            <?php for ($d = 1; $d <= 5; $d++): ?>
-              <?php $isDayToday = ($d === $currentDayNum); ?>
-              <tr class="<?= $isDayToday ? 'is-today' : '' ?>">
-                <td class="col-day">
-                  <div class="day-label-inner">
-                    <span>วัน<?= TH_DAYS[$d] ?></span>
-                    <?php if ($isDayToday): ?>
-                      <span class="badge-today-pill">วันนี้</span>
+                <?php elseif ($hasFile && $isPdf): ?>
+                  <div class="text-center py-4">
+                    <div class="mb-3 text-danger"><?= icon('file-pdf', 54) ?></div>
+                    <h5 class="fw-bold mb-1 text-navy">ไฟล์เอกสาร PDF</h5>
+                    <p class="text-muted small mb-3">ตารางเรียนนี้ถูกแนบไว้ในรูปแบบเอกสาร PDF</p>
+                    <a href="<?= e($fileUrl) ?>" target="_blank" class="btn btn-navy d-inline-flex align-items-center gap-2">
+                      <?= icon('external', 14) ?> เปิดดูเอกสาร PDF
+                    </a>
+                  </div>
+                <?php else: ?>
+                  <div class="empty-state text-center py-4 text-muted">
+                    <div class="mb-2 text-muted opacity-50"><?= icon('calendar', 42) ?></div>
+                    <h5 class="fw-semibold text-navy mb-1">ยังไม่มีไฟล์ตารางเรียนสำหรับ <?= e($lvl) ?></h5>
+                    <p class="small text-muted mb-0">เจ้าหน้าที่กำลังเตรียมข้อมูลตารางเรียน โปรดติดต่อแผนกวิชาเพื่อสอบถามเพิ่มเติม</p>
+                  </div>
+                <?php endif; ?>
+              </div>
+
+              <!-- Card Footer: Actions -->
+              <?php if ($hasFile): ?>
+                <div class="card-footer bg-white border-top py-2 px-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                  <div class="small text-muted">
+                    <?= $isPdf ? icon('file-pdf', 14) . ' ไฟล์เอกสาร PDF' : icon('image', 14) . ' ไฟล์รูปภาพตารางเรียน' ?>
+                  </div>
+                  <div class="d-flex align-items-center gap-2">
+                    <?php if (!$isPdf): ?>
+                      <button type="button" class="btn btn-sm btn-line d-inline-flex align-items-center gap-1" onclick="openScheduleModal('<?= e($fileUrl) ?>', '<?= e($title) ?>')">
+                        <?= icon('zoom-in', 13) ?> ขยายดูรูปเต็ม
+                      </button>
                     <?php endif; ?>
+                    <a href="<?= e($fileUrl) ?>" download class="btn btn-sm btn-navy d-inline-flex align-items-center gap-1">
+                      <?= icon('download', 13) ?> ดาวน์โหลดตาราง
+                    </a>
                   </div>
-                </td>
-                <?php foreach ($grid[$d] as $cell): ?>
-                  <?php if ($cell['type'] === 'flag'): ?>
-                    <td colspan="<?= $cell['colspan'] ?>" class="slot-flag">
-                      <div class="special-slot-inner">
-                        <div class="special-icon"><?= icon('flag', 14) ?></div>
-                        <div class="special-title"><?= e($cell['title']) ?></div>
-                        </div>
-                    </td>
-                  <?php elseif ($cell['type'] === 'lunch'): ?>
-                    <td colspan="<?= $cell['colspan'] ?>" class="slot-lunch">
-                      <div class="special-slot-inner">
-                        <div class="special-icon"><?= icon('clock', 14) ?></div>
-                        <div class="special-title"><?= e($cell['title']) ?></div>
-                        </div>
-                    </td>
-                  <?php elseif ($cell['type'] === 'class'): ?>
-                    <?php
-                    $s = $cell['slot'];
-                    $slotId = (int) $s['id'];
-                    $isCurrent = ($isDayToday && $slotId === $currentSlotId);
-                    $isNext    = ($isDayToday && $slotId === $nextSlotId);
-                    $highlightClass = $isCurrent ? 'is-current-class' : ($isNext ? 'is-next-class' : '');
-                    ?>
-                    <td colspan="<?= $cell['colspan'] ?>" class="slot-class <?= $highlightClass ?>">
-                      <div class="cell-slot js-slot-card"
-                           role="button"
-                           tabindex="0"
-                           data-code="<?= e($s['subject_code']) ?>"
-                           data-name="<?= e($s['subject_name']) ?>"
-                           data-type="<?= e($s['course_type'] ?? 'regular') ?>"
-                           data-credit="<?= (int) ($s['credit'] ?? 3) ?>"
-                           data-teacher="<?= e($s['teacher_name'] ?: '-') ?>"
-                           data-room="<?= e($s['room'] ?: '-') ?>"
-                           data-time="<?= hm($s['time_start']) ?>–<?= hm($s['time_end']) ?>"
-                           data-day="วัน<?= TH_DAYS[$d] ?>"
-                           data-group="<?= e($selectedGroup) ?>"
-                           title="คลิกเพื่อดูรายละเอียดรายวิชา">
-                        <div class="slot-head d-flex justify-content-between align-items-center">
-                          <div class="d-flex align-items-center gap-1">
-                            <span class="mono fw-bold slot-code"><?= e($s['subject_code']) ?></span>
-                            <span class="badge badge-sm <?= ($s['course_type'] ?? 'regular') === 'professional' ? 'bg-warning text-dark' : 'bg-light text-muted border' ?>" style="font-size: 9px; padding: 1px 4px; font-weight: normal;">
-                              <?= ($s['course_type'] ?? 'regular') === 'professional' ? 'วิชาชีพ' : 'สามัญ' ?>
-                            </span>
-                          </div>
-                        </div>
-                        <div class="s" title="<?= e($s['subject_name']) ?>">
-                          <?= e($s['subject_name']) ?>
-                        </div>
-                        <div class="r">
-                          <span class="teacher text-truncate" title="<?= e($s['teacher_name'] ?: '-') ?>"><?= icon('user', 11) ?> <?= e($s['teacher_name'] ?: '-') ?></span>
-                          <span class="mono room fw-semibold"><?= icon('map-pin', 11) ?> <?= e($s['room'] ?: '-') ?></span>
-                        </div>
-                      </div>
-                    </td>
-                  <?php else: ?>
-                    <td colspan="1" class="slot-empty">
-                      <div class="empty-slot-inner">
-                        <span class="empty-dash">-</span>
-                      </div>
-                    </td>
-                  <?php endif; ?>
-                <?php endforeach; ?>
-              </tr>
-            <?php endfor; ?>
-          </tbody>
-        </table>
+                </div>
+              <?php endif; ?>
+
+            </div>
+          </div>
+        <?php endforeach; ?>
       </div>
 
     <?php else: ?>
@@ -367,72 +227,44 @@ include __DIR__ . '/../includes/header.php';
             $monthNum = (int) date('n', $timeObj);
             $yearThai = (int) date('Y', $timeObj) + 543;
             ?>
-            <div class="month-group">
-              <div class="month-head">
-                <h2><?= TH_MONTHS[$monthNum] ?> <?= $yearThai ?></h2>
-                <span class="mono text-muted" style="font-size: 12px;"><?= count($items) ?> กิจกรรม</span>
+            <div class="month-group mb-5">
+              <div class="month-head d-flex align-items-center gap-3 mb-3 border-bottom pb-2">
+                <span class="badge bg-navy text-white fs-6 px-3 py-2"><?= TH_MONTHS[$monthNum] ?> <?= $yearThai ?></span>
+                <span class="text-muted small"><?= count($items) ?> กิจกรรม</span>
               </div>
 
-              <ul class="event-list">
+              <div class="row g-3">
                 <?php foreach ($items as $ev): ?>
                   <?php
-                  $tEv = strtotime($ev['event_date']);
-                  $dayVal = date('j', $tEv);
-                  $dayWeek = TH_DAYS[(int) date('N', $tEv)];
-                  $isUpcoming = strtotime($ev['event_date']) >= strtotime('today');
+                    $badge = activity_countdown_badge($ev['event_date'], $ev['event_date_end'] ?? null);
                   ?>
-                  <li class="event">
-                    <div class="event-date">
-                      <span class="day"><?= sprintf('%02d', $dayVal) ?></span>
-                      <span class="wd">วัน<?= $dayWeek ?></span>
-                    </div>
-                    <div>
-                      <div class="d-flex align-items-center flex-wrap gap-2 mb-1">
-                        <h3><?= e($ev['title']) ?></h3>
-                        <?php $cd = activity_countdown_badge($ev['event_date'], $ev['event_date_end'] ?? null); ?>
-                        <span class="<?= e($cd['class']) ?>"><?= e($cd['text']) ?></span>
-                        <?php if (!empty($ev['badge_text'])): ?>
-                          <span class="badge-line"><?= e($ev['badge_text']) ?></span>
-                        <?php endif; ?>
-                      </div>
-
-                      <?php if (!empty($ev['description'])): ?>
-                        <p><?= nl2br(e($ev['description'])) ?></p>
-                      <?php endif; ?>
-
-                      <div class="meta-line">
-                        <?php if (!empty($ev['event_date_end'])): ?>
-                          <span class="mono">
-                            <?= icon('calendar', 13) ?>
-                            <?= thai_date($ev['event_date']) ?> – <?= thai_date($ev['event_date_end']) ?>
-                          </span>
-                          <span class="dot"></span>
-                        <?php endif; ?>
-                        <?php if (!empty($ev['time_start'])): ?>
-                          <span class="mono">
-                            <?= icon('clock', 13) ?>
-                            <?= hm($ev['time_start']) ?><?= !empty($ev['time_end']) ? ' – ' . hm($ev['time_end']) : '' ?> น.
-                          </span>
-                        <?php endif; ?>
-                        <?php if (!empty($ev['location'])): ?>
-                          <span class="dot"></span>
-                          <span>
-                            <?= icon('map-pin', 13) ?> <?= e($ev['location']) ?>
-                          </span>
-                        <?php endif; ?>
-                      </div>
-
-                      <?php if (!empty($ev['action_url'])): ?>
-                        <div class="mt-2">
-                          <a href="<?= e($ev['action_url']) ?>" target="_blank" rel="noopener" class="btn btn-sm btn-line">
-                            <?= icon('external', 13) ?> ข้อมูลเพิ่มเติม / ลงทะเบียน
-                          </a>
+                  <div class="col-12 col-md-6">
+                    <div class="card h-100 border p-3 shadow-sm d-flex flex-column justify-content-between bg-white">
+                      <div>
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                          <span class="badge <?= $badge['class'] ?>"><?= $badge['text'] ?></span>
+                          <span class="text-muted small"><?= thai_date($ev['event_date']) ?></span>
                         </div>
-                      <?php endif; ?>
+                        <h4 class="h6 fw-bold mb-2"><?= e($ev['title']) ?></h4>
+                        <?php if (!empty($ev['description'])): ?>
+                          <p class="text-muted small mb-2"><?= nl2br(e($ev['description'])) ?></p>
+                        <?php endif; ?>
+                      </div>
+                      
+                      <div class="pt-2 border-top mt-2 text-muted small d-flex justify-content-between align-items-center">
+                        <?php if (!empty($ev['location'])): ?>
+                          <span><?= icon('map-pin', 12) ?> <?= e($ev['location']) ?></span>
+                        <?php endif; ?>
+                        <?php if (!empty($ev['action_url'])): ?>
+                          <a href="<?= e($ev['action_url']) ?>" target="_blank" class="text-navy fw-semibold text-decoration-none">
+                            รายละเอียด <?= icon('external', 12) ?>
+                          </a>
+                        <?php endif; ?>
+                      </div>
                     </div>
-                  </li>
+                  </div>
                 <?php endforeach; ?>
-              </ul>
+              </div>
             </div>
           <?php endforeach; ?>
         <?php endif; ?>
@@ -442,44 +274,43 @@ include __DIR__ . '/../includes/header.php';
   </div>
 </section>
 
-<!-- Course Details Modal -->
-<div class="modal fade" id="courseDetailModal" tabindex="-1" aria-labelledby="courseDetailModalTitle" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title d-flex align-items-center gap-2" id="courseDetailModalTitle">
-          <span class="mono fw-bold text-navy" id="detailSubjectCode"></span>
-          <span class="badge" id="detailCourseType"></span>
-        </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="ปิด"></button>
+<!-- Schedule Full Image Modal (Lightbox) -->
+<div class="modal fade" id="scheduleModal" tabindex="-1" aria-labelledby="scheduleModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-xl">
+    <div class="modal-content border-0 shadow-lg">
+      <div class="modal-header bg-navy text-white py-2 px-3">
+        <h5 class="modal-title fs-6 fw-bold text-truncate me-2" id="scheduleModalTitle">ตารางเรียน</h5>
+        <div class="d-flex align-items-center gap-2">
+          <a id="scheduleModalDownload" href="#" download class="btn btn-sm btn-light py-1 px-2 d-inline-flex align-items-center gap-1">
+            <?= icon('download', 14) ?> <span>ดาวน์โหลด</span>
+          </a>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="ปิด"></button>
+        </div>
       </div>
-      <div class="modal-body">
-        <h4 class="fw-bold mb-3" id="detailSubjectName"></h4>
-        <dl class="row g-2 mb-0" style="font-size: 14.5px;">
-          <dt class="col-4 text-muted">จำนวนหน่วยกิต</dt>
-          <dd class="col-8 mono fw-semibold" id="detailCredit">-</dd>
-
-          <dt class="col-4 text-muted">วันและเวลาเรียน</dt>
-          <dd class="col-8 mono" id="detailTime">-</dd>
-
-          <dt class="col-4 text-muted">อาจารย์ผู้สอน</dt>
-          <dd class="col-8" id="detailTeacher">-</dd>
-
-          <dt class="col-4 text-muted">ห้องเรียน / แล็บ</dt>
-          <dd class="col-8 mono" id="detailRoom">-</dd>
-
-          <dt class="col-4 text-muted">กลุ่มเรียน</dt>
-          <dd class="col-8" id="detailGroup">-</dd>
-        </dl>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-sm btn-line" data-bs-dismiss="modal">ปิดหน้าต่าง</button>
+      <div class="modal-body p-2 bg-dark text-center" style="overflow-x: auto;">
+        <img id="scheduleModalImg" src="" alt="ตารางเรียน" class="img-fluid" style="max-height: 85vh; object-fit: contain;">
       </div>
     </div>
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js" defer></script>
-<script src="<?= url('assets/js/page-schedule.js') ?>?v=<?= filemtime(__DIR__ . '/../assets/js/page-schedule.js') ?>" defer></script>
+<script>
+function openScheduleModal(imgUrl, title) {
+  const modalImg = document.getElementById('scheduleModalImg');
+  const modalTitle = document.getElementById('scheduleModalTitle');
+  const modalDownload = document.getElementById('scheduleModalDownload');
+  if (modalImg && modalTitle) {
+    modalImg.src = imgUrl;
+    modalTitle.textContent = title;
+    modalDownload.href = imgUrl;
+    const modalEl = document.getElementById('scheduleModal');
+    if (window.bootstrap && bootstrap.Modal) {
+      bootstrap.Modal.getOrCreateInstance(modalEl).show();
+    } else {
+      window.open(imgUrl, '_blank');
+    }
+  }
+}
+</script>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>

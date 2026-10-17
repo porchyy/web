@@ -230,6 +230,38 @@ function upload_image(string $field): ?string
     return 'uploads/' . $name;
 }
 
+function upload_schedule_file(string $field): ?string
+{
+    $f = $_FILES[$field] ?? null;
+    if (!$f || $f['error'] === UPLOAD_ERR_NO_FILE) return null;
+    if ($f['error'] !== UPLOAD_ERR_OK) throw new RuntimeException('อัปโหลดไฟล์ไม่สำเร็จ (รหัส ' . $f['error'] . ')');
+    if ($f['size'] > MAX_UPLOAD_BYTES) throw new RuntimeException('ไฟล์ใหญ่เกิน 5 MB');
+
+    $mime = (new finfo(FILEINFO_MIME_TYPE))->file($f['tmp_name']);
+    $allowed = [
+        'image/jpeg'      => 'jpg',
+        'image/png'       => 'png',
+        'image/webp'      => 'webp',
+        'application/pdf' => 'pdf',
+    ];
+    $ext = $allowed[$mime] ?? null;
+    if (!$ext) throw new RuntimeException('รองรับเฉพาะไฟล์รูปภาพ (JPG, PNG, WebP) หรือไฟล์ PDF');
+
+    if ($ext !== 'pdf') {
+        $imgInfo = @getimagesize($f['tmp_name']);
+        if ($imgInfo === false) {
+            throw new RuntimeException('ไฟล์รูปภาพไม่ถูกต้องหรือข้อมูลรูปภาพเสียหาย');
+        }
+    }
+
+    if (!is_dir(UPLOAD_DIR)) mkdir(UPLOAD_DIR, 0755, true);
+    $name = 'schedule-' . date('Ymd') . '-' . bin2hex(random_bytes(6)) . '.' . $ext;
+    if (!move_uploaded_file($f['tmp_name'], UPLOAD_DIR . '/' . $name)) {
+        throw new RuntimeException('บันทึกไฟล์ไม่สำเร็จ ตรวจสอบสิทธิ์โฟลเดอร์ uploads/');
+    }
+    return 'uploads/' . $name;
+}
+
 function delete_upload(?string $path): void
 {
     if (!$path || !str_starts_with($path, 'uploads/') || str_starts_with($path, 'uploads/seed/')) {

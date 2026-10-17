@@ -703,4 +703,125 @@ class ScheduleService
             LIMIT ?
         ", [$limit])->fetchAll();
     }
+
+    /* =========================================================================
+     * Schedule Images (ตารางเรียนและตารางสอนแบบรูปภาพ)
+     * ========================================================================= */
+
+    public static function getScheduleImages(): array
+    {
+        $json = SettingService::get('schedule_images');
+        if ($json) {
+            $decoded = json_decode($json, true);
+            if (is_array($decoded) && !empty($decoded)) {
+                return $decoded;
+            }
+        }
+        return self::getDefaultScheduleImages();
+    }
+
+    public static function getDefaultScheduleImages(): array
+    {
+        return [
+            [
+                'id' => 'seed_pvc1',
+                'category' => 'student',
+                'group_name' => 'ปวช.1',
+                'title' => 'ตารางเรียน ระดับชั้น ปวช.1 ภาคเรียนที่ 1',
+                'image_path' => 'uploads/seed/hero-lab.jpg',
+                'updated_at' => date('Y-m-d H:i:s')
+            ],
+            [
+                'id' => 'seed_pvc2',
+                'category' => 'student',
+                'group_name' => 'ปวช.2',
+                'title' => 'ตารางเรียน ระดับชั้น ปวช.2 ภาคเรียนที่ 1',
+                'image_path' => 'uploads/seed/hero-lab.jpg',
+                'updated_at' => date('Y-m-d H:i:s')
+            ],
+            [
+                'id' => 'seed_pvc3',
+                'category' => 'student',
+                'group_name' => 'ปวช.3',
+                'title' => 'ตารางเรียน ระดับชั้น ปวช.3 ภาคเรียนที่ 1',
+                'image_path' => 'uploads/seed/hero-lab.jpg',
+                'updated_at' => date('Y-m-d H:i:s')
+            ],
+            [
+                'id' => 'seed_pvs1',
+                'category' => 'student',
+                'group_name' => 'ปวส.1',
+                'title' => 'ตารางเรียน ระดับชั้น ปวส.1 ภาคเรียนที่ 1',
+                'image_path' => 'uploads/seed/hero-lab.jpg',
+                'updated_at' => date('Y-m-d H:i:s')
+            ],
+            [
+                'id' => 'seed_pvs2',
+                'category' => 'student',
+                'group_name' => 'ปวส.2',
+                'title' => 'ตารางเรียน ระดับชั้น ปวส.2 ภาคเรียนที่ 1',
+                'image_path' => 'uploads/seed/hero-lab.jpg',
+                'updated_at' => date('Y-m-d H:i:s')
+            ]
+        ];
+    }
+
+    public static function countScheduleImages(): int
+    {
+        return count(self::getScheduleImages());
+    }
+
+    public static function saveScheduleImage(array $item): string
+    {
+        $items = self::getScheduleImages();
+        $id = !empty($item['id']) ? (string) $item['id'] : ('sch_' . bin2hex(random_bytes(5)));
+        $item['id'] = $id;
+        $item['updated_at'] = date('Y-m-d H:i:s');
+
+        $found = false;
+        foreach ($items as &$existing) {
+            if ($existing['id'] === $id) {
+                $existing = array_merge($existing, $item);
+                $found = true;
+                break;
+            }
+        }
+        unset($existing);
+
+        if (!$found) {
+            array_unshift($items, $item);
+        }
+
+        SettingService::set('schedule_images', json_encode($items, JSON_UNESCAPED_UNICODE));
+        CacheService::forget('schedule_images');
+        return $id;
+    }
+
+    public static function deleteScheduleImage(string $id): bool
+    {
+        $items = self::getScheduleImages();
+        $filtered = [];
+        $deleted = false;
+        foreach ($items as $it) {
+            if ($it['id'] === $id) {
+                delete_upload($it['image_path'] ?? null);
+                $deleted = true;
+            } else {
+                $filtered[] = $it;
+            }
+        }
+        SettingService::set('schedule_images', json_encode($filtered, JSON_UNESCAPED_UNICODE));
+        CacheService::forget('schedule_images');
+        return $deleted;
+    }
+
+    public static function getAllClassGroups(): array
+    {
+        $groups = q("SELECT DISTINCT class_group FROM class_schedule WHERE class_group != '' ORDER BY class_group ASC")->fetchAll(PDO::FETCH_COLUMN) ?: [];
+        $defaultGroups = ['ปวช.1', 'ปวช.2', 'ปวช.3', 'ปวส.1', 'ปวส.2'];
+        $combined = array_unique(array_merge($defaultGroups, $groups));
+        sort($combined);
+        return $combined;
+    }
 }
+
