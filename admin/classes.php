@@ -114,115 +114,110 @@ require_once __DIR__ . '/../includes/admin-header.php';
   <div class="admin-card-head d-flex justify-content-between align-items-center">
     <div>
       <h3 class="mb-0">ตารางแสดงรายการไฟล์ตารางเรียน</h3>
-      <span class="text-muted small">คลิก "แก้ไข / เปลี่ยนรูป" เพื่ออัปเดตรูปภาพหรือข้อมูลของแต่ละระดับชั้นได้ทันที</span>
+      <span class="text-muted small">จัดการและแก้ไขไฟล์ตารางเรียนประจำแต่ละระดับชั้น</span>
     </div>
-    <span class="badge bg-light text-navy border fw-bold"><?= count($scheduleAssets) ?> รายการ</span>
+    <span class="badge-count"><?= count($scheduleAssets) ?> รายการ</span>
   </div>
 
-  <div class="p-3">
-    <?php if (empty($scheduleAssets)): ?>
-      <div class="empty-state p-5 text-center text-muted">
-        <?= icon('file', 40) ?>
-        <h4 class="mt-3">ยังไม่มีไฟล์ตารางเรียน</h4>
-        <p>กดปุ่ม "เพิ่มตารางเรียน" ด้านบนเพื่อเริ่มอัปโหลดรูปภาพตารางเรียน</p>
-        <button type="button" class="btn btn-navy btn-sm mt-2" data-bs-toggle="modal" data-bs-target="#addScheduleModal">
-          <?= icon('plus', 14) ?> เพิ่มตารางเรียนใหม่
-        </button>
-      </div>
-    <?php else: ?>
-      <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-          <thead class="table-light">
+  <?php if (empty($scheduleAssets)): ?>
+    <div class="empty-state p-5 text-center text-muted">
+      <?= icon('file', 40) ?>
+      <h4 class="mt-3">ยังไม่มีไฟล์ตารางเรียน</h4>
+      <p>กดปุ่ม "เพิ่มตารางเรียน" ด้านบนเพื่อเริ่มอัปโหลดรูปภาพตารางเรียน</p>
+      <button type="button" class="btn btn-navy btn-sm mt-2" data-bs-toggle="modal" data-bs-target="#addScheduleModal">
+        <?= icon('plus', 14) ?> เพิ่มตารางเรียนใหม่
+      </button>
+    </div>
+  <?php else: ?>
+    <div class="table-responsive">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th style="width: 130px;">ระดับชั้น</th>
+            <th style="width: 100px;">รูปตัวอย่าง</th>
+            <th>ชื่อหัวข้อตารางเรียน</th>
+            <th style="width: 110px;">ชนิดไฟล์</th>
+            <th style="width: 140px;">วันที่อัปเดต</th>
+            <th class="text-end" style="width: 120px;">จัดการ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php foreach ($scheduleAssets as $item): ?>
+            <?php
+              $itemId   = (string) ($item['id'] ?? '');
+              $grpName  = (string) ($item['group_name'] ?? '');
+              $ttl      = (string) ($item['title'] ?? '');
+              $filePath = (string) ($item['image_path'] ?? '');
+              $isPdf    = str_ends_with(strtolower($filePath), '.pdf');
+              $fileUrl  = url($filePath);
+            ?>
             <tr>
-              <th style="width: 140px;">ระดับชั้น</th>
-              <th style="width: 120px;">รูปตัวอย่าง</th>
-              <th>ชื่อหัวข้อตารางเรียน</th>
-              <th style="width: 110px;">ชนิดไฟล์</th>
-              <th style="width: 160px;">วันที่อัปเดต</th>
-              <th style="width: 220px;" class="text-center">จัดการ</th>
-            </tr>
-          </thead>
-          <tbody>
-            <?php foreach ($scheduleAssets as $item): ?>
-              <?php
-                $itemId   = (string) ($item['id'] ?? '');
-                $grpName  = (string) ($item['group_name'] ?? '');
-                $ttl      = (string) ($item['title'] ?? '');
-                $filePath = (string) ($item['image_path'] ?? '');
-                $isPdf    = str_ends_with(strtolower($filePath), '.pdf');
-                $fileUrl  = url($filePath);
-              ?>
-              <tr>
-                <td>
-                  <span class="fw-bold fs-6" style="color: #000000;"><?= e($grpName ?: '-') ?></span>
-                </td>
-                <td>
-                  <?php if (!$isPdf && !empty($filePath)): ?>
-                    <a href="<?= e($fileUrl) ?>" target="_blank" title="คลิกเพื่อดูรูปภาพขนาดเต็ม" class="d-inline-block text-decoration-none">
-                      <img src="<?= e($fileUrl) ?>" alt="<?= e($ttl) ?>" class="rounded border shadow-sm" style="width: 90px; height: 60px; object-fit: cover; display: block; transition: transform 0.15s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                    </a>
-                  <?php elseif ($isPdf): ?>
-                    <a href="<?= e($fileUrl) ?>" target="_blank" class="d-inline-flex flex-column align-items-center justify-content-center rounded border bg-light text-decoration-none shadow-sm p-1" style="width: 90px; height: 60px;">
-                      <?= icon('file-pdf', 20) ?>
-                      <span class="text-danger fw-bold mt-1" style="font-size: 10px;">PDF</span>
-                    </a>
-                  <?php else: ?>
-                    <span class="text-muted small">-</span>
-                  <?php endif; ?>
-                </td>
-                <td>
-                  <div class="fw-bold text-navy"><?= e($ttl ?: '-') ?></div>
-                  <div class="text-muted small"><?= e($filePath) ?></div>
-                </td>
-                <td>
-                  <span class="badge bg-light text-muted border">
-                    <?= icon($isPdf ? 'file-pdf' : 'image', 13) ?>
-                    <?= $isPdf ? 'PDF' : 'รูปภาพ' ?>
-                  </span>
-                </td>
-                <td class="text-muted small">
-                  <?= thai_date($item['updated_at'] ?? 'now') ?>
-                </td>
-                <td class="text-center">
-                  <div class="d-flex align-items-center justify-content-center gap-1">
-                    <!-- ปุ่มแก้ไข / เปลี่ยนรูปภาพ -->
-                    <button type="button"
-                            class="btn btn-sm btn-navy d-inline-flex align-items-center gap-1"
-                            onclick="openEditScheduleModal(<?= htmlspecialchars(json_encode([
-                              'id'         => $itemId,
-                              'group_name' => $grpName,
-                              'title'      => $ttl,
-                              'image_path' => $filePath,
-                              'file_url'   => $fileUrl,
-                              'is_pdf'     => $isPdf,
-                            ]), ENT_QUOTES, 'UTF-8') ?>)"
-                            title="แก้ไขข้อมูลหรือเปลี่ยนรูปภาพ">
-                      <?= icon('pencil', 12) ?> <span>แก้ไข / เปลี่ยนรูป</span>
+              <td>
+                <span class="badge-count fw-bold" style="font-size: 13px;"><?= e($grpName ?: '-') ?></span>
+              </td>
+              <td>
+                <?php if (!$isPdf && !empty($filePath)): ?>
+                  <a href="<?= e($fileUrl) ?>" target="_blank" title="คลิกเพื่อดูรูปภาพขนาดเต็ม" class="d-inline-block text-decoration-none">
+                    <img src="<?= e($fileUrl) ?>" alt="<?= e($ttl) ?>" class="rounded border" style="width: 75px; height: 50px; object-fit: cover; display: block; transition: transform 0.15s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                  </a>
+                <?php elseif ($isPdf): ?>
+                  <a href="<?= e($fileUrl) ?>" target="_blank" class="d-inline-flex flex-column align-items-center justify-content-center rounded border bg-light text-decoration-none p-1" style="width: 75px; height: 50px;" title="เปิดเอกสาร PDF">
+                    <?= icon('file-pdf', 18) ?>
+                    <span class="text-danger fw-bold" style="font-size: 9px;">PDF</span>
+                  </a>
+                <?php else: ?>
+                  <span class="text-muted small">-</span>
+                <?php endif; ?>
+              </td>
+              <td>
+                <span class="fw-bold d-block text-navy" style="font-size: 14.5px;"><?= e($ttl ?: '-') ?></span>
+                <span class="text-muted d-block" style="font-size: 12.5px;"><?= $isPdf ? 'ไฟล์เอกสาร PDF' : 'ไฟล์รูปภาพตารางเรียน' ?></span>
+              </td>
+              <td>
+                <span class="tag" style="font-size: 12px;"><?= $isPdf ? 'PDF' : 'รูปภาพ' ?></span>
+              </td>
+              <td style="font-family: var(--font-body); font-size: 13px;">
+                <span class="text-navy"><?= thai_date($item['updated_at'] ?? 'now') ?></span>
+              </td>
+              <td class="text-end">
+                <div class="d-inline-flex gap-1">
+                  <!-- ปุ่มดูไฟล์ -->
+                  <a href="<?= e($fileUrl) ?>" target="_blank" class="btn btn-action-icon btn-line" title="ดูไฟล์">
+                    <?= icon('external', 16) ?>
+                  </a>
+
+                  <!-- ปุ่มแก้ไข / เปลี่ยนรูปภาพ -->
+                  <button type="button"
+                          class="btn btn-action-icon btn-line"
+                          onclick="openEditScheduleModal(<?= htmlspecialchars(json_encode([
+                            'id'         => $itemId,
+                            'group_name' => $grpName,
+                            'title'      => $ttl,
+                            'image_path' => $filePath,
+                            'file_url'   => $fileUrl,
+                            'is_pdf'     => $isPdf,
+                          ]), ENT_QUOTES, 'UTF-8') ?>)"
+                          title="แก้ไข / เปลี่ยนรูป">
+                    <?= icon('pencil', 16) ?>
+                  </button>
+
+                  <!-- ปุ่มลบ -->
+                  <form method="POST" action="<?= url('admin/classes') ?>" onsubmit="return confirm('ยืนยันลบไฟล์ตารางเรียนนี้?');" class="d-inline m-0">
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="sub_action" value="delete_asset">
+                    <input type="hidden" name="id" value="<?= e($itemId) ?>">
+                    <button type="submit" class="btn btn-action-icon btn-danger-line" title="ลบ">
+                      <?= icon('trash', 16) ?>
                     </button>
-
-                    <!-- ปุ่มดูไฟล์ -->
-                    <a href="<?= e($fileUrl) ?>" target="_blank" class="btn btn-sm btn-line d-inline-flex align-items-center gap-1" title="เปิดดูไฟล์">
-                      <?= icon('external', 12) ?>
-                    </a>
-
-                    <!-- ปุ่มลบ -->
-                    <form method="POST" action="<?= url('admin/classes') ?>" onsubmit="return confirm('ยืนยันลบไฟล์ตารางเรียนนี้?');" class="d-inline m-0">
-                      <?= csrf_field() ?>
-                      <input type="hidden" name="sub_action" value="delete_asset">
-                      <input type="hidden" name="id" value="<?= e($itemId) ?>">
-                      <button type="submit" class="btn btn-sm btn-outline-danger p-1 px-2" title="ลบไฟล์">
-                        <?= icon('trash', 14) ?>
-                      </button>
-                    </form>
-                  </div>
-                </td>
-              </tr>
-            <?php endforeach; ?>
-          </tbody>
-        </table>
-      </div>
-    <?php endif; ?>
-  </div>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          <?php endforeach; ?>
+        </tbody>
+      </table>
+    </div>
+  <?php endif; ?>
 </div>
 
 <!-- =========================================================================
