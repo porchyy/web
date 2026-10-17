@@ -81,6 +81,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $allGroups      = ScheduleService::getAllClassGroups();
 $scheduleAssets = ScheduleService::getScheduleImages();
 
+// Calculate counts per level
+$vocCount = 0;
+$dvocCount = 0;
+$teacherCount = 0;
+foreach ($scheduleAssets as $asset) {
+    $g = mb_strtolower((string)($asset['group_name'] ?? ''));
+    $t = mb_strtolower((string)($asset['title'] ?? ''));
+    if (str_contains($g, 'ปวช')) {
+        $vocCount++;
+    } elseif (str_contains($g, 'ปวส')) {
+        $dvocCount++;
+    } elseif (str_contains($g, 'อาจารย์') || str_contains($g, 'ครู') || str_contains($g, 'คณาจารย์') || str_contains($t, 'อาจารย์') || str_contains($t, 'ครู')) {
+        $teacherCount++;
+    }
+}
+
 require_once __DIR__ . '/../includes/admin-header.php';
 ?>
 
@@ -141,18 +157,18 @@ require_once __DIR__ . '/../includes/admin-header.php';
 
   <!-- Filter Pills / Tabs -->
   <div class="px-3 pt-3 pb-3 border-bottom bg-light d-flex flex-wrap align-items-center gap-2">
-    <span class="text-muted small fw-semibold me-1">กรองระดับชั้น:</span>
+    <span class="text-navy small fw-bold me-1">กรองระดับชั้น:</span>
     <button type="button" class="btn btn-sm btn-navy btn-filter-pill is-active py-1 px-3" data-filter="all" style="min-height: 32px; font-size: 13px;">
       ทั้งหมด (<?= count($scheduleAssets) ?>)
     </button>
     <button type="button" class="btn btn-sm btn-line btn-filter-pill py-1 px-3" data-filter="ปวช" style="min-height: 32px; font-size: 13px;">
-      ระดับ ปวช.
+      ระดับ ปวช. (<?= $vocCount ?>)
     </button>
     <button type="button" class="btn btn-sm btn-line btn-filter-pill py-1 px-3" data-filter="ปวส" style="min-height: 32px; font-size: 13px;">
-      ระดับ ปวส.
+      ระดับ ปวส. (<?= $dvocCount ?>)
     </button>
     <button type="button" class="btn btn-sm btn-line btn-filter-pill py-1 px-3" data-filter="อาจารย์" style="min-height: 32px; font-size: 13px;">
-      คณาจารย์
+      คณาจารย์ (<?= $teacherCount ?>)
     </button>
   </div>
 
@@ -160,12 +176,12 @@ require_once __DIR__ . '/../includes/admin-header.php';
     <table class="admin-table">
       <thead>
         <tr>
-          <th style="width: 120px;">ระดับชั้น</th>
+          <th style="width: 130px; white-space: nowrap;">ระดับชั้น</th>
           <th style="width: 76px;" class="text-center">รูปตัวอย่าง</th>
           <th>ชื่อหัวข้อตารางเรียน</th>
-          <th style="width: 110px;">ชนิดไฟล์</th>
-          <th style="width: 140px;">วันที่อัปเดต</th>
-          <th class="text-end" style="width: 140px;">จัดการ</th>
+          <th style="width: 100px;">ชนิดไฟล์</th>
+          <th style="width: 140px; white-space: nowrap;">วันที่อัปเดต</th>
+          <th class="text-end" style="width: 130px; white-space: nowrap;">จัดการ</th>
         </tr>
       </thead>
       <tbody id="scheduleTableBody">
@@ -221,7 +237,7 @@ require_once __DIR__ . '/../includes/admin-header.php';
                 data-title="<?= e(mb_strtolower($ttl)) ?>">
               
               <!-- ระดับชั้น -->
-              <td>
+              <td style="white-space: nowrap;">
                 <span class="badge-count fw-bold" style="background: <?= $badgeBg ?>; color: <?= $badgeColor ?>; border: 1px solid <?= $badgeBorder ?>; font-size: 12.5px; padding: 4px 9px;">
                   <?= e($grpName ?: '-') ?>
                 </span>
@@ -258,6 +274,8 @@ require_once __DIR__ . '/../includes/admin-header.php';
                   <?= $isPdf ? 'ไฟล์เอกสารตารางเรียน PDF' : 'ไฟล์รูปภาพตารางเรียน' ?>
                   <?php if ($filePath): ?>
                     &middot; <span class="mono text-truncate" style="max-width: 320px; display: inline-block; vertical-align: bottom; font-size: 11.5px; color: #64748b;"><?= e(basename($filePath)) ?></span>
+                  <?php else: ?>
+                    &middot; <span class="text-muted small">(ยังไม่มีไฟล์)</span>
                   <?php endif; ?>
                 </span>
               </td>
@@ -272,12 +290,12 @@ require_once __DIR__ . '/../includes/admin-header.php';
               </td>
 
               <!-- วันที่อัปเดต -->
-              <td style="font-size: 13px;">
+              <td style="font-size: 13px; white-space: nowrap;">
                 <span class="text-navy fw-medium"><?= thai_date($item['updated_at'] ?? 'now') ?></span>
               </td>
 
               <!-- จัดการ -->
-              <td class="text-end">
+              <td class="text-end" style="white-space: nowrap;">
                 <div class="d-inline-flex align-items-center gap-1">
                   <!-- ดูไฟล์ -->
                   <a href="<?= e($fileUrl) ?>"
@@ -311,7 +329,10 @@ require_once __DIR__ . '/../includes/admin-header.php';
         <?php endif; ?>
         <tr id="noResultsRow" style="display: none;">
           <td colspan="6" class="text-center py-4 text-muted">
-            ไม่พบตารางเรียนที่ตรงกับคำค้นหาหรือตัวกรอง
+            <div class="mb-1">ไม่พบตารางเรียนที่ตรงกับคำค้นหาหรือตัวกรอง</div>
+            <button type="button" class="btn btn-sm btn-line py-1 px-3 mt-1" onclick="clearFilters()" style="min-height: 30px; font-size: 12.5px;">
+              <?= icon('close', 12) ?> <span>ล้างคำค้นหาและแสดงทั้งหมด</span>
+            </button>
           </td>
         </tr>
       </tbody>
@@ -324,10 +345,13 @@ require_once __DIR__ . '/../includes/admin-header.php';
      ========================================================================= -->
 <div class="modal fade" id="editScheduleModal" tabindex="-1" aria-labelledby="editScheduleModalTitle" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content border-0 shadow-lg">
-      <div class="modal-header bg-navy text-white py-3 px-4">
-        <h5 class="modal-title fw-bold" id="editScheduleModalTitle">แก้ไขตารางเรียน</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="ปิด"></button>
+    <div class="modal-content border shadow-lg overflow-hidden" style="border-radius: var(--radius-lg, 12px);">
+      <div class="modal-header py-3 px-4 d-flex justify-content-between align-items-center" style="background-color: #17324d !important; border-bottom: 2px solid var(--c-accent, #e5993e);">
+        <h5 class="modal-title fw-bold mb-0 d-flex align-items-center gap-2" id="editScheduleModalTitle" style="color: #ffffff !important; font-size: 1.1rem;">
+          <span style="color: #ffffff !important; display: inline-flex;"><?= icon('pencil', 18) ?></span>
+          <span style="color: #ffffff !important; font-weight: 700;">แก้ไขตารางเรียน</span>
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="ปิด" style="opacity: 0.9;"></button>
       </div>
       <form method="POST" action="<?= url('admin/classes') ?>" enctype="multipart/form-data">
         <?= csrf_field() ?>
@@ -363,8 +387,15 @@ require_once __DIR__ . '/../includes/admin-header.php';
             <input type="file" name="schedule_file" id="editScheduleFile" class="form-control" accept="image/jpeg,image/png,image/webp,application/pdf" onchange="previewEditFile(this)">
             <div class="form-text text-muted small">เว้นว่างไว้หากไม่ต้องการเปลี่ยนรูปภาพเดิม (ขนาดไม่เกิน 5 MB)</div>
             <div id="editFilePreviewWrap" class="mt-2 d-none">
-              <div class="small text-muted mb-1">ตัวอย่างรูปใหม่ที่เลือก:</div>
-              <img id="editFilePreviewImg" src="" alt="ตัวอย่างใหม่" style="max-height: 120px; border-radius: 6px; border: 1px solid #ddd; object-fit: contain;">
+              <div class="small text-muted mb-1">ไฟล์ใหม่ที่เลือก:</div>
+              <img id="editFilePreviewImg" src="" alt="ตัวอย่างใหม่" class="d-none" style="max-height: 120px; border-radius: 6px; border: 1px solid #cbd5e1; object-fit: contain; background: #fff; padding: 2px;">
+              <div id="editFilePreviewPdf" class="d-none p-2 border rounded bg-white text-danger align-items-center gap-2" style="border-color: #fecaca !important; max-width: 320px;">
+                <?= icon('file-pdf', 24) ?>
+                <div class="small text-truncate">
+                  <span class="fw-bold text-navy d-block text-truncate" id="editFilePreviewPdfName">เอกสาร.pdf</span>
+                  <span class="text-muted" id="editFilePreviewPdfSize" style="font-size: 11px;"></span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -385,10 +416,13 @@ require_once __DIR__ . '/../includes/admin-header.php';
      ========================================================================= -->
 <div class="modal fade" id="addScheduleModal" tabindex="-1" aria-labelledby="addScheduleModalTitle" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content border-0 shadow-lg">
-      <div class="modal-header bg-navy text-white py-3 px-4">
-        <h5 class="modal-title fw-bold" id="addScheduleModalTitle">เพิ่มตารางเรียนใหม่</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="ปิด"></button>
+    <div class="modal-content border shadow-lg overflow-hidden" style="border-radius: var(--radius-lg, 12px);">
+      <div class="modal-header py-3 px-4 d-flex justify-content-between align-items-center" style="background-color: #17324d !important; border-bottom: 2px solid var(--c-accent, #e5993e);">
+        <h5 class="modal-title fw-bold mb-0 d-flex align-items-center gap-2" id="addScheduleModalTitle" style="color: #ffffff !important; font-size: 1.1rem;">
+          <span style="color: #ffffff !important; display: inline-flex;"><?= icon('plus', 18) ?></span>
+          <span style="color: #ffffff !important; font-weight: 700;">เพิ่มตารางเรียนใหม่</span>
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="ปิด" style="opacity: 0.9;"></button>
       </div>
       <form method="POST" action="<?= url('admin/classes') ?>" enctype="multipart/form-data">
         <?= csrf_field() ?>
@@ -411,8 +445,15 @@ require_once __DIR__ . '/../includes/admin-header.php';
             <input type="file" name="schedule_file" id="addScheduleFile" class="form-control" accept="image/jpeg,image/png,image/webp,application/pdf" required onchange="previewAddFile(this)">
             <div class="form-text text-muted small">รองรับไฟล์รูปภาพ JPG, PNG, WebP หรือไฟล์ PDF ขนาดไม่เกิน 5 MB</div>
             <div id="addFilePreviewWrap" class="mt-2 d-none">
-              <div class="small text-muted mb-1">ตัวอย่างไฟล์ที่เลือก:</div>
-              <img id="addFilePreviewImg" src="" alt="ตัวอย่าง" style="max-height: 120px; border-radius: 6px; border: 1px solid #ddd; object-fit: contain;">
+              <div class="small text-muted mb-1">ไฟล์ที่เลือก:</div>
+              <img id="addFilePreviewImg" src="" alt="ตัวอย่าง" class="d-none" style="max-height: 120px; border-radius: 6px; border: 1px solid #cbd5e1; object-fit: contain; background: #fff; padding: 2px;">
+              <div id="addFilePreviewPdf" class="d-none p-2 border rounded bg-white text-danger align-items-center gap-2" style="border-color: #fecaca !important; max-width: 320px;">
+                <?= icon('file-pdf', 24) ?>
+                <div class="small text-truncate">
+                  <span class="fw-bold text-navy d-block text-truncate" id="addFilePreviewPdfName">เอกสาร.pdf</span>
+                  <span class="text-muted" id="addFilePreviewPdfSize" style="font-size: 11px;"></span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -427,6 +468,7 @@ require_once __DIR__ . '/../includes/admin-header.php';
     </div>
   </div>
 </div>
+
 
 <!-- =========================================================================
      Modal 3: ดูรูปภาพตารางเรียนขนาดเต็ม (Image Lightbox Modal)
@@ -588,34 +630,71 @@ function openEditScheduleModal(item) {
   }
 }
 
-function previewEditFile(input) {
-  const wrap = document.getElementById('editFilePreviewWrap');
-  const img = document.getElementById('editFilePreviewImg');
-  if (input.files && input.files[0] && input.files[0].type.startsWith('image/')) {
+function clearFilters() {
+  if (searchInput) searchInput.value = '';
+  activeFilter = 'all';
+  filterButtons.forEach(b => {
+    b.classList.remove('btn-navy', 'is-active');
+    b.classList.add('btn-line');
+    if (b.getAttribute('data-filter') === 'all') {
+      b.classList.remove('btn-line');
+      b.classList.add('btn-navy', 'is-active');
+    }
+  });
+  applyFilterAndSearch();
+}
+
+function formatBytes(bytes) {
+  if (!bytes) return '0 B';
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return (bytes / Math.pow(k, i)).toFixed(1) + ' ' + sizes[i];
+}
+
+function handleFilePreview(input, wrapId, imgId, pdfWrapId, pdfNameId, pdfSizeId) {
+  const wrap = document.getElementById(wrapId);
+  const img = document.getElementById(imgId);
+  const pdfWrap = document.getElementById(pdfWrapId);
+  const pdfName = document.getElementById(pdfNameId);
+  const pdfSize = document.getElementById(pdfSizeId);
+
+  if (!input.files || !input.files[0]) {
+    wrap.classList.add('d-none');
+    return;
+  }
+
+  const file = input.files[0];
+  const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+
+  wrap.classList.remove('d-none');
+
+  if (isPdf) {
+    img.classList.add('d-none');
+    pdfWrap.classList.remove('d-none');
+    pdfWrap.classList.add('d-flex');
+    if (pdfName) pdfName.textContent = file.name;
+    if (pdfSize) pdfSize.textContent = 'ขนาด ' + formatBytes(file.size);
+  } else if (file.type.startsWith('image/')) {
+    pdfWrap.classList.add('d-none');
+    pdfWrap.classList.remove('d-flex');
     const reader = new FileReader();
     reader.onload = function(e) {
       img.src = e.target.result;
-      wrap.classList.remove('d-none');
+      img.classList.remove('d-none');
     };
-    reader.readAsDataURL(input.files[0]);
+    reader.readAsDataURL(file);
   } else {
     wrap.classList.add('d-none');
   }
 }
 
+function previewEditFile(input) {
+  handleFilePreview(input, 'editFilePreviewWrap', 'editFilePreviewImg', 'editFilePreviewPdf', 'editFilePreviewPdfName', 'editFilePreviewPdfSize');
+}
+
 function previewAddFile(input) {
-  const wrap = document.getElementById('addFilePreviewWrap');
-  const img = document.getElementById('addFilePreviewImg');
-  if (input.files && input.files[0] && input.files[0].type.startsWith('image/')) {
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      img.src = e.target.result;
-      wrap.classList.remove('d-none');
-    };
-    reader.readAsDataURL(input.files[0]);
-  } else {
-    wrap.classList.add('d-none');
-  }
+  handleFilePreview(input, 'addFilePreviewWrap', 'addFilePreviewImg', 'addFilePreviewPdf', 'addFilePreviewPdfName', 'addFilePreviewPdfSize');
 }
 </script>
 
