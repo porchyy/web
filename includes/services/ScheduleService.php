@@ -781,6 +781,9 @@ class ScheduleService
         $found = false;
         foreach ($items as &$existing) {
             if ($existing['id'] === $id) {
+                if (!empty($item['image_path']) && !empty($existing['image_path']) && $item['image_path'] !== $existing['image_path']) {
+                    delete_upload($existing['image_path']);
+                }
                 $existing = array_merge($existing, $item);
                 $found = true;
                 break;
