@@ -73,20 +73,20 @@ include __DIR__ . '/../includes/header.php';
           </a>
         </div>
 
-        <!-- Grade Level Selector Pills (กรองดูตามระดับชั้น หรือดูทั้งหมด) -->
+        <!-- Grade Level Dropdown -->
         <?php if ($tab === 'class'): ?>
-          <div class="d-flex align-items-center gap-2 flex-wrap">
-            <span class="text-muted small fw-semibold">ระดับชั้น:</span>
-            <div class="btn-group btn-group-sm flex-wrap" role="group" aria-label="เลือกระดับชั้น">
-              <a href="<?= url('schedule?tab=class&group=all') ?>" class="btn <?= $selectedGroup === 'all' ? 'btn-navy fw-semibold' : 'btn-line' ?>">
+          <div class="d-flex align-items-center gap-2">
+            <label for="scheduleLevelSelect" class="text-muted small fw-semibold mb-0 text-nowrap">ระดับชั้น:</label>
+            <select id="scheduleLevelSelect" class="form-select form-select-sm" style="min-width: 150px; width: auto;" onchange="if(this.value) window.location.href=this.value;">
+              <option value="<?= url('schedule?tab=class&group=all') ?>" <?= $selectedGroup === 'all' ? 'selected' : '' ?>>
                 ทั้งหมด
-              </a>
+              </option>
               <?php foreach ($availableLevels as $lvl): ?>
-                <a href="<?= url('schedule?tab=class&group=' . urlencode($lvl)) ?>" class="btn <?= $selectedGroup === $lvl ? 'btn-navy fw-semibold' : 'btn-line' ?>">
+                <option value="<?= url('schedule?tab=class&group=' . urlencode($lvl)) ?>" <?= $selectedGroup === $lvl ? 'selected' : '' ?>>
                   <?= e($lvl) ?>
-                </a>
+                </option>
               <?php endforeach; ?>
-            </div>
+            </select>
           </div>
         <?php endif; ?>
       </div>
