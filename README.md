@@ -81,6 +81,10 @@ C:/xampp/php/php.exe -d session.save_path=scratch tests/runtime.php
 
 ทดสอบ HTTP เพิ่มเติมด้วย `node tests/timetable-http.cjs` เมื่อเว็บนี้ทำงานที่ `http://localhost` โดยกำหนด `DBT_TEST_USERNAME` และ `DBT_TEST_PASSWORD` ใน environment ชั่วคราวสำหรับบัญชีทดสอบ ห้ามทดสอบกับฐานข้อมูล Production การทดสอบใช้กลุ่มเรียนชื่อสุ่มที่ขึ้นต้นด้วย `__test_http_` แล้วลบเฉพาะข้อมูลและไฟล์ fixture ของกลุ่มนั้นเมื่อจบ
 
-## 6. สร้างแพ็กเกจ Production
+## 6. สร้างแพ็กเกจและการติดตั้งบน Production
 
-รัน `powershell -File tools/package-release.ps1` เพื่อสร้าง ZIP และ SHA256 ใน `dist/` แพ็กเกจจะไม่รวม `.env`, รูปที่ผู้ใช้อัปโหลด, demo seeds, tests, screenshots, graph, cache และ backup เก็บไฟล์อัปโหลดเดิมเมื่ออัปเดตเว็บ และทำตาม [คู่มือ Production](docs/production.md) ก่อน Deploy
+- **สร้างแพ็กเกจ**: รัน `php tools/package-release.php` หรือ `powershell -File tools/package-release.ps1` เพื่อสร้าง ZIP และ SHA256 ใน `dist/` (แพ็กเกจจะไม่รวม `.env`, รูปที่ผู้ใช้อัปโหลด, demo seeds, tests, screenshots, graph, cache และ backup)
+- **ตั้งค่า Production**: แตกไฟล์ ZIP บน Server แล้วรันตัวช่วยติดตั้ง `php tools/setup-production.php` (หรือทำตามขั้นตอนใน [คู่มือ Production](docs/production.md))
+- **Docker**: หรือรันด้วย `docker compose up -d` สำหรับ Stack สำเร็จรูป (PHP 8.2 Apache + MariaDB)
+- **ตรวจสอบความพร้อม**: รัน `php tools/check-production.php` ก่อนเปิดใช้งานจริงเพื่อตรวจเช็กความปลอดภัยและการตั้งค่าทั้งหมด
+

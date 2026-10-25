@@ -4,8 +4,11 @@ $releaseDirectory = Join-Path $projectRoot 'dist'
 [IO.Directory]::CreateDirectory($releaseDirectory) | Out-Null
 $archivePath = Join-Path $releaseDirectory ('dbt-web-' + (Get-Date -Format 'yyyyMMdd-HHmmss') + '.zip')
 $files = [Collections.Generic.List[string]]::new()
-foreach ($relativePath in @('.htaccess', '.user.ini', '.env.example', 'index.php', 'error.php', 'favicon.ico', 'uploads/.htaccess', 'tools/check-production.php', 'tools/create-admin.php', 'tools/install-schema.php', 'docs/production.md', 'deploy/php-production.ini', 'database/migrations/2026_10_class_timetable_images.php')) {
-    $files.Add((Join-Path $projectRoot $relativePath))
+foreach ($relativePath in @('.htaccess', '.user.ini', '.env.example', 'index.php', 'error.php', 'favicon.ico', 'uploads/.htaccess', 'scratch/.gitkeep', 'tools/check-production.php', 'tools/create-admin.php', 'tools/install-schema.php', 'tools/setup-production.php', 'tools/package-release.php', 'docs/production.md', 'deploy/php-production.ini', 'deploy/apache-production.conf', 'database/migrations/2026_10_class_timetable_images.php')) {
+    $full = Join-Path $projectRoot $relativePath
+    if (Test-Path -LiteralPath $full) {
+        $files.Add($full)
+    }
 }
 foreach ($directory in @('admin', 'api', 'assets', 'includes', 'pages', 'database/schema')) {
     foreach ($file in Get-ChildItem -LiteralPath (Join-Path $projectRoot $directory) -Recurse -File) {

@@ -7,6 +7,17 @@ define('ROOT_PATH', dirname(__DIR__));
 define('UPLOAD_DIR', ROOT_PATH . '/uploads');
 define('MAX_UPLOAD_BYTES', 5 * 1024 * 1024); // 5 MB
 
+// Ensure required runtime writable directories exist
+if (!is_dir(ROOT_PATH . '/scratch')) {
+    @mkdir(ROOT_PATH . '/scratch', 0775, true);
+}
+if (!is_dir(ROOT_PATH . '/scratch/cache')) {
+    @mkdir(ROOT_PATH . '/scratch/cache', 0775, true);
+}
+if (!is_dir(UPLOAD_DIR)) {
+    @mkdir(UPLOAD_DIR, 0775, true);
+}
+
 // ---- โหลดค่าคอนฟิกจาก .env ----
 (function () {
     $envFile = ROOT_PATH . '/.env';

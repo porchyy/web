@@ -24,7 +24,11 @@ class AuthService
         if (self::$cachedUser === false) {
             self::$cachedUser = null;
             if (!empty($_SESSION['uid'])) {
-                self::$cachedUser = q('SELECT id, username, full_name, role FROM users WHERE id = ?', [$_SESSION['uid']])->fetch() ?: null;
+                try {
+                    self::$cachedUser = q('SELECT id, username, full_name, role FROM users WHERE id = ?', [$_SESSION['uid']])->fetch() ?: null;
+                } catch (\Throwable) {
+                    self::$cachedUser = null;
+                }
             }
         }
         return self::$cachedUser;

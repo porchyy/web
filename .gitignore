@@ -5,7 +5,8 @@ uploads/*
 !uploads/.htaccess
 !uploads/seed/
 !uploads/seed/*
-scratch/
+scratch/*
+!scratch/.gitkeep
 .scratch/
 .agents/
 .codex/

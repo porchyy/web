@@ -17,11 +17,15 @@ class SettingService
             return self::$memoryCache;
         }
 
-        self::$memoryCache = CacheService::remember('settings_all', 60, function () {
-            return q('SELECT skey, svalue FROM settings')->fetchAll(PDO::FETCH_KEY_PAIR);
-        });
+        try {
+            self::$memoryCache = CacheService::remember('settings_all', 60, function () {
+                return q('SELECT skey, svalue FROM settings')->fetchAll(PDO::FETCH_KEY_PAIR);
+            });
+        } catch (\Throwable) {
+            return [];
+        }
 
-        return self::$memoryCache;
+        return self::$memoryCache ?: [];
     }
 
     public static function get(string $key, string $default = ''): string
