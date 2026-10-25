@@ -22,7 +22,14 @@ foreach (['uploads', 'scratch'] as $directory) {
     }
 }
 try {
-    $pdo = new PDO('mysql:host=' . DB_HOST . ';port=' . DB_PORT . ';dbname=' . DB_NAME . ';charset=utf8mb4', DB_USER, DB_PASS, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+    $dsn = 'mysql:host=' . DB_HOST . ';port=' . DB_PORT . ';dbname=' . DB_NAME . ';charset=utf8mb4';
+    if (DB_HOST === 'localhost' && PHP_OS_FAMILY !== 'Windows') {
+        $lamppSock = '/opt/lampp/var/mysql/mysql.sock';
+        if (file_exists($lamppSock)) {
+            $dsn .= ';unix_socket=' . $lamppSock;
+        }
+    }
+    $pdo = new PDO($dsn, DB_USER, DB_PASS, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
     if (!$pdo->query("SHOW TABLES LIKE 'class_timetables'")->fetch()) $failures[] = 'Run the timetable migration';
     if ($pdo->query("SHOW COLUMNS FROM classes LIKE 'course_type'")->fetch()) $failures[] = 'Course classification migration is incomplete';
     $hashes = $pdo->query('SELECT password_hash FROM users')->fetchAll(PDO::FETCH_COLUMN);
@@ -34,7 +41,7 @@ try {
         }
     }
 } catch (PDOException $exception) {
-    $failures[] = 'Database connection or required schema checks failed';
+    $failures[] = 'Database connection or required schema checks failed: ' . $exception->getMessage();
 }
 foreach ($failures as $failure) echo 'FAIL: ', $failure, PHP_EOL;
 echo $failures ? "Production configuration is not ready.\n" : "Production configuration checks passed. Verify HTTPS, backups and browser behavior before launch.\n";

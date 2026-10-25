@@ -53,6 +53,12 @@ function db(): PDO
     try {
         // Try connecting directly to configured database
         $dsn = 'mysql:host=' . DB_HOST . ';port=' . DB_PORT . ';dbname=' . DB_NAME . ';charset=utf8mb4';
+        if (DB_HOST === 'localhost' && PHP_OS_FAMILY !== 'Windows') {
+            $lamppSock = '/opt/lampp/var/mysql/mysql.sock';
+            if (file_exists($lamppSock)) {
+                $dsn .= ';unix_socket=' . $lamppSock;
+            }
+        }
         $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
     } catch (PDOException $e) {
         if (!DB_AUTO_BOOTSTRAP) {
@@ -61,6 +67,12 @@ function db(): PDO
         // If database does not exist (error 1049) or connection failed, attempt auto-creation
         try {
             $rootDsn = 'mysql:host=' . DB_HOST . ';port=' . DB_PORT . ';charset=utf8mb4';
+            if (DB_HOST === 'localhost' && PHP_OS_FAMILY !== 'Windows') {
+                $lamppSock = '/opt/lampp/var/mysql/mysql.sock';
+                if (file_exists($lamppSock)) {
+                    $rootDsn .= ';unix_socket=' . $lamppSock;
+                }
+            }
             $rootPdo = new PDO($rootDsn, DB_USER, DB_PASS, $options);
             $dbNameEscaped = str_replace('`', '``', DB_NAME);
             $rootPdo->exec("CREATE DATABASE IF NOT EXISTS `{$dbNameEscaped}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");

@@ -112,6 +112,12 @@ if (!empty($errors)) {
 echo "\n[3/6] Testing database connectivity...\n";
 try {
     $dsn = "mysql:host={$dbHost};port={$dbPort};dbname={$dbName};charset=utf8mb4";
+    if ($dbHost === 'localhost' && PHP_OS_FAMILY !== 'Windows') {
+        $lamppSock = '/opt/lampp/var/mysql/mysql.sock';
+        if (file_exists($lamppSock)) {
+            $dsn .= ';unix_socket=' . $lamppSock;
+        }
+    }
     $pdo = new PDO($dsn, $dbUser, $dbPass, [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,

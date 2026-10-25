@@ -5,7 +5,14 @@ if (PHP_SAPI !== 'cli') {
     exit;
 }
 require_once __DIR__ . '/../includes/config.php';
-$pdo = new PDO('mysql:host=' . DB_HOST . ';port=' . DB_PORT . ';dbname=' . DB_NAME . ';charset=utf8mb4', DB_USER, DB_PASS, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+$dsn = 'mysql:host=' . DB_HOST . ';port=' . DB_PORT . ';dbname=' . DB_NAME . ';charset=utf8mb4';
+if (DB_HOST === 'localhost' && PHP_OS_FAMILY !== 'Windows') {
+    $lamppSock = '/opt/lampp/var/mysql/mysql.sock';
+    if (file_exists($lamppSock)) {
+        $dsn .= ';unix_socket=' . $lamppSock;
+    }
+}
+$pdo = new PDO($dsn, DB_USER, DB_PASS, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
 foreach (glob(__DIR__ . '/../database/schema/*.sql') as $file) {
     $sql = file_get_contents($file);
     if (preg_match('/^\s*(?:USE\b|CREATE\s+DATABASE\b)/mi', $sql)) {

@@ -95,6 +95,12 @@ function get_initial_setting(string $key, string $default = ''): string
             $user = env('DB_USER', 'root');
             $pass = env('DB_PASS', '');
             $dsn = "mysql:host={$host};port={$port};dbname={$name};charset=utf8mb4";
+            if ($host === 'localhost' && PHP_OS_FAMILY !== 'Windows') {
+                $lamppSock = '/opt/lampp/var/mysql/mysql.sock';
+                if (file_exists($lamppSock)) {
+                    $dsn .= ';unix_socket=' . $lamppSock;
+                }
+            }
             $pdo = new PDO($dsn, $user, $pass, [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_SILENT,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
