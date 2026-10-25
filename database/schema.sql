@@ -50,14 +50,12 @@ CREATE TABLE IF NOT EXISTS `classes` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `subject_code` VARCHAR(20) NOT NULL UNIQUE,
   `subject_name` VARCHAR(100) NOT NULL,
-  `course_type` ENUM('professional', 'regular') NOT NULL DEFAULT 'professional',
   `default_teacher` VARCHAR(100) NULL,
   `default_room` VARCHAR(50) NULL,
   `credit` TINYINT NOT NULL DEFAULT 3,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  INDEX `idx_class_code` (`subject_code`),
-  INDEX `idx_class_type` (`course_type`)
+  INDEX `idx_class_code` (`subject_code`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
 -- 6. Class Schedule Table
@@ -119,3 +117,12 @@ CREATE TABLE IF NOT EXISTS `club_members` (
   `sort_order` INT NOT NULL DEFAULT 0,
   INDEX `idx_club_order` (`is_club_head` DESC, `sort_order` ASC, `id` ASC)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+
+-- 9. Per-group timetable presentation
+CREATE TABLE IF NOT EXISTS `class_timetables` (
+  `class_group` VARCHAR(50) PRIMARY KEY,
+  `display_mode` ENUM('manual', 'image') NOT NULL DEFAULT 'manual',
+  `image_path` VARCHAR(255) NULL,
+  `image_alt` VARCHAR(255) NOT NULL DEFAULT '',
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

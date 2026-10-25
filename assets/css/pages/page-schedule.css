@@ -837,6 +837,17 @@
 }
 
 @media print {
+  .timetable-image {
+    break-inside: avoid;
+    margin: 0 !important;
+  }
+
+  .timetable-image img {
+    width: 100% !important;
+    max-height: 165mm;
+    object-fit: contain !important;
+  }
+
   *,
   *::before,
   *::after {

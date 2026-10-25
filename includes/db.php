@@ -55,6 +55,9 @@ function db(): PDO
         $dsn = 'mysql:host=' . DB_HOST . ';port=' . DB_PORT . ';dbname=' . DB_NAME . ';charset=utf8mb4';
         $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
     } catch (PDOException $e) {
+        if (!DB_AUTO_BOOTSTRAP) {
+            throw $e;
+        }
         // If database does not exist (error 1049) or connection failed, attempt auto-creation
         try {
             $rootDsn = 'mysql:host=' . DB_HOST . ';port=' . DB_PORT . ';charset=utf8mb4';
@@ -78,8 +81,8 @@ function db(): PDO
 
     // Auto-Bootstrap: Check if tables exist. If missing, initialize schema.
     try {
-        $tableCheck = $pdo->query("SHOW TABLES LIKE 'users'")->fetch();
-        if (!$tableCheck) {
+        $tableCheck = DB_AUTO_BOOTSTRAP ? $pdo->query("SHOW TABLES LIKE 'users'")->fetch() : true;
+        if (DB_AUTO_BOOTSTRAP && !$tableCheck) {
             init_database_schema($pdo);
         }
     } catch (PDOException $e) {

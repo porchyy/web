@@ -105,7 +105,6 @@ if (!function_exists('renderSchedulerTbody')) {
                     <div class="admin-slot-card"
                          data-slot-id="<?= (int) $s['id'] ?>"
                          data-class-id="<?= (int) ($s['class_id'] ?? 0) ?>"
-                         data-course-type="<?= e($s['course_type'] ?? 'regular') ?>"
                          data-day="<?= $d ?>"
                          data-time-start="<?= e(substr($s['time_start'], 0, 5)) ?>"
                          data-time-end="<?= e(substr($s['time_end'], 0, 5)) ?>"
@@ -123,9 +122,6 @@ if (!function_exists('renderSchedulerTbody')) {
                       <div class="card-head d-flex justify-content-between align-items-center">
                         <div class="d-flex align-items-center gap-1">
                           <span class="subject-code" title="<?= e($s['subject_code']) ?>"><?= e($s['subject_code']) ?></span>
-                          <span class="badge badge-sm <?= ($s['course_type'] ?? 'regular') === 'professional' ? 'bg-warning text-dark' : 'bg-light text-muted border' ?>" style="font-size: 9px; padding: 1px 4px; font-weight: normal; border-radius: 2px;">
-                            <?= ($s['course_type'] ?? 'regular') === 'professional' ? 'วิชาชีพ' : 'สามัญ' ?>
-                          </span>
                         </div>
                         <span class="slot-drag-handle" title="ลากเพื่อย้ายคาบเรียน">⠿</span>
                       </div>

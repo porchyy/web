@@ -6,27 +6,6 @@
 (function () {
   'use strict';
 
-  function initStatModeToggle() {
-    const dynamicRadioEl = document.getElementById('modeDynamic');
-    const manualRadioEl = document.getElementById('modeManual');
-    const manualInputsEl = document.getElementById('stat-manual-inputs');
-
-    if (!dynamicRadioEl || !manualRadioEl || !manualInputsEl) return;
-
-    function updateVisibility() {
-      if (manualRadioEl.checked) {
-        manualInputsEl.style.display = 'flex';
-        manualInputsEl.classList.remove('d-none');
-      } else {
-        manualInputsEl.style.display = 'none';
-        manualInputsEl.classList.add('d-none');
-      }
-    }
-
-    dynamicRadioEl.addEventListener('change', updateVisibility);
-    manualRadioEl.addEventListener('change', updateVisibility);
-    updateVisibility();
-  }
 
 
   function initFullPreviewModal() {
@@ -103,7 +82,6 @@
   }
 
   document.addEventListener('DOMContentLoaded', () => {
-    initStatModeToggle();
     initFullPreviewModal();
   });
 })();

@@ -55,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 flash($editId ? 'แก้ไขข้อมูลสมาชิกชมรมเรียบร้อยแล้ว' : 'เพิ่มสมาชิกชมรมใหม่เรียบร้อยแล้ว');
                 redirect('admin/club');
             } catch (Exception $e) {
-                $error = $e->getMessage();
+                $error = public_error_message($e);
             }
         }
     }

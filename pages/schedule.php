@@ -8,7 +8,7 @@ require_once __DIR__ . '/../includes/services/ScheduleService.php';
 
 $activeNav = 'schedule';
 
-send_cache_headers(60, 120);
+header('Cache-Control: no-cache, must-revalidate');
 
 $tab = filter_input(INPUT_GET, 'tab', FILTER_DEFAULT) ?: 'class';
 if (!in_array($tab, ['class', 'activity'], true)) {
@@ -27,6 +27,8 @@ if (empty($availableGroups)) {
 }
 $queryGroup = trim((string) (filter_input(INPUT_GET, 'group', FILTER_DEFAULT) ?? ''));
 $selectedGroup = in_array($queryGroup, $availableGroups, true) ? $queryGroup : $availableGroups[0];
+$timetable = ScheduleService::getTimetable($selectedGroup);
+$imageMode = $timetable['display_mode'] === 'image' && ScheduleService::hasTimetableImage($timetable);
 $cleanGroup = str_replace(['/', '\\', ' '], '-', $selectedGroup);
 
 $exportFileName = ($tab === 'class') ? "ตารางเรียน_กลุ่ม_{$cleanGroup}" : "ตารางกิจกรรมสาขา";
@@ -37,6 +39,7 @@ $gridData      = ScheduleService::getTimetableGrid($selectedGroup);
 $periods       = $gridData['periods'];
 $grid          = $gridData['grid'];
 $scheduleByDay = ScheduleService::getScheduleByDay($selectedGroup);
+$hasManualTimetable = $timetable['display_mode'] === 'manual' && (bool) array_filter($scheduleByDay);
 
 // Determine current class slot ID and next upcoming class slot ID
 $currentSlotId = null;
@@ -147,28 +150,39 @@ include __DIR__ . '/../includes/header.php';
       </div>
 
       <!-- Lower Section: View Label & Action Buttons (Side-by-side on Desktop) -->
+      <?php if ($tab !== 'class' || $imageMode || $hasManualTimetable): ?>
       <div class="scc-bottom-row">
         <div class="scc-action-buttons ms-auto"
              data-tab="<?= e($tab) ?>"
              data-filename="<?= e($exportFileName) ?>"
              data-group="<?= e($selectedGroup) ?>">
-          <button type="button" class="scc-btn scc-btn-print" id="btn-export-print" onclick="exportSchedulePrint()" title="พิมพ์ตาราง">
+          <button type="button" class="scc-btn scc-btn-print" id="btn-export-print" title="พิมพ์ตาราง">
             <?= icon('printer', 16) ?>
             <span>พิมพ์ตารางเรียน</span>
           </button>
-          <button type="button" class="scc-btn scc-btn-pdf" id="btn-export-pdf" onclick="exportSchedulePDF()" title="บันทึกเป็น PDF พร้อมตั้งชื่อไฟล์">
+          <button type="button" class="scc-btn scc-btn-pdf" id="btn-export-pdf" title="บันทึกเป็น PDF พร้อมตั้งชื่อไฟล์">
             <?= icon('file-pdf', 16) ?>
             <span>บันทึกเป็น PDF</span>
           </button>
-          <button type="button" class="scc-btn scc-btn-png" id="btn-export-png" onclick="exportSchedulePNG()" title="บันทึกเป็นรูปภาพ PNG">
+          <?php if ($tab === 'class' && $imageMode): ?>
+          <a class="scc-btn scc-btn-png" href="<?= e(url($timetable['image_path'])) ?>" download>
+            <?= icon('image', 16) ?> <span>ดาวน์โหลดรูปตาราง</span>
+          </a>
+          <?php else: ?>
+          <button type="button" class="scc-btn scc-btn-png" id="btn-export-png" title="บันทึกเป็นรูปภาพ PNG">
             <?= icon('image', 16) ?>
             <span>บันทึกเป็นรูปภาพ (PNG)</span>
           </button>
+          <?php endif; ?>
         </div>
       </div>
+      <?php endif; ?>
     </div>
 
     <?php if ($tab === 'class'): ?>
+      <?php if ($imageMode): ?>
+        <?php require __DIR__ . '/../includes/renderers/timetable-image.php'; ?>
+      <?php elseif ($hasManualTimetable): ?>
       <!-- ==================================================================
            CLASS TIMETABLE VIEW (มาตรฐาน สอศ.)
            ================================================================== -->
@@ -218,7 +232,6 @@ include __DIR__ . '/../includes/header.php';
                        tabindex="0"
                        data-code="<?= e($slot['subject_code']) ?>"
                        data-name="<?= e($slot['subject_name']) ?>"
-                       data-type="<?= e($slot['course_type'] ?? 'regular') ?>"
                        data-credit="<?= (int) ($slot['credit'] ?? 3) ?>"
                        data-teacher="<?= e($slot['teacher_name'] ?: '-') ?>"
                        data-room="<?= e($slot['room'] ?: '-') ?>"
@@ -229,9 +242,6 @@ include __DIR__ . '/../includes/header.php';
                     <div class="d-flex justify-content-between align-items-center mb-1">
                       <div class="d-flex align-items-center gap-1">
                         <span class="mono fw-bold slot-code"><?= e($slot['subject_code']) ?></span>
-                        <span class="badge badge-sm <?= ($slot['course_type'] ?? 'regular') === 'professional' ? 'bg-warning text-dark' : 'bg-light text-muted border' ?>" style="font-size: 10px; padding: 2px 5px;">
-                          <?= ($slot['course_type'] ?? 'regular') === 'professional' ? 'วิชาชีพ' : 'วิชาสามัญ' ?>
-                        </span>
                       </div>
                     </div>
                     <div class="fw-bold mb-2 slot-name"><?= e($slot['subject_name']) ?></div>
@@ -308,7 +318,6 @@ include __DIR__ . '/../includes/header.php';
                            tabindex="0"
                            data-code="<?= e($s['subject_code']) ?>"
                            data-name="<?= e($s['subject_name']) ?>"
-                           data-type="<?= e($s['course_type'] ?? 'regular') ?>"
                            data-credit="<?= (int) ($s['credit'] ?? 3) ?>"
                            data-teacher="<?= e($s['teacher_name'] ?: '-') ?>"
                            data-room="<?= e($s['room'] ?: '-') ?>"
@@ -319,9 +328,6 @@ include __DIR__ . '/../includes/header.php';
                         <div class="slot-head d-flex justify-content-between align-items-center">
                           <div class="d-flex align-items-center gap-1">
                             <span class="mono fw-bold slot-code"><?= e($s['subject_code']) ?></span>
-                            <span class="badge badge-sm <?= ($s['course_type'] ?? 'regular') === 'professional' ? 'bg-warning text-dark' : 'bg-light text-muted border' ?>" style="font-size: 9px; padding: 1px 4px; font-weight: normal;">
-                              <?= ($s['course_type'] ?? 'regular') === 'professional' ? 'วิชาชีพ' : 'สามัญ' ?>
-                            </span>
                           </div>
                         </div>
                         <div class="s" title="<?= e($s['subject_name']) ?>">
@@ -347,6 +353,13 @@ include __DIR__ . '/../includes/header.php';
         </table>
       </div>
 
+      <?php else: ?>
+        <div class="empty-state" id="timetableEmptyState" role="status">
+          <div class="empty-state-icon" aria-hidden="true"><?= icon('calendar', 28) ?></div>
+          <p class="empty-state-title"><?= $timetable['display_mode'] === 'image' ? 'รูปตารางเรียนไม่พร้อมใช้งาน' : 'ยังไม่มีตารางเรียนสำหรับกลุ่ม ' . e($selectedGroup) ?></p>
+          <p class="empty-state-desc"><?= $timetable['display_mode'] === 'image' ? 'กรุณาติดต่อเจ้าหน้าที่เพื่ออัปเดตรูปตารางเรียน' : 'เมื่อมีการเพิ่มคาบเรียน ข้อมูลจะแสดงที่นี่' ?></p>
+        </div>
+      <?php endif; ?>
     <?php else: ?>
       <!-- ==================================================================
            ACTIVITY CALENDAR VIEW
@@ -449,7 +462,6 @@ include __DIR__ . '/../includes/header.php';
       <div class="modal-header">
         <h5 class="modal-title d-flex align-items-center gap-2" id="courseDetailModalTitle">
           <span class="mono fw-bold text-navy" id="detailSubjectCode"></span>
-          <span class="badge" id="detailCourseType"></span>
         </h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="ปิด"></button>
       </div>

@@ -22,6 +22,9 @@ define('MAX_UPLOAD_BYTES', 5 * 1024 * 1024); // 5 MB
         if (str_contains($line, '=')) {
             [$k, $v] = explode('=', $line, 2);
             $k = trim($k);
+            if (getenv($k) !== false) {
+                continue;
+            }
             $v = trim($v);
             $v = trim($v, "\"'");
             $_ENV[$k] = $v;
@@ -33,6 +36,32 @@ define('MAX_UPLOAD_BYTES', 5 * 1024 * 1024); // 5 MB
 function env(string $key, string $default = ''): string
 {
     return $_ENV[$key] ?? getenv($key) ?: $default;
+}
+
+define('APP_ENV', env('APP_ENV', 'production'));
+define('DB_AUTO_BOOTSTRAP', filter_var(env('DB_AUTO_BOOTSTRAP', APP_ENV === 'development' ? '1' : '0'), FILTER_VALIDATE_BOOLEAN));
+error_reporting(E_ALL);
+ini_set('display_errors', APP_ENV === 'development' ? '1' : '0');
+ini_set('log_errors', '1');
+
+if (PHP_SAPI !== 'cli') {
+    header_remove('X-Powered-By');
+    header('X-Content-Type-Options: nosniff');
+    header('X-Frame-Options: SAMEORIGIN');
+    header('Referrer-Policy: strict-origin-when-cross-origin');
+    if (APP_ENV !== 'development') {
+        set_exception_handler(function (Throwable $exception): void {
+            error_log((string) $exception);
+            http_response_code(500);
+            if (str_contains($_SERVER['REQUEST_URI'] ?? '', '/api/')) {
+                header('Content-Type: application/json; charset=utf-8');
+                echo json_encode(['success' => false, 'error' => 'เกิดข้อผิดพลาดภายในระบบ'], JSON_UNESCAPED_UNICODE);
+                return;
+            }
+            header('Content-Type: text/html; charset=utf-8');
+            echo '<!doctype html><html lang="th"><meta charset="utf-8"><title>ระบบขัดข้อง</title><p>ระบบขัดข้องชั่วคราว กรุณาลองใหม่ภายหลัง</p></html>';
+        });
+    }
 }
 
 // ---- Database (MySQL / MariaDB via XAMPP) ----

@@ -16,14 +16,12 @@ try {
             `id` INT AUTO_INCREMENT PRIMARY KEY,
             `subject_code` VARCHAR(20) NOT NULL UNIQUE,
             `subject_name` VARCHAR(100) NOT NULL,
-            `course_type` ENUM('professional', 'regular') NOT NULL DEFAULT 'professional',
             `default_teacher` VARCHAR(100) NULL,
             `default_room` VARCHAR(50) NULL,
             `credit` TINYINT NOT NULL DEFAULT 3,
             `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-            INDEX `idx_class_code` (`subject_code`),
-            INDEX `idx_class_type` (`course_type`)
+            INDEX `idx_class_code` (`subject_code`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     ");
 
@@ -39,14 +37,10 @@ try {
 
     // 3. Migrate DISTINCT courses from class_schedule into classes
     $pdo->exec("
-        INSERT INTO `classes` (`subject_code`, `subject_name`, `course_type`, `default_teacher`, `default_room`)
+        INSERT INTO `classes` (`subject_code`, `subject_name`, `default_teacher`, `default_room`)
         SELECT 
             TRIM(`subject_code`) AS `subject_code`,
             MAX(TRIM(`subject_name`)) AS `subject_name`,
-            CASE 
-                WHEN TRIM(`subject_code`) LIKE '20204-%' OR TRIM(`subject_code`) LIKE '30204-%' THEN 'professional'
-                ELSE 'regular'
-            END AS `course_type`,
             MAX(TRIM(`teacher_name`)) AS `default_teacher`,
             MAX(TRIM(`room`)) AS `default_room`
         FROM `class_schedule`

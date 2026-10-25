@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 flash($editId ? 'แก้ไขข้อมูลกิจกรรมเรียบร้อยแล้ว' : 'เพิ่มกิจกรรมใหม่เรียบร้อยแล้ว');
                 redirect('admin/activities.php');
             } catch (Exception $e) {
-                $error = $e->getMessage();
+                $error = public_error_message($e);
             }
         }
     }

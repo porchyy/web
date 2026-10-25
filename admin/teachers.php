@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 flash($editId ? 'แก้ไขข้อมูลอาจารย์เรียบร้อยแล้ว' : 'เพิ่มข้อมูลอาจารย์ใหม่เรียบร้อยแล้ว');
                 redirect('admin/teachers');
             } catch (Exception $e) {
-                $error = $e->getMessage();
+                $error = public_error_message($e);
             }
         }
     }

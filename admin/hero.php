@@ -10,8 +10,6 @@ require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/helpers.php';
 require_once __DIR__ . '/../includes/services/AuthService.php';
 require_once __DIR__ . '/../includes/services/SettingService.php';
-require_once __DIR__ . '/../includes/services/ScheduleService.php';
-require_once __DIR__ . '/../includes/services/FacultyService.php';
 
 AuthService::requireLogin();
 
@@ -50,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         flash('บันทึกการตั้งค่าหน้าแรกและภาพแบนเนอร์สำเร็จแล้ว');
         redirect('admin/hero.php');
     } catch (Exception $e) {
-        $error = $e->getMessage();
+        $error = public_error_message($e);
     }
 }
 
@@ -67,8 +65,6 @@ $heroCaption = SettingService::get('hero_caption', 'ภาพถ่ายพื�
 $heroImage   = SettingService::get('hero_image', 'uploads/seed/hero-lab.jpg');
 
 $statEmploy  = SettingService::get('stat_employment', '96%');
-$profCount   = ScheduleService::getProfessionalCourseCount();
-$teachCount  = count(FacultyService::getAllTeachers());
 
 require_once __DIR__ . '/../includes/admin-header.php';
 ?>

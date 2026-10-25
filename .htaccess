@@ -1,6 +1,16 @@
+Options -Indexes -MultiViews
+
+<FilesMatch "(?i)^(?:\..*|Screenshot.*\.(?:png|jpe?g|webp)|.*\.(?:log|bak|backup|zip|sql|env|md|json|lock|ini))$">
+  Require all denied
+</FilesMatch>
+
 <IfModule mod_rewrite.c>
 RewriteEngine On
 RewriteBase /
+
+# Reject private and executable paths before canonical redirects.
+RewriteRule ^(?:\.scratch|scratch|database|includes|tests|tools|deploy|docs|dist|graphify-out|\.agents|\.codex|\.git)(?:/.*)?$ - [F,L,NC]
+RewriteRule ^uploads/.*\.(?:php[0-9]?|phtml|phar|cgi|pl|py|sh)(?:[./]|$) - [F,L,NC]
 
 # Redirect /index or index.php to root / (GET/HEAD only)
 RewriteCond %{REQUEST_METHOD} ^(GET|HEAD)$ [NC]
@@ -17,6 +27,7 @@ RewriteCond %{REQUEST_METHOD} ^(GET|HEAD)$ [NC]
 RewriteRule ^admin/index/?$ /admin [R=301,L]
 
 # Redirect direct .php requests to clean URL (GET/HEAD only)
+RewriteCond %{ENV:REDIRECT_STATUS} ^$
 RewriteCond %{REQUEST_METHOD} ^(GET|HEAD)$ [NC]
 RewriteCond %{THE_REQUEST} ^[A-Z]{3,}\s/([^.]+)\.php [NC]
 RewriteRule ^ %1 [R=301,L]
@@ -26,7 +37,6 @@ RewriteCond %{REQUEST_METHOD} ^(GET|HEAD)$ [NC]
 RewriteRule ^index/?$ / [R=301,L]
 
 # Deny direct access to internal sensitive directories & files
-RewriteRule ^(?:\.scratch|scratch|database|\.agents|\.git)(?:/.*)?$ - [F,L,NC]
 RewriteRule \.(?:cache|sql|env|md|json|lock)$ - [F,L,NC]
 
 # Existing files and directories serve directly

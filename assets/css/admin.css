@@ -8,7 +8,7 @@
 @import url("admin/admin-layout.css");
 
 /* 2. Visual Timetable Scheduler & Slot Separation */
-@import url("admin/admin-scheduler.css");
+@import url("admin/admin-scheduler.css?v=20261025-3");
 
 /* 3. Tree Slot Hierarchy */
 @import url("admin/admin-tree.css");

@@ -4,12 +4,14 @@ require_once __DIR__ . '/security.php';
 require_once __DIR__ . '/services/SettingService.php';
 
 if (session_status() !== PHP_SESSION_ACTIVE) {
+    ini_set('session.use_strict_mode', '1');
+    ini_set('session.use_only_cookies', '1');
     $cookiePath = defined('BASE_URL') && BASE_URL !== '' ? BASE_URL : '/';
     session_set_cookie_params([
         'path'     => $cookiePath,
         'httponly' => true,
         'samesite' => 'Lax',
-        'secure'   => (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'),
+        'secure'   => APP_ENV === 'production' || (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'),
     ]);
     session_start();
 }
@@ -76,7 +78,7 @@ function csrf_field(): string
 function verify_csrf(): void
 {
     $token = $_POST['csrf'] ?? $_POST['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
-    if (!hash_equals($_SESSION['csrf'] ?? '', (string) $token)) {
+    if (!is_string($token) || $token === '' || empty($_SESSION['csrf']) || !hash_equals($_SESSION['csrf'], $token)) {
         if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
             http_response_code(419);
             header('Content-Type: application/json; charset=utf-8');
@@ -208,6 +210,10 @@ function render_pagination(int $currentPage, int $totalPages, string $baseUrl, a
 function upload_image(string $field): ?string
 {
     $f = $_FILES[$field] ?? null;
+    if ($f !== null && (!is_array($f) || !isset($f['error'], $f['size'], $f['tmp_name'])
+        || !is_int($f['error']) || !is_int($f['size']) || !is_string($f['tmp_name']))) {
+        throw new InvalidArgumentException('ข้อมูลไฟล์อัปโหลดไม่ถูกต้อง');
+    }
     if (!$f || $f['error'] === UPLOAD_ERR_NO_FILE) return null;
     if ($f['error'] !== UPLOAD_ERR_OK) throw new RuntimeException('อัปโหลดไฟล์ไม่สำเร็จ (รหัส ' . $f['error'] . ')');
     if ($f['size'] > MAX_UPLOAD_BYTES) throw new RuntimeException('ไฟล์ใหญ่เกิน 5 MB');
@@ -232,16 +238,26 @@ function upload_image(string $field): ?string
 
 function delete_upload(?string $path): void
 {
-    if (!$path || !str_starts_with($path, 'uploads/') || str_starts_with($path, 'uploads/seed/')) {
+    if (!$path || !str_starts_with($path, 'uploads/') || str_contains($path, '..') || str_starts_with($path, 'uploads/seed/')) {
         return;
     }
     $full = ROOT_PATH . '/' . $path;
     $realUploadDir = realpath(UPLOAD_DIR);
     $realTarget    = realpath($full);
 
-    if ($realTarget && $realUploadDir && str_starts_with($realTarget, $realUploadDir) && is_file($realTarget)) {
+    $uploadPrefix = $realUploadDir ? rtrim($realUploadDir, '/\\') . DIRECTORY_SEPARATOR : '';
+    if ($realTarget && $uploadPrefix && str_starts_with($realTarget, $uploadPrefix) && is_file($realTarget)) {
         @unlink($realTarget);
     }
+}
+
+function public_error_message(Throwable $exception): string
+{
+    if ($exception instanceof PDOException || !($exception instanceof RuntimeException || $exception instanceof InvalidArgumentException)) {
+        error_log((string) $exception);
+        return 'เกิดข้อผิดพลาดภายในระบบ กรุณาลองใหม่ภายหลัง';
+    }
+    return $exception->getMessage();
 }
 
 function delete_record_with_asset(string $table, int $id, string $column = 'image_path'): void

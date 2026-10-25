@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 flash($editId ? 'แก้ไขข่าวสารเรียบร้อยแล้ว' : 'เพิ่มข่าวสารใหม่เรียบร้อยแล้ว');
                 redirect('admin/news.php');
             } catch (Exception $e) {
-                $error = $e->getMessage();
+                $error = public_error_message($e);
             }
         }
     }

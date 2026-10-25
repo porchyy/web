@@ -173,9 +173,8 @@ declare(strict_types=1);
                                 data-name="<?= e($c['subject_name']) ?>"
                                 data-teacher="<?= e($c['default_teacher'] ?? '') ?>"
                                 data-room="<?= e($c['default_room'] ?? '') ?>"
-                                data-credit="<?= (int) $c['credit'] ?>"
-                                data-type="<?= e($c['course_type']) ?>">
-                          <?= e($c['subject_code']) ?>: <?= e($c['subject_name']) ?> (<?= $c['credit'] ?> นก. / <?= $c['course_type'] === 'professional' ? 'วิชาชีพ' : 'วิชาสามัญ' ?>)
+                                data-credit="<?= (int) $c['credit'] ?>">
+                          <?= e($c['subject_code']) ?>: <?= e($c['subject_name']) ?> (<?= $c['credit'] ?> นก.)
                         </option>
                       <?php endforeach; ?>
                     </optgroup>
@@ -188,9 +187,8 @@ declare(strict_types=1);
                                 data-name="<?= e($c['subject_name']) ?>"
                                 data-teacher="<?= e($c['default_teacher'] ?? '') ?>"
                                 data-room="<?= e($c['default_room'] ?? '') ?>"
-                                data-credit="<?= (int) $c['credit'] ?>"
-                                data-type="<?= e($c['course_type']) ?>">
-                          <?= e($c['subject_code']) ?>: <?= e($c['subject_name']) ?> (<?= $c['credit'] ?> นก. / <?= $c['course_type'] === 'professional' ? 'วิชาชีพ' : 'วิชาสามัญ' ?>)
+                                data-credit="<?= (int) $c['credit'] ?>">
+                          <?= e($c['subject_code']) ?>: <?= e($c['subject_name']) ?> (<?= $c['credit'] ?> นก.)
                         </option>
                       <?php endforeach; ?>
                     </optgroup>
@@ -216,7 +214,6 @@ declare(strict_types=1);
                            data-teacher="<?= e($c['default_teacher'] ?? '') ?>"
                            data-room="<?= e($c['default_room'] ?? '') ?>"
                            data-credit="<?= (int) $c['credit'] ?>"
-                           data-type="<?= e($c['course_type']) ?>"
                            data-search="<?= e(mb_strtolower($c['subject_code'] . ' ' . $c['subject_name'] . ' ' . ($c['default_teacher'] ?? '') . ' ' . ($c['default_room'] ?? ''))) ?>">
                         <div class="course-combobox-info">
                           <div>
@@ -229,9 +226,6 @@ declare(strict_types=1);
                             </div>
                           <?php endif; ?>
                         </div>
-                        <span class="badge <?= $c['course_type'] === 'professional' ? 'bg-warning text-dark' : 'bg-light text-muted border' ?>" style="font-size: 10px;">
-                          <?= $c['course_type'] === 'professional' ? 'วิชาชีพ' : 'สามัญ' ?>
-                        </span>
                       </div>
                     <?php endforeach; ?>
                   <?php endif; ?>
@@ -249,7 +243,6 @@ declare(strict_types=1);
                            data-teacher="<?= e($c['default_teacher'] ?? '') ?>"
                            data-room="<?= e($c['default_room'] ?? '') ?>"
                            data-credit="<?= (int) $c['credit'] ?>"
-                           data-type="<?= e($c['course_type']) ?>"
                            data-search="<?= e(mb_strtolower($c['subject_code'] . ' ' . $c['subject_name'] . ' ' . ($c['default_teacher'] ?? '') . ' ' . ($c['default_room'] ?? ''))) ?>">
                         <div class="course-combobox-info">
                           <div>
@@ -262,9 +255,6 @@ declare(strict_types=1);
                             </div>
                           <?php endif; ?>
                         </div>
-                        <span class="badge <?= $c['course_type'] === 'professional' ? 'bg-warning text-dark' : 'bg-light text-muted border' ?>" style="font-size: 10px;">
-                          <?= $c['course_type'] === 'professional' ? 'วิชาชีพ' : 'สามัญ' ?>
-                        </span>
                       </div>
                     <?php endforeach; ?>
                   <?php endif; ?>
@@ -344,13 +334,6 @@ declare(strict_types=1);
             <div class="col-12 col-md-5">
               <label for="courseModalCode" class="form-label">รหัสวิชา <span class="req">*</span></label>
               <input type="text" name="subject_code" id="courseModalCode" class="form-control mono" placeholder="เช่น 20204-2001" required>
-            </div>
-            <div class="col-12 col-md-7">
-              <label for="courseModalType" class="form-label">ประเภทรายวิชา <span class="req">*</span></label>
-              <select name="course_type" id="courseModalType" class="form-select" required>
-                <option value="professional">วิชาชีพเฉพาะ (Professional)</option>
-                <option value="regular">วิชาสามัญ / พื้นฐาน (Regular)</option>
-              </select>
             </div>
             <div class="col-12">
               <label for="courseModalName" class="form-label">ชื่อรายวิชา <span class="req">*</span></label>

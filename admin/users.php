@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 AuthService::deleteUser($delId, (int) $currentUser['id']);
                 flash('ลบผู้ใช้งานเรียบร้อยแล้ว');
             } catch (Exception $e) {
-                flash($e->getMessage(), 'error');
+                flash(public_error_message($e), 'error');
             }
         }
         redirect('admin/users.php');
@@ -80,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     flash($editId ? 'แก้ไขข้อมูลผู้ใช้เรียบร้อยแล้ว' : 'เพิ่มผู้ใช้งานใหม่เรียบร้อยแล้ว');
                     redirect($isAdmin ? 'admin/users.php' : 'admin/index.php');
                 } catch (Exception $e) {
-                    $error = $e->getMessage();
+                    $error = public_error_message($e);
                 }
             }
         }

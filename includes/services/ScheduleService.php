@@ -174,11 +174,77 @@ class ScheduleService
     public static function getAvailableGroups(): array
     {
         return q("
-            SELECT DISTINCT class_group
+            SELECT class_group
             FROM class_schedule
             WHERE class_group IS NOT NULL AND class_group != ''
+            UNION
+            SELECT class_group FROM class_timetables
             ORDER BY class_group ASC
         ")->fetchAll(PDO::FETCH_COLUMN);
+    }
+
+    public static function getTimetable(string $group): array
+    {
+        $timetable = q('SELECT * FROM class_timetables WHERE class_group = ?', [$group])->fetch();
+        return $timetable ?: ['class_group' => $group, 'display_mode' => 'manual', 'image_path' => null, 'image_alt' => ''];
+    }
+
+    public static function hasTimetableImage(array $timetable): bool
+    {
+        $path = $timetable['image_path'] ?? '';
+        return str_starts_with($path, 'uploads/')
+            && !str_contains($path, '..')
+            && is_file(ROOT_PATH . '/' . $path);
+    }
+
+    public static function saveTimetable(string $group, string $mode, string $alt, ?string $newImage = null, bool $removeImage = false): void
+    {
+        $group = clean_text(trim($group));
+        $alt = clean_text(trim($alt));
+        if ($group === '' || mb_strlen($group) > 50) {
+            throw new InvalidArgumentException('กรุณาระบุกลุ่มเรียนไม่เกิน 50 ตัวอักษร');
+        }
+        if (!in_array($mode, ['manual', 'image'], true) || mb_strlen($alt) > 255) {
+            throw new InvalidArgumentException('รูปแบบตารางหรือคำอธิบายรูปภาพไม่ถูกต้อง');
+        }
+        $pdo = db();
+        $ownsTransaction = !$pdo->inTransaction();
+        if ($ownsTransaction) {
+            $pdo->beginTransaction();
+        }
+        try {
+            // Serialize changes for this group before reading its current image.
+            q('INSERT INTO class_timetables (class_group) VALUES (?)
+               ON DUPLICATE KEY UPDATE class_group = VALUES(class_group)', [$group]);
+            $old = self::getTimetable($group);
+            $path = $removeImage ? null : ($newImage ?? $old['image_path']);
+            if ($removeImage) {
+                $mode = 'manual';
+            }
+            if ($path !== null && !self::hasTimetableImage(['image_path' => $path])) {
+                if ($newImage !== null || $mode === 'image') {
+                    throw new InvalidArgumentException('ไม่พบไฟล์รูปตารางเรียน กรุณาอัปโหลดรูปภาพอีกครั้ง');
+                }
+                $path = null;
+            }
+            if ($mode === 'image' && !$path) {
+                throw new InvalidArgumentException('กรุณาอัปโหลดรูปตารางเรียนก่อนเลือกแสดงเป็นรูปภาพ');
+            }
+            q('UPDATE class_timetables SET display_mode = ?, image_path = ?, image_alt = ? WHERE class_group = ?',
+                [$mode, $path, $alt, $group]);
+            if ($ownsTransaction) {
+                $pdo->commit();
+            }
+        } catch (Throwable $exception) {
+            if ($ownsTransaction && $pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            throw $exception;
+        }
+        CacheService::forgetPattern('schedule_');
+        if ($old['image_path'] && $old['image_path'] !== $path) {
+            delete_upload($old['image_path']);
+        }
     }
 
     public static function getScheduleByDay(string $group = ''): array
@@ -192,7 +258,6 @@ class ScheduleService
             s.class_group,
             COALESCE(c.subject_code, s.subject_code) AS subject_code,
             COALESCE(c.subject_name, s.subject_name) AS subject_name,
-            COALESCE(c.course_type, 'regular') AS course_type,
             COALESCE(NULLIF(s.teacher_name, ''), c.default_teacher, '') AS teacher_name,
             COALESCE(NULLIF(s.room, ''), c.default_room, '') AS room,
             COALESCE(c.credit, 3) AS credit
@@ -368,17 +433,13 @@ class ScheduleService
      * Master Courses Catalog (classes table)
      * -------------------------------------------------------------------------- */
 
-    public static function getClasses(?string $prefix = null, ?string $courseType = null): array
+    public static function getClasses(?string $prefix = null): array
     {
         $sql = "SELECT * FROM classes WHERE 1=1";
         $params = [];
         if (!empty($prefix) && $prefix !== 'all') {
             $sql .= " AND subject_code LIKE ?";
             $params[] = $prefix . '%';
-        }
-        if (!empty($courseType) && $courseType !== 'all') {
-            $sql .= " AND course_type = ?";
-            $params[] = $courseType;
         }
         $sql .= " ORDER BY subject_code ASC";
         return q($sql, $params)->fetchAll();
@@ -401,7 +462,6 @@ class ScheduleService
         $id             = !empty($data['id']) ? (int) $data['id'] : null;
         $subjectCode    = clean_text(trim((string) ($data['subject_code'] ?? '')));
         $subjectName    = clean_text(trim((string) ($data['subject_name'] ?? '')));
-        $courseType     = in_array($data['course_type'] ?? '', ['professional', 'regular'], true) ? $data['course_type'] : 'professional';
         $defaultTeacher = clean_text(trim((string) ($data['default_teacher'] ?? '')));
         $defaultRoom    = clean_text(trim((string) ($data['default_room'] ?? '')));
         $credit         = max(1, min(6, (int) ($data['credit'] ?? 3)));
@@ -419,9 +479,9 @@ class ScheduleService
         if ($id) {
             q("
                 UPDATE classes
-                SET subject_code = ?, subject_name = ?, course_type = ?, default_teacher = ?, default_room = ?, credit = ?
+                SET subject_code = ?, subject_name = ?, default_teacher = ?, default_room = ?, credit = ?
                 WHERE id = ?
-            ", [$subjectCode, $subjectName, $courseType, $defaultTeacher, $defaultRoom, $credit, $id]);
+            ", [$subjectCode, $subjectName, $defaultTeacher, $defaultRoom, $credit, $id]);
 
             // Synchronize fallback columns in class_schedule for this class_id
             q("
@@ -433,14 +493,14 @@ class ScheduleService
             $savedId = $id;
         } else {
             q("
-                INSERT INTO classes (subject_code, subject_name, course_type, default_teacher, default_room, credit)
-                VALUES (?, ?, ?, ?, ?, ?)
-            ", [$subjectCode, $subjectName, $courseType, $defaultTeacher, $defaultRoom, $credit]);
+                INSERT INTO classes (subject_code, subject_name, default_teacher, default_room, credit)
+                VALUES (?, ?, ?, ?, ?)
+            ", [$subjectCode, $subjectName, $defaultTeacher, $defaultRoom, $credit]);
             $savedId = (int) db()->lastInsertId();
         }
 
         CacheService::forgetPattern('schedule_');
-        CacheService::forgetPattern('home_stats_');
+        CacheService::forget('home_stats');
         return $savedId;
     }
 
@@ -454,7 +514,7 @@ class ScheduleService
 
         q("DELETE FROM classes WHERE id = ?", [$id]);
         CacheService::forgetPattern('schedule_');
-        CacheService::forgetPattern('home_stats_');
+        CacheService::forget('home_stats');
         return true;
     }
 
@@ -462,11 +522,6 @@ class ScheduleService
     {
         $rows = q("SELECT DISTINCT SUBSTRING_INDEX(subject_code, '-', 1) AS prefix FROM classes WHERE subject_code LIKE '%-%' ORDER BY prefix ASC")->fetchAll(PDO::FETCH_COLUMN);
         return array_values(array_filter($rows));
-    }
-
-    public static function getProfessionalCourseCount(): int
-    {
-        return (int) q("SELECT COUNT(*) FROM classes WHERE course_type = 'professional'")->fetchColumn();
     }
 
     /* --------------------------------------------------------------------------
@@ -485,7 +540,6 @@ class ScheduleService
                 s.class_group,
                 COALESCE(c.subject_code, s.subject_code) AS subject_code,
                 COALESCE(c.subject_name, s.subject_name) AS subject_name,
-                COALESCE(c.course_type, 'regular') AS course_type,
                 COALESCE(NULLIF(s.teacher_name, ''), c.default_teacher, '') AS teacher_name,
                 COALESCE(NULLIF(s.room, ''), c.default_room, '') AS room,
                 COALESCE(c.credit, 3) AS credit

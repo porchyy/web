@@ -33,7 +33,6 @@
     courseModalId: ["data-id", ""],
     courseModalCode: ["data-code", ""],
     courseModalName: ["data-name", ""],
-    courseModalType: ["data-type", "professional"],
     courseModalCredit: ["data-credit", "3"],
     courseModalTeacher: ["data-teacher", ""],
     courseModalRoom: ["data-room", ""],

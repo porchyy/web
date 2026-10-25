@@ -5,14 +5,12 @@ CREATE TABLE IF NOT EXISTS `classes` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `subject_code` VARCHAR(20) NOT NULL UNIQUE,
   `subject_name` VARCHAR(100) NOT NULL,
-  `course_type` ENUM('professional', 'regular') NOT NULL DEFAULT 'professional',
   `default_teacher` VARCHAR(100) NULL,
   `default_room` VARCHAR(50) NULL,
   `credit` TINYINT NOT NULL DEFAULT 3,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  INDEX `idx_class_code` (`subject_code`),
-  INDEX `idx_class_type` (`course_type`)
+  INDEX `idx_class_code` (`subject_code`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `class_schedule` (

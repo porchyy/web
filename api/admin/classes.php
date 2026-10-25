@@ -196,7 +196,6 @@ try {
             $courseId       = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT) ?: null;
             $subjectCode    = trim((string) ($_POST['subject_code'] ?? ''));
             $subjectName    = trim((string) ($_POST['subject_name'] ?? ''));
-            $courseType     = trim((string) ($_POST['course_type'] ?? 'professional'));
             $defaultTeacher = trim((string) ($_POST['default_teacher'] ?? ''));
             $defaultRoom    = trim((string) ($_POST['default_room'] ?? ''));
             $credit         = filter_input(INPUT_POST, 'credit', FILTER_VALIDATE_INT) ?: 3;
@@ -205,7 +204,6 @@ try {
                 'id'              => $courseId,
                 'subject_code'    => $subjectCode,
                 'subject_name'    => $subjectName,
-                'course_type'     => $courseType,
                 'default_teacher' => $defaultTeacher,
                 'default_room'    => $defaultRoom,
                 'credit'          => $credit,
@@ -238,8 +236,7 @@ try {
 
         case 'get_courses':
             $prefix     = trim((string) ($_POST['prefix'] ?? ''));
-            $courseType = trim((string) ($_POST['course_type'] ?? ''));
-            $courses    = ScheduleService::getClasses($prefix ?: null, $courseType ?: null);
+            $courses    = ScheduleService::getClasses($prefix ?: null);
             echo json_encode([
                 'success' => true,
                 'courses' => $courses,
@@ -272,18 +269,18 @@ try {
     http_response_code(400);
     echo json_encode([
         'success' => false,
-        'error'   => $e->getMessage(),
+        'error'   => public_error_message($e),
     ], JSON_UNESCAPED_UNICODE);
 } catch (RuntimeException $e) {
-    http_response_code(409);
+    http_response_code($e instanceof PDOException ? 500 : 409);
     echo json_encode([
         'success' => false,
-        'error'   => $e->getMessage(),
+        'error'   => public_error_message($e),
     ], JSON_UNESCAPED_UNICODE);
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode([
         'success' => false,
-        'error'   => 'เกิดข้อผิดพลาดภายในระบบ',
+        'error'   => public_error_message($e),
     ], JSON_UNESCAPED_UNICODE);
 }

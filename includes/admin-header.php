@@ -8,6 +8,7 @@ require_once __DIR__ . '/helpers.php';
 require_once __DIR__ . '/services/AuthService.php';
 
 $currentUser = AuthService::requireLogin();
+CacheService::sendPrivateHeaders();
 $adminNav = $adminNav ?? '';
 $pageTitle = $pageTitle ?? 'ระบบจัดการ';
 $flash = flash();

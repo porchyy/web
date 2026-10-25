@@ -31,6 +31,33 @@ $error     = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verify_csrf();
     $subAction = filter_input(INPUT_POST, 'sub_action', FILTER_DEFAULT);
+    if (in_array($subAction, ['save_course', 'delete_course', 'save_periods', 'restore_default_special_slots'], true)) {
+        AuthService::requireRole('admin');
+    }
+
+    if ($subAction === 'save_timetable') {
+        $newImage = null;
+        try {
+            $group = trim((string) ($_POST['class_group'] ?? ''));
+            $remove = isset($_POST['remove_image']);
+            $newImage = upload_image('timetable_image');
+            if ($remove && $newImage) {
+                throw new InvalidArgumentException('กรุณาเลือกเปลี่ยนรูปหรือลบรูปอย่างใดอย่างหนึ่ง');
+            }
+            ScheduleService::saveTimetable(
+                $group,
+                (string) ($_POST['display_mode'] ?? 'manual'),
+                (string) ($_POST['image_alt'] ?? ''),
+                $newImage,
+                $remove
+            );
+            flash('บันทึกรูปแบบตารางเรียนเรียบร้อยแล้ว');
+            redirect('admin/classes?group=' . urlencode($group));
+        } catch (Throwable $exception) {
+            delete_upload($newImage);
+            $error = public_error_message($exception);
+        }
+    }
 
     if ($subAction === 'save') {
         $editId      = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT) ?: null;
@@ -83,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 flash($editId ? 'แก้ไขข้อมูลคาบเรียนเรียบร้อยแล้ว' : 'เพิ่มคาบเรียนลงในตารางเรียบร้อยแล้ว');
                 redirect('admin/classes?group=' . urlencode($classGroup));
             } catch (Exception $e) {
-                $error = $e->getMessage();
+                $error = public_error_message($e);
             }
         }
     }
@@ -92,7 +119,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $courseId       = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT) ?: null;
         $subjectCode    = trim((string) ($_POST['subject_code'] ?? ''));
         $subjectName    = trim((string) ($_POST['subject_name'] ?? ''));
-        $courseType     = in_array($_POST['course_type'] ?? '', ['professional', 'regular'], true) ? $_POST['course_type'] : 'professional';
         $defaultTeacher = trim((string) ($_POST['default_teacher'] ?? ''));
         $defaultRoom    = trim((string) ($_POST['default_room'] ?? ''));
         $credit         = (int) ($_POST['credit'] ?? 3);
@@ -105,7 +131,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'id'              => $courseId,
                     'subject_code'    => $subjectCode,
                     'subject_name'    => $subjectName,
-                    'course_type'     => $courseType,
                     'default_teacher' => $defaultTeacher,
                     'default_room'    => $defaultRoom,
                     'credit'          => $credit,
@@ -113,7 +138,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 flash($courseId ? 'แก้ไขข้อมูลรายวิชาเรียบร้อยแล้ว' : 'เพิ่มรายวิชาใหม่ในระบบเรียบร้อยแล้ว');
                 redirect('admin/classes?tab=catalog');
             } catch (Exception $e) {
-                $error = $e->getMessage();
+                $error = public_error_message($e);
             }
         }
     }
@@ -125,7 +150,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ScheduleService::deleteClass($courseId);
                 flash('ลบรายวิชาออกจากระบบเรียบร้อยแล้ว');
             } catch (Exception $e) {
-                $error = $e->getMessage();
+                $error = public_error_message($e);
             }
         }
         redirect('admin/classes?tab=catalog');
@@ -207,6 +232,16 @@ if (empty($availableGroups)) {
 }
 $queryGroup = trim((string) (filter_input(INPUT_GET, 'group', FILTER_DEFAULT) ?? ''));
 $selectedGroup = in_array($queryGroup, $availableGroups, true) ? $queryGroup : $availableGroups[0];
+$timetable = ScheduleService::getTimetable($selectedGroup);
+$failedPresentationSave = ($_POST['sub_action'] ?? '') === 'save_timetable' && $error !== '';
+$presentationMode = $failedPresentationSave ? (string) ($_POST['display_mode'] ?? 'manual') : $timetable['display_mode'];
+$editorMode = filter_input(INPUT_GET, 'editor_mode', FILTER_DEFAULT);
+if (!$failedPresentationSave && in_array($editorMode, ['manual', 'image'], true)) {
+    $presentationMode = $editorMode;
+}
+if (!in_array($presentationMode, ['manual', 'image'], true) || in_array($action, ['new', 'edit'], true)) {
+    $presentationMode = 'manual';
+}
 
 // Timetable Grid and Period Settings
 $gridData = ScheduleService::getTimetableGrid($selectedGroup);
@@ -236,8 +271,7 @@ foreach ($allCourses as $c) {
 
 // Catalog filter parameters
 $filterPrefix   = filter_input(INPUT_GET, 'prefix', FILTER_DEFAULT) ?: 'all';
-$filterType     = filter_input(INPUT_GET, 'type', FILTER_DEFAULT) ?: 'all';
-$catalogCourses = ScheduleService::getClasses($filterPrefix, $filterType);
+$catalogCourses = ScheduleService::getClasses($filterPrefix);
 
 // Preset parameters for slot addition
 $presetDay   = filter_input(INPUT_GET, 'preset_day', FILTER_VALIDATE_INT);
@@ -256,7 +290,7 @@ $allSlots = ScheduleService::getAllClassSlots();
       <?= $tab === 'catalog' ? 'ทะเบียนรายวิชา' : 'ระบบจัดการและจัดตารางเรียนรายสัปดาห์' ?>
     </h1>
   </div>
-  <div class="d-flex align-items-center gap-2">
+  <div class="d-flex align-items-center gap-2" <?= $tab !== 'catalog' ? 'data-timetable-mode-panel="manual"' : '' ?> <?= $tab !== 'catalog' && $presentationMode === 'image' ? 'hidden' : '' ?>>
     <?php if ($tab === 'catalog'): ?>
       <button type="button" class="btn btn-navy" data-bs-toggle="modal" data-bs-target="#courseModal" id="btnOpenNewCourseModal">
         <?= icon('plus', 16) ?>
@@ -312,6 +346,9 @@ $allSlots = ScheduleService::getAllClassSlots();
   <!-- Render Courses Master Catalog Component -->
   <?php require_once __DIR__ . '/../includes/renderers/classes-catalog-view.php'; ?>
 <?php else: ?>
+  <div id="timetableModeEditor" data-saved-mode="<?= e($timetable['display_mode']) ?>">
+  <?php require __DIR__ . '/../includes/renderers/classes-presentation-form.php'; ?>
+  <div id="timetableManualPanel" data-timetable-mode-panel="manual" <?= $presentationMode === 'image' ? 'hidden' : '' ?>>
   <?php if ($action === 'new' || $action === 'edit'): ?>
     <!-- Full-Page Form: Add / Edit Slot Fallback -->
     <div class="admin-card">
@@ -376,40 +413,6 @@ $allSlots = ScheduleService::getAllClassSlots();
       </form>
     </div>
   <?php else: ?>
-    <!-- Scheduler Toolbar -->
-    <div class="scheduler-toolbar d-flex flex-wrap align-items-center justify-content-between gap-3 py-2 px-3 mb-3">
-      <div class="d-flex align-items-center gap-2">
-        <label for="adminClassGroupSelect" class="fw-semibold text-navy d-inline-flex align-items-center gap-1 mb-0" style="font-size: .875rem; cursor: pointer;">
-          <?= icon('users', 15) ?> <span>กลุ่มเรียน:</span>
-        </label>
-        <select id="adminClassGroupSelect"
-                class="form-select form-select-sm"
-                style="width: auto; min-width: 170px; cursor: pointer;"
-                onchange="location.href='<?= url('admin/classes?view=' . $viewMode . '&group=') ?>' + encodeURIComponent(this.value)">
-          <?php foreach ($availableGroups as $grp): ?>
-            <option value="<?= e($grp) ?>" <?= $selectedGroup === $grp ? 'selected' : '' ?>>
-              <?= e($grp) ?>
-            </option>
-          <?php endforeach; ?>
-        </select>
-      </div>
-
-      <div class="d-flex align-items-center gap-2">
-        <div class="d-inline-flex gap-1">
-          <a href="<?= url('admin/classes?group=' . urlencode($selectedGroup) . '&view=grid') ?>"
-             class="btn btn-sm <?= $viewMode === 'grid' ? 'btn-navy shadow-sm' : 'btn-outline-secondary bg-white' ?> d-inline-flex align-items-center gap-1 rounded-0"
-             title="มุมมองผังตาราง">
-            <?= icon('grid', 14) ?> <span>ผังตาราง</span>
-          </a>
-          <a href="<?= url('admin/classes?group=' . urlencode($selectedGroup) . '&view=list') ?>"
-             class="btn btn-sm <?= $viewMode === 'list' ? 'btn-navy shadow-sm' : 'btn-outline-secondary bg-white' ?> d-inline-flex align-items-center gap-1 rounded-0"
-             title="มุมมองรายการ">
-            <?= icon('news', 14) ?> <span>รายการ</span>
-          </a>
-        </div>
-      </div>
-    </div>
-
     <?php if ($viewMode === 'grid'): ?>
       <div class="admin-scheduler-day-tabs d-flex d-lg-none mb-3" id="adminSchedulerDayTabs">
         <?php for ($d = 1; $d <= 5; $d++): ?>
@@ -523,6 +526,8 @@ $allSlots = ScheduleService::getAllClassSlots();
       </div>
     <?php endif; ?>
   <?php endif; ?>
+  </div>
+  </div>
 <?php endif; ?>
 
 <!-- Render Modals Component -->
@@ -530,6 +535,7 @@ $allSlots = ScheduleService::getAllClassSlots();
 
 <?php
 $schedulerScripts = [
+    'assets/js/admin-timetable-mode.js',
     'assets/js/modules/scheduler-ui.js',
     'assets/js/modules/scheduler-api.js',
     'assets/js/modules/scheduler-dnd.js',

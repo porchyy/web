@@ -11,7 +11,7 @@ require_once __DIR__ . '/includes/services/ScheduleService.php';
 $activeNav = 'home';
 $pageTitle = 'หน้าหลัก';
 
-send_cache_headers(60, 120);
+header('Cache-Control: no-cache, must-revalidate');
 
 // Fetch settings
 $heroTitle   = SettingService::get('hero_title', '');
@@ -32,6 +32,13 @@ $latestNews = NewsService::getLatest(3);
 
 // Fetch next upcoming activity via ScheduleService
 $nextActivity = ScheduleService::getNextUpcomingActivity();
+
+$availableGroups = ScheduleService::getAvailableGroups();
+$queryGroup = trim((string) ($_GET['group'] ?? ''));
+$selectedGroup = in_array($queryGroup, $availableGroups, true) ? $queryGroup : ($availableGroups[0] ?? '');
+$timetable = ScheduleService::getTimetable($selectedGroup);
+$previewDay = (int) date('N') <= 5 ? (int) date('N') : 1;
+$previewSchedule = ScheduleService::getScheduleByDay($selectedGroup)[$previewDay] ?? [];
 
 include __DIR__ . '/includes/header.php';
 ?>
@@ -163,6 +170,57 @@ include __DIR__ . '/includes/header.php';
         </a>
       </li>
     </ul>
+  </div>
+</section>
+
+<section class="section section-alt" aria-labelledby="homeTimetableTitle">
+  <div class="container-xl">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">ตารางเรียน</p>
+        <h2 id="homeTimetableTitle">ตารางเรียนประจำกลุ่ม</h2>
+      </div>
+      <a class="link-more" href="<?= e(url('schedule?group=' . urlencode($selectedGroup))) ?>">ดูตารางเรียนทั้งหมด <?= icon('arrow-right', 16) ?></a>
+    </div>
+    <?php if ($availableGroups): ?>
+      <form method="get" action="<?= url('') ?>#homeTimetableTitle" class="d-flex flex-wrap align-items-end gap-2 mb-4">
+        <div>
+          <label for="homeTimetableGroup" class="form-label">กลุ่มเรียน</label>
+          <select id="homeTimetableGroup" name="group" class="form-select">
+            <?php foreach ($availableGroups as $group): ?>
+              <option value="<?= e($group) ?>" <?= $group === $selectedGroup ? 'selected' : '' ?>><?= e($group) ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-navy">แสดงตาราง</button>
+      </form>
+    <?php endif; ?>
+    <?php if ($timetable['display_mode'] === 'image' && ScheduleService::hasTimetableImage($timetable)): ?>
+      <?php require __DIR__ . '/includes/renderers/timetable-image.php'; ?>
+    <?php elseif ($timetable['display_mode'] === 'image'): ?>
+      <p class="text-muted mb-0" role="status">รูปตารางเรียนไม่พร้อมใช้งาน กรุณาติดต่อเจ้าหน้าที่เพื่ออัปเดตรูปตารางเรียน</p>
+    <?php else: ?>
+      <h3 class="h5 mb-3">วัน<?= TH_DAYS[$previewDay] ?><?= $selectedGroup !== '' ? ' · ' . e($selectedGroup) : '' ?></h3>
+      <?php if ($previewSchedule): ?>
+        <div class="table-responsive">
+          <table class="table bg-white align-middle">
+            <caption>ตารางเรียนวัน<?= TH_DAYS[$previewDay] ?> กลุ่ม <?= e($selectedGroup) ?></caption>
+            <thead><tr><th scope="col">เวลา</th><th scope="col">รายวิชา</th><th scope="col">ห้องเรียน</th></tr></thead>
+            <tbody>
+              <?php foreach ($previewSchedule as $slot): ?>
+                <tr>
+                  <td class="mono text-nowrap"><?= hm($slot['time_start']) ?>–<?= hm($slot['time_end']) ?></td>
+                  <td><?= e($slot['subject_name']) ?></td>
+                  <td><?= e($slot['room'] ?: '—') ?></td>
+                </tr>
+              <?php endforeach; ?>
+            </tbody>
+          </table>
+        </div>
+      <?php else: ?>
+        <p class="text-muted mb-0">ยังไม่มีคาบเรียนสำหรับวันนี้ ดูตารางรายสัปดาห์ได้ที่หน้าตารางเรียน</p>
+      <?php endif; ?>
+    <?php endif; ?>
   </div>
 </section>
 

@@ -57,7 +57,6 @@
 
         const code = card.getAttribute("data-code") || "";
         const name = card.getAttribute("data-name") || "";
-        const type = card.getAttribute("data-type") || "regular";
         const credit = card.getAttribute("data-credit") || "3";
         const teacher = card.getAttribute("data-teacher") || "-";
         const room = card.getAttribute("data-room") || "-";
@@ -72,7 +71,6 @@
         const teacherEl = document.getElementById("detailTeacher");
         const roomEl = document.getElementById("detailRoom");
         const groupEl = document.getElementById("detailGroup");
-        const typeBadge = document.getElementById("detailCourseType");
 
         if (codeEl) codeEl.textContent = code;
         if (nameEl) nameEl.textContent = name;
@@ -81,16 +79,6 @@
         if (teacherEl) teacherEl.textContent = teacher;
         if (roomEl) roomEl.textContent = room;
         if (groupEl) groupEl.textContent = group;
-
-        if (typeBadge) {
-          if (type === "professional") {
-            typeBadge.className = "badge bg-warning text-dark";
-            typeBadge.textContent = "วิชาชีพเฉพาะ";
-          } else {
-            typeBadge.className = "badge bg-light text-muted border";
-            typeBadge.textContent = "วิชาสามัญ / พื้นฐาน";
-          }
-        }
 
         detailModal.show();
       });

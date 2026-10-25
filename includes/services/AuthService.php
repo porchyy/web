@@ -64,6 +64,9 @@ class AuthService
     public static function attemptLogin(string $username, string $password): bool
     {
         $row = q('SELECT id, password_hash FROM users WHERE username = ?', [$username])->fetch();
+        if (APP_ENV === 'production' && $row && password_verify('admin1234', $row['password_hash'])) {
+            return false;
+        }
         if ($row && password_verify($password, $row['password_hash'])) {
             session_regenerate_id(true);
             $_SESSION['uid'] = (int) $row['id'];

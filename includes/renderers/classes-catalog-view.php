@@ -10,7 +10,7 @@ declare(strict_types=1);
   <div class="admin-card-head d-flex flex-wrap align-items-center justify-content-between gap-3">
     <div>
       <h3 class="mb-1">รายวิชาในหลักสูตรทั้งหมด</h3>
-      <p class="text-muted small mb-0">รหัสวิชา ชื่อวิชา ประเภทหลักสูตร และอาจารย์/ห้องเรียน</p>
+      <p class="text-muted small mb-0">รหัสวิชา ชื่อวิชา หน่วยกิต และอาจารย์/ห้องเรียน</p>
     </div>
     <div class="d-flex align-items-center gap-2 flex-wrap">
       <div class="position-relative" style="width: 240px;">
@@ -19,17 +19,12 @@ declare(strict_types=1);
           <?= icon('search', 14) ?>
         </span>
       </div>
-      <select class="form-select form-select-sm" style="width: auto;" onchange="location.href='<?= url('admin/classes.php?tab=catalog&prefix=' . urlencode($filterPrefix) . '&type=') ?>' + this.value">
-        <option value="all" <?= $filterType === 'all' ? 'selected' : '' ?>>ประเภททั้งหมด</option>
-        <option value="professional" <?= $filterType === 'professional' ? 'selected' : '' ?>>เฉพาะวิชาชีพ</option>
-        <option value="regular" <?= $filterType === 'regular' ? 'selected' : '' ?>>เฉพาะวิชาสามัญ</option>
-      </select>
     </div>
   </div>
 
   <div class="p-3 border-bottom bg-light d-flex flex-wrap align-items-center gap-2">
     <span class="text-muted small fw-semibold me-1">หมวดรหัส:</span>
-    <a href="<?= url('admin/classes.php?tab=catalog&type=' . urlencode($filterType)) ?>"
+    <a href="<?= url('admin/classes.php?tab=catalog') ?>"
        class="btn btn-sm <?= $filterPrefix === 'all' ? 'btn-navy' : 'btn-line' ?>">
       ทั้งหมด (<?= count($allCourses) ?>)
     </a>
@@ -38,7 +33,7 @@ declare(strict_types=1);
       $cleanPfx = rtrim($pfx, '-');
       $pfxCount = count(array_filter($allCourses, fn($c) => str_starts_with($c['subject_code'], $cleanPfx)));
       ?>
-      <a href="<?= url('admin/classes.php?tab=catalog&prefix=' . urlencode($cleanPfx) . '&type=' . urlencode($filterType)) ?>"
+      <a href="<?= url('admin/classes.php?tab=catalog&prefix=' . urlencode($cleanPfx)) ?>"
          class="btn btn-sm <?= $filterPrefix === $cleanPfx ? 'btn-navy' : 'btn-line' ?>">
         <?= e($cleanPfx) ?> (<?= $pfxCount ?>)
       </a>
@@ -51,7 +46,6 @@ declare(strict_types=1);
         <tr>
           <th style="width: 130px;">รหัสวิชา</th>
           <th>ชื่อรายวิชา</th>
-          <th style="width: 120px;">ประเภท</th>
           <th style="width: 90px;" class="text-center">หน่วยกิต</th>
           <th>ผู้สอน</th>
           <th>ห้องเรียน</th>
@@ -61,7 +55,7 @@ declare(strict_types=1);
       <tbody>
         <?php if (empty($catalogCourses)): ?>
           <tr id="emptyCatalogRow">
-            <td colspan="7" class="text-center py-5 text-muted">
+            <td colspan="6" class="text-center py-5 text-muted">
               <?= icon('book', 32) ?>
               <p class="mt-2 mb-0">ไม่พบรายวิชาตามเงื่อนไขที่เลือก</p>
             </td>
@@ -74,11 +68,6 @@ declare(strict_types=1);
               </td>
               <td>
                 <span class="fw-semibold"><?= e($c['subject_name']) ?></span>
-              </td>
-              <td>
-                <span class="badge <?= $c['course_type'] === 'professional' ? 'bg-warning text-dark' : 'bg-light text-muted border' ?>">
-                  <?= $c['course_type'] === 'professional' ? 'วิชาชีพ' : 'วิชาสามัญ' ?>
-                </span>
               </td>
               <td class="text-center mono fw-medium">
                 <?= (int) $c['credit'] ?> นก.
@@ -96,7 +85,6 @@ declare(strict_types=1);
                           data-id="<?= (int) $c['id'] ?>"
                           data-code="<?= e($c['subject_code']) ?>"
                           data-name="<?= e($c['subject_name']) ?>"
-                          data-type="<?= e($c['course_type']) ?>"
                           data-teacher="<?= e($c['default_teacher'] ?? '') ?>"
                           data-room="<?= e($c['default_room'] ?? '') ?>"
                           data-credit="<?= (int) $c['credit'] ?>"
@@ -141,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
           emptyMsg = document.createElement('tr');
           emptyMsg.id = 'catalogSearchEmptyRow';
           const emptyTd = document.createElement('td');
-          emptyTd.colSpan = 7;
+          emptyTd.colSpan = 6;
           emptyTd.className = 'text-center py-4 text-muted';
           emptyTd.textContent = 'ไม่พบรายวิชาที่ตรงกับคำค้นหา';
           emptyMsg.appendChild(emptyTd);

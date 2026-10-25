@@ -44,19 +44,13 @@ class SettingService
     public static function getHomeStats(): array
     {
         return CacheService::remember('home_stats', 60, function () {
-            // 1. Dynamic count of professional courses from classes master table
-            $countProf = (int) q("SELECT COUNT(*) FROM classes WHERE course_type = 'professional'")->fetchColumn();
-
-            // 2. Dynamic count of teachers
             $countTeachers = (int) q("SELECT COUNT(*) FROM teachers")->fetchColumn();
 
-            // 3. Employment rate (customizable percentage in admin/hero.php)
             $employmentRate = self::get('stat_employment', '96%');
 
             return [
                 'mode' => 'dynamic',
                 'items' => [
-                    ['num' => (string) $countProf, 'unit' => 'รายวิชา', 'label' => 'หลักสูตรวิชาชีพเฉพาะทาง'],
                     ['num' => (string) $countTeachers, 'unit' => 'ท่าน', 'label' => 'คณาจารย์ประจำสาขาวิชา'],
                     ['num' => $employmentRate, 'unit' => '', 'label' => 'อัตราการได้งานทำหลังจบ'],
                 ]
